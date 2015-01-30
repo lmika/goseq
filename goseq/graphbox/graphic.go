@@ -54,17 +54,63 @@ func (g *Graphic) resizeTo(rows, cols int) {
     g.matrix = newRows
 }
 
+// Calculate the maximum height of elements within the particular row
+func (g *Graphic) maxHeight(r int) int {
+    maxHeight := 0
+    if (r >= 0) && (r < len(g.matrix)) {
+        for _, item := range g.matrix[r] {
+            if (item.Item != nil) {
+                _, itemHeight := item.Item.Size()
+                maxHeight = maxInt(maxHeight, itemHeight)
+            }
+        }
+    }
+    return maxHeight
+}
+
+// Calculate the maximum width of elements within the particular column
+func (g *Graphic) maxWidth(c int) int {
+    maxWidth := 0
+    for _, row := range g.matrix {
+        item := row[c]
+        if (c >= 0) && (c < len(row)) {
+            if (item.Item != nil) {
+                itemWidth, _ := item.Item.Size()
+                maxWidth = maxInt(maxWidth, itemWidth)
+            }
+        }
+    }
+    return maxWidth
+}
+
 // Remeasure the entire drawing.  Returns a rect containing the size of the image
 func (g *Graphic) remeasure() Rect {
-    // TODO: Temp.  Actually need to measure the cell size.
-    // Cell size will be
-    //
-    //      ox:  paddingLeft + sum(cellWidths with padding)
-    //      oy:  paddingRight + sum(cellHeights with padding)
-    //      w:   maximumObjectWithInColumn
-    //      h:   maximumObjectHeightInColumn
+    // TODO: Margin and padding
+    y := 0
+    maxX := 0       // Maximum right most point
+    for r, row := range g.matrix {
+        x := 0
+        maxHeight := g.maxHeight(r)
 
-    return Rect{0, 0, 300, 300}
+        // TODO: Padding
+        cellHeight := maxHeight
+
+        for c, _ := range row {
+            // TODO: Caching
+            maxWidth := g.maxWidth(c)
+
+            // TODO: Inner item padding
+            cellWidth := maxWidth
+
+            g.matrix[r][c].OuterRect = Rect{x, y, cellWidth, cellHeight}
+            x += cellWidth
+        }
+
+        maxX = maxInt(maxX, x)
+        y += cellHeight
+    }
+
+    return Rect{0, 0, maxX, y}
 }
 
 // Sets a point in the matrix.  If the point is beyond the scope of the matrix,
@@ -72,7 +118,7 @@ func (g *Graphic) remeasure() Rect {
 func (g *Graphic) Put(r, c int, item GraphboxItem) bool {
     if (r >= 0) && (c >= 0) && (r < len(g.matrix)) && (c < len(g.matrix[r])) {
         g.matrix[r][c].Item = item
-        g.matrix[r][c].OuterRect = Rect{c * 150, r * 100, 150, 100}     // TEMP
+        //g.matrix[r][c].OuterRect = Rect{c * 150, r * 100, 150, 100}     // TEMP
         return true
     } else {
         return false
@@ -112,6 +158,7 @@ func (g *Graphic) drawItem(ctx *DrawContext, r, c int) {
 }
 
 
+// A matrix cell item
 type matrixItem struct {
     Item        GraphboxItem
     OuterRect   Rect

@@ -30,6 +30,14 @@ type Rect struct {
     W, H            int
 }
 
+// Returns a new rect which will be a rectangle with the 
+// given dimensions centered in this rect
+func (r Rect) CenteredRect(w, h int) Rect {
+    x := r.X + (r.W / 2) - w / 2
+    y := r.Y + (r.H / 2) - h / 2
+    return Rect{x, y, w, h}
+}
+
 // A point
 type Point struct {
     X, Y            int

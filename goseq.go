@@ -1,14 +1,17 @@
 package main
 
 import (
+/*
     "strings"
     "fmt"
-    "os"
     "./goseq"
+*/    
+    "os"
     "./goseq/graphbox"
 )
 
 func main() {
+    /*
     diagram, err := goseq.Parse(strings.NewReader(`
         title: ABC123    is the    best  
         participant c
@@ -33,11 +36,13 @@ func main() {
             }
         }
     }
+    */
 
 
     gb := graphbox.NewGraphic(2, 2)
-    gb.Put(0, 0, &graphbox.Rectangle{100, 100})
-    gb.Put(1, 1, &graphbox.Rectangle{100, 100})
-    gb.Put(1, 0, &graphbox.Rectangle{100, 100})
+    gb.Put(0, 0, &graphbox.Rectangle{150, 100})
+    gb.Put(1, 1, &graphbox.Rectangle{100, 25})
+    gb.Put(1, 0, &graphbox.Rectangle{100, 50})
+    gb.Put(0, 1, &graphbox.Rectangle{250, 250})
     gb.DrawSVG(os.Stdout)
 }
