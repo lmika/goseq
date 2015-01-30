@@ -3,6 +3,10 @@
 
 package goseq
 
+import (
+    "io"
+)
+
 // Top level diagram definition
 type Diagram struct {
     Title           string
@@ -27,6 +31,12 @@ func (d *Diagram) GetOrAddActor(name string) *Actor {
 // Adds a new sequence item
 func (d *Diagram) AddSequenceItem(item SequenceItem) {
     d.Items = append(d.Items, item)
+}
+
+// Write the diagram as an SVG
+func (d *Diagram) WriteSVG(w io.Writer) {
+    gb := &graphicBuilder{d}
+    gb.BuildGraphic().DrawSVG(w)
 }
 
 // A participant

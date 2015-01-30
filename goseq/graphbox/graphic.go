@@ -13,6 +13,7 @@ import (
 // A graphbox diagram.
 type Graphic struct {
     matrix      [][]matrixItem
+    items       []itemInstance
 
     // The margin between items
     Margin      Point
@@ -25,12 +26,12 @@ func NewGraphic(rows, cols int) *Graphic {
 }
 
 // Returns the number of items within the matrix
-func (g *Graphic) rows() int {
+func (g *Graphic) Rows() int {
     return len(g.matrix)
 }
 
 // Returns the number of columns within the matrix
-func (g *Graphic) cols() int {
+func (g *Graphic) Cols() int {
     if (len(g.matrix) > 0) {
         return len(g.matrix[0])
     } else {
@@ -54,71 +55,48 @@ func (g *Graphic) resizeTo(rows, cols int) {
     g.matrix = newRows
 }
 
-// Calculate the maximum height of elements within the particular row
-func (g *Graphic) maxHeight(r int) int {
-    maxHeight := 0
-    if (r >= 0) && (r < len(g.matrix)) {
-        for _, item := range g.matrix[r] {
-            if (item.Item != nil) {
-                _, itemHeight := item.Item.Size()
-                maxHeight = maxInt(maxHeight, itemHeight)
-            }
-        }
-    }
-    return maxHeight
-}
-
-// Calculate the maximum width of elements within the particular column
-func (g *Graphic) maxWidth(c int) int {
-    maxWidth := 0
-    for _, row := range g.matrix {
-        item := row[c]
-        if (c >= 0) && (c < len(row)) {
-            if (item.Item != nil) {
-                itemWidth, _ := item.Item.Size()
-                maxWidth = maxInt(maxWidth, itemWidth)
-            }
-        }
-    }
-    return maxWidth
-}
-
 // Remeasure the entire drawing.  Returns a rect containing the size of the image
 func (g *Graphic) remeasure() Rect {
-    // TODO: Margin and padding
-    y := 0
-    maxX := 0       // Maximum right most point
-    for r, row := range g.matrix {
-        x := 0
-        maxHeight := g.maxHeight(r)
 
-        // TODO: Padding
-        cellHeight := maxHeight
+    cols, rows := g.Cols(), g.Rows()
+    colWidths := make([]int, g.Cols())
+    rowHeights := make([]int, g.Rows())
 
-        for c, _ := range row {
-            // TODO: Caching
-            maxWidth := g.maxWidth(c)
-
-            // TODO: Inner item padding
-            cellWidth := maxWidth
-
-            g.matrix[r][c].OuterRect = Rect{x, y, cellWidth, cellHeight}
-            x += cellWidth
+    // Resize the cells
+    for _, item := range g.items {
+        if (item.R >= 0) && (item.C >= 0) && (item.R < len(g.matrix)) && (item.C < len(g.matrix[item.R])) {
+            if item2d, is2dItem := item.Item.(Graphbox2DItem) ; is2dItem {
+                itemWidth, itemHeight := item2d.Size()
+                rowHeights[item.R] = maxInt(rowHeights[item.R], itemHeight)
+                colWidths[item.C] = maxInt(colWidths[item.C], itemWidth)
+            }
         }
-
-        maxX = maxInt(maxX, x)
-        y += cellHeight
     }
 
-    return Rect{0, 0, maxX, y}
+    // Recalculate cell rectanges
+    y := 0
+    for r, row := range g.matrix {
+        x := 0
+        for c, _ := range row {
+            g.matrix[r][c].OuterRect.Y = y
+            g.matrix[r][c].OuterRect.X = x
+            g.matrix[r][c].OuterRect.W = colWidths[c]
+            g.matrix[r][c].OuterRect.H = rowHeights[r]
+            x += colWidths[c]
+        }
+        y += rowHeights[r]
+    }    
+
+    lastRect := g.matrix[rows - 1][cols - 1].OuterRect
+    return Rect{0, 0, lastRect.X + lastRect.W, lastRect.Y + lastRect.H}
 }
 
 // Sets a point in the matrix.  If the point is beyond the scope of the matrix,
 // returns false.
 func (g *Graphic) Put(r, c int, item GraphboxItem) bool {
     if (r >= 0) && (c >= 0) && (r < len(g.matrix)) && (c < len(g.matrix[r])) {
-        g.matrix[r][c].Item = item
-        //g.matrix[r][c].OuterRect = Rect{c * 150, r * 100, 150, 100}     // TEMP
+        //g.matrix[r][c].Item = item
+        g.items = append(g.items, itemInstance{r, c, item})
         return true
     } else {
         return false
@@ -133,33 +111,40 @@ func (g *Graphic) DrawSVG(w io.Writer) {
     canvas.Start(size.W, size.H)
     defer canvas.End()
 
-    ctx := &DrawContext{canvas}
-    for r, rs := range g.matrix {
-        for c := range rs {
-            g.drawItem(ctx, r, c)
-        }
+    ctx := &DrawContext{canvas, g}
+    for _, item := range g.items {
+        g.drawItem(ctx, item)
     }
 }
 
 // Draws the item
-func (g *Graphic) drawItem(ctx *DrawContext, r, c int) {
-    if !((r >= 0) && (c >= 0) && (r < len(g.matrix)) && (c < len(g.matrix[r]))) {
+func (g *Graphic) drawItem(ctx *DrawContext, item itemInstance) {
+    if !((item.R >= 0) && (item.C >= 0) && (item.R < len(g.matrix)) && (item.C < len(g.matrix[item.R]))) {
         // Do nothing
         return
     }
 
-    item := g.matrix[r][c]
-    if (item.Item == nil) {
-        return
-    }
-
-    frame := BoxFrame{item.OuterRect, item.OuterRect}
+    outerRect := g.matrix[item.R][item.C].OuterRect
+    frame := BoxFrame{outerRect, outerRect}
     item.Item.Draw(ctx, frame)
+}
+
+// Gets the outer rectangle of a particular cell
+func (g *Graphic) outerRectAtCell(r, c int) (Rect, bool) {
+    if (r >= 0) && (c >= 0) && (r < len(g.matrix)) && (c < len(g.matrix[r])) {
+        return g.matrix[r][c].OuterRect, true
+    } else {
+        return Rect{}, false
+    }
 }
 
 
 // A matrix cell item
 type matrixItem struct {
-    Item        GraphboxItem
     OuterRect   Rect
+}
+
+type itemInstance struct {
+    R, C        int
+    Item        GraphboxItem
 }
