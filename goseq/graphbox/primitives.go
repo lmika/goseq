@@ -5,12 +5,18 @@ import (
     //"log"
 )
 
+type TextRectPos int
+const (
+    CenterPos   TextRectPos     =   iota
+    LeftPos                     =   iota
+)
 
 // Styling options for the actor rect
 type TextRectStyle struct {
     Font        Font
     FontSize    int
     Padding     Point
+    Position    TextRectPos
 }
 
 // Draws an object instance
@@ -21,30 +27,49 @@ type TextRect struct {
     frameRect   Rect
     style       TextRectStyle
     textBox     *TextBox
+    pos         TextRectPos
 }
 
-func NewTextRect(text string, style TextRectStyle) *TextRect {
+func NewTextRect(text string, style TextRectStyle, pos TextRectPos) *TextRect {
     textBox := NewTextBox(style.Font, style.FontSize, MiddleTextAlign)
     textBox.AddText(text)
 
     trect := textBox.BoundingRect()
     brect := trect.BlowOut(style.Padding)
 
-
-    return &TextRect{brect, style, textBox}
+    return &TextRect{brect, style, textBox, pos}
 }
 
 func (r *TextRect) Size() (int, int) {
-    return r.frameRect.W, r.frameRect.H
+    if (r.pos == CenterPos) {
+        return r.frameRect.W, r.frameRect.H
+    } else {
+        return 0, r.frameRect.H
+    }
+}
+
+func (r *TextRect) Margin() (int, int, int, int) {
+    if (r.pos == LeftPos) {
+        return r.frameRect.W + 4, 0, 0, 0
+    } else {
+        return 0, 0, 0, 0
+    }
 }
 
 func (r *TextRect) Draw(ctx DrawContext, frame BoxFrame) {
     centerX, centerY := frame.InnerRect.PointAt(CenterGravity)
 
-    rect := r.frameRect.PositionAt(centerX, centerY, CenterGravity)
-
-    ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white")
-    r.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
+    if (r.pos == CenterPos) {
+        rect := r.frameRect.PositionAt(centerX, centerY, CenterGravity)
+        ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white")
+        r.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
+    } else if (r.pos == LeftPos) {
+        offsetX := centerX - 8
+        textOffsetX := centerX - r.style.Padding.X - 8
+        rect := r.frameRect.PositionAt(offsetX, centerY, EastGravity)
+        ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white")
+        r.textBox.Render(ctx.Canvas, textOffsetX, centerY, EastGravity)
+    }
 }
 
 

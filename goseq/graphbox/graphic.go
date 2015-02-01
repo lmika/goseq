@@ -56,20 +56,35 @@ func (g *Graphic) resizeTo(rows, cols int) {
     g.matrix = newRows
 }
 
+type workingRemeasurements struct {
+    size        int
+    before      int
+    after       int
+}
+
 // Remeasure the entire drawing.  Returns a rect containing the size of the image
 func (g *Graphic) remeasure() Rect {
 
     cols, rows := g.Cols(), g.Rows()
-    colWidths := make([]int, g.Cols())
-    rowHeights := make([]int, g.Rows())
+    colWidths := make([]workingRemeasurements, g.Cols())
+    rowHeights := make([]workingRemeasurements, g.Rows())
 
     // Resize the cells
     for _, item := range g.items {
         if (item.R >= 0) && (item.C >= 0) && (item.R < len(g.matrix)) && (item.C < len(g.matrix[item.R])) {
             if item2d, is2dItem := item.Item.(Graphbox2DItem) ; is2dItem {
                 itemWidth, itemHeight := item2d.Size()
-                rowHeights[item.R] = maxInt(rowHeights[item.R], itemHeight)
-                colWidths[item.C] = maxInt(colWidths[item.C], itemWidth)
+                rowHeights[item.R].size = maxInt(rowHeights[item.R].size, itemHeight)
+                colWidths[item.C].size = maxInt(colWidths[item.C].size, itemWidth)
+            }
+
+            // If the item requires a margin.
+            if marginItem, isMarginItem := item.Item.(MarginItem) ; isMarginItem {
+                l, r, t, b := marginItem.Margin()
+                rowHeights[item.R].before = maxInt(rowHeights[item.R].before, t)
+                rowHeights[item.R].after = maxInt(rowHeights[item.R].after, b)
+                colWidths[item.C].before = maxInt(colWidths[item.C].before, l)
+                colWidths[item.C].after = maxInt(colWidths[item.C].after, r)
             }
         }
     }
@@ -78,19 +93,31 @@ func (g *Graphic) remeasure() Rect {
     y := g.Margin.Y
     for r, row := range g.matrix {
         x := g.Margin.X
+        largestH := 0
         for c, _ := range row {
+            cr, rr := colWidths[c], rowHeights[r]
             innerRect := Rect {
                 X: x,
                 Y: y,
-                W: colWidths[c],
-                H: rowHeights[r],
+                W: cr.size,
+                H: rr.size,
             }
-            outerRect := innerRect.BlowOut(g.Padding)
+
+            ox := x - maxInt(cr.before, g.Padding.X)
+            oy := y - maxInt(rr.before, g.Padding.Y)
+            outerRect := Rect {
+                X: ox,
+                Y: oy,
+                W: maxInt(cr.before, g.Padding.X) + innerRect.W + maxInt(cr.after, g.Padding.X),
+                H: maxInt(rr.before, g.Padding.Y) + innerRect.H + maxInt(rr.after, g.Padding.Y),
+            }
 
             g.matrix[r][c].Frame = BoxFrame{outerRect, innerRect}
             x += outerRect.W
+            largestH = maxInt(largestH, outerRect.H)
         }
-        y += rowHeights[r] + g.Padding.Y * 2
+        //y += rowHeights[r] + g.Padding.Y * 2
+        y += largestH
     }    
 
     lastRect := g.matrix[rows - 1][cols - 1].Frame.OuterRect

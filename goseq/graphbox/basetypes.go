@@ -21,6 +21,12 @@ type Graphbox2DItem interface {
     Size()      (int, int)
 }
 
+// An item that requires custom margins
+type MarginItem interface {
+    // Returns the left, right, top and bottom margins
+    Margin()    (int, int, int, int)
+}
+
 
 // A drawing context
 type DrawContext struct {
@@ -43,6 +49,7 @@ func (dc *DrawContext) GridRect(r, c int) (Rect, bool) {
 type Gravity         func(w, h int) (int, int)
 
 var NorthWestGravity Gravity = func(w, h int) (int, int) { return 0, 0 }
+var EastGravity Gravity = func(w, h int) (int, int) { return w, h / 2 }
 var CenterGravity Gravity = func(w, h int) (int, int) { return w / 2, h / 2 }
 var SouthGravity Gravity = func(w, h int) (int, int) { return w / 2, h }
 

@@ -96,14 +96,7 @@ func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
 // Places a note
 func (gb *GraphicBuilder) putNote(row int, note *Note) {
     col := gb.colOfActor(note.Actor)
-
-    if (note.Align == LeftNoteAlignment) {
-        col--
-    } else if (note.Align == RightNoteAlignment) {
-        col++
-    }
-
-    gb.Graphic.Put(row, col, graphbox.NewTextRect(note.Message, gb.Style.NoteBox))    
+    gb.Graphic.Put(row, col, graphbox.NewTextRect(note.Message, gb.Style.NoteBox, graphbox.LeftPos))    
 }
 
 // Places an action
@@ -129,6 +122,7 @@ func (gb *GraphicBuilder) determineActorInfo() int {
 
     // Determine whether the actor requires cells to the left or right.
     // These are cells to place notes
+    /*
     for _, item := range gb.Diagram.Items {
         if note, isNote := item.(*Note) ; isNote {
             if (note.Align == LeftNoteAlignment) {
@@ -138,6 +132,7 @@ func (gb *GraphicBuilder) determineActorInfo() int {
             }
         }
     }
+    */
 
     // Allocate the columns
     cols := 0
@@ -168,8 +163,8 @@ func (gb *GraphicBuilder) addObjects() {
         col := gb.colOfActor(actor)
         gb.Graphic.Put(1, col, &graphbox.LifeLine{bottomRow, col})
 
-        gb.Graphic.Put(1, col, graphbox.NewTextRect(actor.Name, gb.Style.ActorBox))
-        gb.Graphic.Put(bottomRow, col, graphbox.NewTextRect(actor.Name, gb.Style.ActorBox))
+        gb.Graphic.Put(1, col, graphbox.NewTextRect(actor.Name, gb.Style.ActorBox, graphbox.CenterPos))
+        gb.Graphic.Put(bottomRow, col, graphbox.NewTextRect(actor.Name, gb.Style.ActorBox, graphbox.CenterPos))
     }
 }
 
