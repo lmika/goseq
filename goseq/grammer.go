@@ -126,7 +126,19 @@ func (ps *parseState) scanMessage(lval *yySymType) int {
 	buf := new(bytes.Buffer)
 	r := ps.NextRune()
 	for (r != '\n') && (r != scanner.EOF) {
-		buf.WriteRune(r)
+		if r == '\\' {
+			nr := ps.NextRune()
+			switch nr {
+			case 'n':
+				buf.WriteRune('\n')
+			case '\\':
+				buf.WriteRune('\\')
+			default:
+				ps.Error("Invalid backslash escape: \\" + string(nr))
+			}
+		} else {
+			buf.WriteRune(r)
+		}
 		r = ps.NextRune()
 	}
 

@@ -16,7 +16,7 @@ type TextRectStyle struct {
 // Draws an object instance
 type TextRect struct {
     // Width and height of the rectangle
-    Text        string
+//    Text        string
 
     frameRect   Rect
     style       TextRectStyle
@@ -27,11 +27,11 @@ func NewTextRect(text string, style TextRectStyle) *TextRect {
     textBox := NewTextBox(style.Font, style.FontSize, MiddleTextAlign)
     textBox.AddText(text)
 
-    trect := textBox.BoundingRect(0, 0, NorthWestGravity)
+    trect := textBox.BoundingRect()
     brect := trect.BlowOut(style.Padding)
 
 
-    return &TextRect{text, brect, style, textBox}
+    return &TextRect{brect, style, textBox}
 }
 
 func (r *TextRect) Size() (int, int) {
@@ -41,7 +41,7 @@ func (r *TextRect) Size() (int, int) {
 func (r *TextRect) Draw(ctx DrawContext, frame BoxFrame) {
     centerX, centerY := frame.InnerRect.PointAt(CenterGravity)
 
-    rect := r.frameRect.PositionTo(centerX, centerY, CenterGravity)
+    rect := r.frameRect.PositionAt(centerX, centerY, CenterGravity)
 
     ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white")
     r.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
@@ -84,21 +84,24 @@ func (as ActivityLineStyle) textStyle() string {
 
 // An activity arrow
 type ActivityLine struct {
-    TC           int
-    Text         string
-    style        ActivityLineStyle
-
-    height       int
+    TC              int
+    style           ActivityLineStyle
+    textBox         *TextBox
+    textBoxRect     Rect
 }
 
 func NewActivityLine(toCol int, text string, style ActivityLineStyle) *ActivityLine {
-    r, _ := MeasureFontRect(style.Font, style.FontSize, text, 0, 0, NorthWestGravity)
-    height := r.H
-    return &ActivityLine{toCol, text, style, height}
+//    r, _ := MeasureFontRect(style.Font, style.FontSize, text, 0, 0, NorthWestGravity)
+
+    textBox := NewTextBox(style.Font, style.FontSize, MiddleTextAlign)
+    textBox.AddText(text)
+
+    brect := textBox.BoundingRect()
+    return &ActivityLine{toCol, style, textBox, brect}
 }
 
 func (al *ActivityLine) Size() (int, int) {
-    return 50, al.height + al.style.PaddingTop + al.style.PaddingBottom + al.style.TextGap
+    return 50, al.textBoxRect.H + al.style.PaddingTop + al.style.PaddingBottom + al.style.TextGap
 }
 
 func (al *ActivityLine) Draw(ctx DrawContext, frame BoxFrame) {
@@ -120,10 +123,12 @@ func (al *ActivityLine) Draw(ctx DrawContext, frame BoxFrame) {
 }
 
 func (al *ActivityLine) renderMessage(ctx DrawContext, tx, ty int) {
-    rect, textPoint := MeasureFontRect(al.style.Font, al.style.FontSize, al.Text, tx, ty, SouthGravity)
+    //rect, textPoint := MeasureFontRect(al.style.Font, al.style.FontSize, al.Text, tx, ty, SouthGravity)
+    rect := al.textBoxRect.PositionAt(tx, ty, SouthGravity)
 
     ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "fill:white;stroke:white;")
-    ctx.Canvas.Text(textPoint.X, textPoint.Y, al.Text, al.style.textStyle())
+    al.textBox.Render(ctx.Canvas, tx, ty, SouthGravity)
+    //ctx.Canvas.Text(textPoint.X, textPoint.Y, al.Text, al.style.textStyle())
 }
 
 // TODO: Type of arrow

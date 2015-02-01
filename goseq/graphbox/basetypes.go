@@ -68,7 +68,7 @@ func (r Rect) PointAt(gravity Gravity) (int, int) {
 }
 
 // Returns a rectangle position at a specific point and a gravity relative
-func (r Rect) PositionTo(x, y int, gravity Gravity) Rect {
+func (r Rect) PositionAt(x, y int, gravity Gravity) Rect {
     lx, ly := gravity(r.W, r.H)
     nx := x - lx
     ny := y - ly

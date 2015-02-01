@@ -62,16 +62,16 @@ func (tb *TextBox) measureLine(line string) (int, int) {
 // the text centered.  The point and gravity describes the location of the rect.
 // The second point is where the text is to start given that it is to be rendered to
 // fill the rectangle with default anchoring and alignment
-func (tb *TextBox) BoundingRect(x, y int, gravity Gravity) Rect {
+func (tb *TextBox) BoundingRect() Rect {
     w, h := tb.Measure()
-    ox, oy := gravity(w, h)
+    //ox, oy := gravity(w, h)
 
-    return Rect{x - ox, y - oy, w, h}
+    return Rect{0, 0, w, h}
 }
 
 // Renders the text from the given point and gravity
 func (tb *TextBox) Render(svg *svg.SVG, x, y int, gravity Gravity) {
-    rect := tb.BoundingRect(x, y, gravity)
+    rect := tb.BoundingRect().PositionAt(x, y, gravity)
     left := rect.X
     currY := rect.Y
     style := tb.textStyle()
