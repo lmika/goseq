@@ -2,13 +2,13 @@ package graphbox
 
 import (
     "fmt"
-    //"log"
 )
 
 type TextRectPos int
 const (
     CenterPos   TextRectPos     =   iota
     LeftPos                     =   iota
+    RightPos                    =   iota
 )
 
 // Styling options for the actor rect
@@ -21,9 +21,6 @@ type TextRectStyle struct {
 
 // Draws an object instance
 type TextRect struct {
-    // Width and height of the rectangle
-//    Text        string
-
     frameRect   Rect
     style       TextRectStyle
     textBox     *TextBox
@@ -31,7 +28,9 @@ type TextRect struct {
 }
 
 func NewTextRect(text string, style TextRectStyle, pos TextRectPos) *TextRect {
-    textBox := NewTextBox(style.Font, style.FontSize, MiddleTextAlign)
+    var textAlign TextAlign = MiddleTextAlign
+
+    textBox := NewTextBox(style.Font, style.FontSize, textAlign)
     textBox.AddText(text)
 
     trect := textBox.BoundingRect()
@@ -50,7 +49,9 @@ func (r *TextRect) Size() (int, int) {
 
 func (r *TextRect) Margin() (int, int, int, int) {
     if (r.pos == LeftPos) {
-        return r.frameRect.W + 4, 0, 0, 0
+        return r.frameRect.W + 8, 0, 0, 0
+    } else if (r.pos == RightPos) {
+        return 0, r.frameRect.W + 8, 0, 0
     } else {
         return 0, 0, 0, 0
     }
@@ -69,6 +70,12 @@ func (r *TextRect) Draw(ctx DrawContext, frame BoxFrame) {
         rect := r.frameRect.PositionAt(offsetX, centerY, EastGravity)
         ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white")
         r.textBox.Render(ctx.Canvas, textOffsetX, centerY, EastGravity)
+    } else if (r.pos == RightPos) {
+        offsetX := centerX + 4 * 2
+        textOffsetX := centerX + r.style.Padding.X + 4 * 2
+        rect := r.frameRect.PositionAt(offsetX, centerY, WestGravity)
+        ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white")
+        r.textBox.Render(ctx.Canvas, textOffsetX, centerY, WestGravity)
     }
 }
 

@@ -56,75 +56,108 @@ func (g *Graphic) resizeTo(rows, cols int) {
     g.matrix = newRows
 }
 
-type workingRemeasurements struct {
-    size        int
-    before      int
-    after       int
-}
-
 // Remeasure the entire drawing.  Returns a rect containing the size of the image
+// TODO: Chean this UP!!!
 func (g *Graphic) remeasure() Rect {
 
     cols, rows := g.Cols(), g.Rows()
-    colWidths := make([]workingRemeasurements, g.Cols())
-    rowHeights := make([]workingRemeasurements, g.Rows())
+    colWidths := make([]int, g.Cols())
+    rowHeights := make([]int, g.Rows())
+
+    // Gaps between rows and columns (to the left or or top of)
+    colGaps := make([]int, g.Cols() + 1)
+    rowGaps := make([]int, g.Rows() + 1)
+
+    for r := 1; r < len(rowGaps); r++ {
+        rowGaps[r] = g.Padding.Y
+    }
+    for c := 1; c < len(colGaps); c++ {
+        colGaps[c] = g.Padding.X
+    }
 
     // Resize the cells
     for _, item := range g.items {
         if (item.R >= 0) && (item.C >= 0) && (item.R < len(g.matrix)) && (item.C < len(g.matrix[item.R])) {
             if item2d, is2dItem := item.Item.(Graphbox2DItem) ; is2dItem {
                 itemWidth, itemHeight := item2d.Size()
-                rowHeights[item.R].size = maxInt(rowHeights[item.R].size, itemHeight)
-                colWidths[item.C].size = maxInt(colWidths[item.C].size, itemWidth)
+                rowHeights[item.R] = maxInt(rowHeights[item.R], itemHeight)
+                colWidths[item.C] = maxInt(colWidths[item.C], itemWidth)
+            }
+        }
+    }
+
+    // Determine padding.  The total gap between two colums is the total amount of gap requested by
+    // the two columns PLUS the widths of each of the two columns MINUS the column widths.
+    //
+    // This is to make it possible to interlink overlaps
+    //
+    // EG:
+    //
+    //          [  |      ]   [ |  ]
+    //            [| ] [        | ]
+    for _, item := range g.items {
+        if (item.R >= 0) && (item.C >= 0) && (item.R < len(g.matrix)) && (item.C < len(g.matrix[item.R])) {
+            requestW, requestH := 0, 0
+            if item2d, is2dItem := item.Item.(Graphbox2DItem) ; is2dItem {
+                requestW, requestH = item2d.Size()
             }
 
             // If the item requires a margin.
             if marginItem, isMarginItem := item.Item.(MarginItem) ; isMarginItem {
                 l, r, t, b := marginItem.Margin()
-                rowHeights[item.R].before = maxInt(rowHeights[item.R].before, t)
-                rowHeights[item.R].after = maxInt(rowHeights[item.R].after, b)
-                colWidths[item.C].before = maxInt(colWidths[item.C].before, l)
-                colWidths[item.C].after = maxInt(colWidths[item.C].after, r)
+
+                rowGaps[item.R] = maxInt(rowGaps[item.R], t + requestH / 2 - rowHeights[item.R] / 2)
+                colGaps[item.C] = maxInt(colGaps[item.C], l + requestW / 2 - colWidths[item.C] / 2)
+
+                if (item.R < len(g.matrix) - 1) {
+                    rowGaps[item.R + 1] = maxInt(rowGaps[item.R + 1], b + requestH / 2 - rowHeights[item.R + 1] / 2)
+                } else {
+                    rowGaps[item.R + 1] = maxInt(rowGaps[item.R + 1], b + requestH / 2)
+                }
+                if (item.C < len(g.matrix[item.R]) - 1) {
+                    colGaps[item.C + 1] = maxInt(colGaps[item.C + 1], r + requestW / 2 - colWidths[item.C + 1] / 2)
+                } else {
+                    colGaps[item.C + 1] = maxInt(colGaps[item.C + 1], r + requestW / 2)
+                }
             }
         }
     }
 
     // Recalculate cell rectanges
-    y := g.Margin.Y
-    maxX := 0
+    y := g.Margin.Y - rowGaps[0]
     for r, row := range g.matrix {
         x := g.Margin.X
         largestH := 0
         for c, _ := range row {
             cr, rr := colWidths[c], rowHeights[r]
             innerRect := Rect {
-                X: cr.before + x,
-                Y: rr.before + y,
-                W: cr.size,
-                H: rr.size,
+                X: colGaps[c] + x,
+                Y: rowGaps[r] + y,
+                W: cr,
+                H: rr,
             }
 
-            ox := x - maxInt(cr.before, g.Padding.X)
-            oy := y - maxInt(rr.before, g.Padding.Y)
+            ox := x
+            oy := y
             outerRect := Rect {
                 X: ox,
                 Y: oy,
-                W: maxInt(cr.before, g.Padding.X) + innerRect.W + maxInt(cr.after, g.Padding.X),
-                H: maxInt(rr.before, g.Padding.Y) + innerRect.H + maxInt(rr.after, g.Padding.Y),
+                W: colGaps[c] + cr + colGaps[c + 1],
+                H: rowGaps[r] + rr + rowGaps[r + 1],
             }
 
             g.matrix[r][c].Frame = BoxFrame{outerRect, innerRect}
-            x += outerRect.W
+
+            x += colGaps[c] + cr
             largestH = maxInt(largestH, outerRect.H)
         }
         //y += rowHeights[r] + g.Padding.Y * 2
-        maxX = maxInt(maxX, x)
         y += largestH
     }    
 
     lastRect := g.matrix[rows - 1][cols - 1].Frame.OuterRect
     return Rect{
-        W: maxX + g.Margin.X, 
+        W: lastRect.X + lastRect.W + g.Margin.X,
         H: lastRect.Y + lastRect.H + g.Margin.Y,
     }
 }

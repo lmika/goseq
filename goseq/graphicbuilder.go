@@ -76,7 +76,7 @@ func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
     gb.Graphic = graphbox.NewGraphic(rows, cols)
 
     gb.Graphic.Margin = graphbox.Point{16, 8}
-    gb.Graphic.Padding = graphbox.Point{16, 8}
+    gb.Graphic.Padding = graphbox.Point{64, 8}
     gb.addObjects()
 
     // TEMP
@@ -95,8 +95,18 @@ func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
 
 // Places a note
 func (gb *GraphicBuilder) putNote(row int, note *Note) {
+    var pos graphbox.TextRectPos
+
+    if note.Align == LeftNoteAlignment {
+        pos = graphbox.LeftPos
+    } else if note.Align == OverNoteAlignment {
+        pos = graphbox.CenterPos
+    } else if note.Align == RightNoteAlignment {
+        pos = graphbox.RightPos
+    }
+
     col := gb.colOfActor(note.Actor)
-    gb.Graphic.Put(row, col, graphbox.NewTextRect(note.Message, gb.Style.NoteBox, graphbox.LeftPos))    
+    gb.Graphic.Put(row, col, graphbox.NewTextRect(note.Message, gb.Style.NoteBox, pos))    
 }
 
 // Places an action

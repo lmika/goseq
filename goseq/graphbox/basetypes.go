@@ -50,6 +50,7 @@ type Gravity         func(w, h int) (int, int)
 
 var NorthWestGravity Gravity = func(w, h int) (int, int) { return 0, 0 }
 var EastGravity Gravity = func(w, h int) (int, int) { return w, h / 2 }
+var WestGravity Gravity = func(w, h int) (int, int) { return 0, h / 2 }
 var CenterGravity Gravity = func(w, h int) (int, int) { return w / 2, h / 2 }
 var SouthGravity Gravity = func(w, h int) (int, int) { return w / 2, h }
 
