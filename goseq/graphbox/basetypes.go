@@ -11,7 +11,7 @@ import (
 type GraphboxItem interface {
 
     // Call to draw this box 
-    Draw(ctx *DrawContext, frame BoxFrame)
+    Draw(ctx DrawContext, frame BoxFrame)
 }
 
 // An item that takes up space within a cell
@@ -26,11 +26,16 @@ type Graphbox2DItem interface {
 type DrawContext struct {
     Canvas          *svg.SVG
     Graphic         *Graphic
+    R, C            int
 }
 
 // Returns the outer rectangle of a particular cell
 func (dc *DrawContext) GridRect(r, c int) (Rect, bool) {
-    return dc.Graphic.outerRectAtCell(r, c)
+    if frame, hasFrame := dc.Graphic.frameAtCell(r, c) ; hasFrame {
+        return frame.InnerRect, true
+    } else {
+        return Rect{}, false
+    }
 }
 
 
@@ -38,6 +43,15 @@ func (dc *DrawContext) GridRect(r, c int) (Rect, bool) {
 type Gravity         func(w, h int) (int, int)
 
 var CenterGravity Gravity = func(w, h int) (int, int) { return w / 2, h / 2 }
+
+
+// A specific gravity
+func AtSpecificGravity(fx, fy float64) Gravity {
+    return func(w, h int) (int, int) {
+        return int(fx * float64(w)), int(fy * float64(h))
+    }
+}
+
 
 // A rectangle
 type Rect struct {
@@ -58,6 +72,13 @@ func (r Rect) CenteredRect(w, h int) Rect {
     y := r.Y + (r.H / 2) - h / 2
     return Rect{x, y, w, h}
 }
+
+// Returns a rectangle blown out by a given size
+func (r Rect) BlowOut(dims Point) Rect {
+    return Rect{r.X - dims.X, r.Y - dims.Y, r.W + dims.X * 2, r.H + dims.Y * 2}
+}
+
+
 
 // A point
 type Point struct {

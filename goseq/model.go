@@ -23,7 +23,7 @@ func (d *Diagram) GetOrAddActor(name string) *Actor {
         }
     }
 
-    na := &Actor{name}
+    na := &Actor{name, len(d.Actors)}
     d.Actors = append(d.Actors, na)
     return na
 }
@@ -34,14 +34,20 @@ func (d *Diagram) AddSequenceItem(item SequenceItem) {
 }
 
 // Write the diagram as an SVG
-func (d *Diagram) WriteSVG(w io.Writer) {
-    gb := &graphicBuilder{d}
+func (d *Diagram) WriteSVG(w io.Writer) error {
+    gb, err := NewGraphicBuilder(d)
+    if err != nil {
+        return err
+    }
+
     gb.BuildGraphic().DrawSVG(w)
+    return nil
 }
 
 // A participant
 type Actor struct {
     Name            string
+    rank            int
 }
 
 

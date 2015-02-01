@@ -11,18 +11,20 @@ import (
 func main() {
     diagram, err := goseq.Parse(strings.NewReader(`
         title: ABC123    is the    best  
-        participant c
+        participant cbla
         participant b
         participant a
 
         a->b: Does something
         b->c: Does something as well
-        c -> d: Another thing
+        cbla -> d: Another thing
         `))
     if err != nil {
         fmt.Println(err)
-    } else {
-        diagram.WriteSVG(os.Stdout)
+    }
+    err = diagram.WriteSVG(os.Stdout)
+    if err != nil {
+        fmt.Println(err)
     }
 
         /*

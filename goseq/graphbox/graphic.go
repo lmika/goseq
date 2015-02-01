@@ -17,6 +17,7 @@ type Graphic struct {
 
     // The margin between items
     Margin      Point
+    Padding     Point
 }
 
 func NewGraphic(rows, cols int) *Graphic {
@@ -74,21 +75,29 @@ func (g *Graphic) remeasure() Rect {
     }
 
     // Recalculate cell rectanges
-    y := 0
+    y := g.Margin.Y
     for r, row := range g.matrix {
-        x := 0
+        x := g.Margin.X
         for c, _ := range row {
-            g.matrix[r][c].OuterRect.Y = y
-            g.matrix[r][c].OuterRect.X = x
-            g.matrix[r][c].OuterRect.W = colWidths[c]
-            g.matrix[r][c].OuterRect.H = rowHeights[r]
-            x += colWidths[c]
+            innerRect := Rect {
+                X: x,
+                Y: y,
+                W: colWidths[c],
+                H: rowHeights[r],
+            }
+            outerRect := innerRect.BlowOut(g.Padding)
+
+            g.matrix[r][c].Frame = BoxFrame{outerRect, innerRect}
+            x += outerRect.W
         }
-        y += rowHeights[r]
+        y += rowHeights[r] + g.Padding.Y * 2
     }    
 
-    lastRect := g.matrix[rows - 1][cols - 1].OuterRect
-    return Rect{0, 0, lastRect.X + lastRect.W, lastRect.Y + lastRect.H}
+    lastRect := g.matrix[rows - 1][cols - 1].Frame.OuterRect
+    return Rect{
+        W: lastRect.X + lastRect.W - g.Padding.X + g.Margin.X, 
+        H: lastRect.Y + lastRect.H - g.Padding.Y + g.Margin.Y,
+    }
 }
 
 // Sets a point in the matrix.  If the point is beyond the scope of the matrix,
@@ -111,37 +120,36 @@ func (g *Graphic) DrawSVG(w io.Writer) {
     canvas.Start(size.W, size.H)
     defer canvas.End()
 
-    ctx := &DrawContext{canvas, g}
     for _, item := range g.items {
-        g.drawItem(ctx, item)
+        g.drawItem(canvas, item)
     }
 }
 
 // Draws the item
-func (g *Graphic) drawItem(ctx *DrawContext, item itemInstance) {
+func (g *Graphic) drawItem(canvas *svg.SVG, item itemInstance) {
     if !((item.R >= 0) && (item.C >= 0) && (item.R < len(g.matrix)) && (item.C < len(g.matrix[item.R]))) {
         // Do nothing
         return
     }
 
-    outerRect := g.matrix[item.R][item.C].OuterRect
-    frame := BoxFrame{outerRect, outerRect}
+    ctx := DrawContext{canvas, g, item.R, item.C}
+    frame := g.matrix[item.R][item.C].Frame
     item.Item.Draw(ctx, frame)
 }
 
 // Gets the outer rectangle of a particular cell
-func (g *Graphic) outerRectAtCell(r, c int) (Rect, bool) {
+func (g *Graphic) frameAtCell(r, c int) (BoxFrame, bool) {
     if (r >= 0) && (c >= 0) && (r < len(g.matrix)) && (c < len(g.matrix[r])) {
-        return g.matrix[r][c].OuterRect, true
+        return g.matrix[r][c].Frame, true
     } else {
-        return Rect{}, false
+        return BoxFrame{}, false
     }
 }
 
 
 // A matrix cell item
 type matrixItem struct {
-    OuterRect   Rect
+    Frame       BoxFrame
 }
 
 type itemInstance struct {
