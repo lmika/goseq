@@ -40,11 +40,25 @@ func init() {
     }
 }
 
+
+// Information about a particular actor
+type actorInfo struct {
+    // Extra cols needed on the left or right
+    ExtraLeftCol    bool
+    ExtraRightCol   bool
+
+    // Actor column
+    Col             int
+}
+
+
 type GraphicBuilder struct {
     Diagram           *Diagram
     Graphic           *graphbox.Graphic
     Font              graphbox.Font
     Style             DiagramStyles
+
+    actorInfos        []actorInfo
 }
 
 
@@ -54,7 +68,7 @@ func NewGraphicBuilder(d *Diagram) (*GraphicBuilder, error) {
         return nil, err
     }
 
-    return &GraphicBuilder{d, nil, font, DefaultStyle}, nil
+    return &GraphicBuilder{d, nil, font, DefaultStyle, nil}, nil
 }
 
 func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
@@ -82,6 +96,13 @@ func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
 // Places a note
 func (gb *GraphicBuilder) putNote(row int, note *Note) {
     col := gb.colOfActor(note.Actor)
+
+    if (note.Align == LeftNoteAlignment) {
+        col--
+    } else if (note.Align == RightNoteAlignment) {
+        col++
+    }
+
     gb.Graphic.Put(row, col, graphbox.NewTextRect(note.Message, gb.Style.NoteBox))    
 }
 
@@ -96,23 +117,63 @@ func (gb *GraphicBuilder) putAction(row int, action *Action) {
 
 // Count the number of rows needed in the graphic
 func (gb *GraphicBuilder) calcRowsAndCols() (int, int) {
+    cols := gb.determineActorInfo()
+
     // 1 for the title, object header and object footer
-    return len(gb.Diagram.Items) + 2 + 1, len(gb.Diagram.Actors)
+    return len(gb.Diagram.Items) + 2 + 1, cols
+}
+
+// Determine actor information.  Returns the number of colums required
+func (gb *GraphicBuilder) determineActorInfo() int {
+    gb.actorInfos = make([]actorInfo, len(gb.Diagram.Actors))
+
+    // Determine whether the actor requires cells to the left or right.
+    // These are cells to place notes
+    for _, item := range gb.Diagram.Items {
+        if note, isNote := item.(*Note) ; isNote {
+            if (note.Align == LeftNoteAlignment) {
+                gb.actorInfos[note.Actor.rank].ExtraLeftCol = true
+            } else if (note.Align == RightNoteAlignment) {
+                gb.actorInfos[note.Actor.rank].ExtraRightCol = true
+            }
+        }
+    }
+
+    // Allocate the columns
+    cols := 0
+    for _, actor := range gb.Diagram.Actors {
+        colsRequiredByActor := 1
+        actorCol := cols
+
+        if (gb.actorInfos[actor.rank].ExtraLeftCol) {
+            colsRequiredByActor++
+            actorCol++
+        }
+        if (gb.actorInfos[actor.rank].ExtraRightCol) {
+            colsRequiredByActor++
+        }
+
+        gb.actorInfos[actor.rank].Col = actorCol
+        cols += colsRequiredByActor
+    }
+
+    return cols
 }
 
 // Add the object headers and footers
 func (gb *GraphicBuilder) addObjects() {
     // TODO: Proper styling
     bottomRow := gb.Graphic.Rows() - 1
-    for rank, actor := range gb.Diagram.Actors {
-        gb.Graphic.Put(1, rank, &graphbox.LifeLine{bottomRow, rank})
+    for _, actor := range gb.Diagram.Actors {
+        col := gb.colOfActor(actor)
+        gb.Graphic.Put(1, col, &graphbox.LifeLine{bottomRow, col})
 
-        gb.Graphic.Put(1, rank, graphbox.NewTextRect(actor.Name, gb.Style.ActorBox))
-        gb.Graphic.Put(bottomRow, rank, graphbox.NewTextRect(actor.Name, gb.Style.ActorBox))
+        gb.Graphic.Put(1, col, graphbox.NewTextRect(actor.Name, gb.Style.ActorBox))
+        gb.Graphic.Put(bottomRow, col, graphbox.NewTextRect(actor.Name, gb.Style.ActorBox))
     }
 }
 
 // Returns the column position of an actor
 func (gb *GraphicBuilder) colOfActor(actor *Actor) int {
-    return actor.rank
+    return gb.actorInfos[actor.rank].Col
 }
