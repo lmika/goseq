@@ -91,14 +91,15 @@ func (g *Graphic) remeasure() Rect {
 
     // Recalculate cell rectanges
     y := g.Margin.Y
+    maxX := 0
     for r, row := range g.matrix {
         x := g.Margin.X
         largestH := 0
         for c, _ := range row {
             cr, rr := colWidths[c], rowHeights[r]
             innerRect := Rect {
-                X: x,
-                Y: y,
+                X: cr.before + x,
+                Y: rr.before + y,
                 W: cr.size,
                 H: rr.size,
             }
@@ -117,13 +118,14 @@ func (g *Graphic) remeasure() Rect {
             largestH = maxInt(largestH, outerRect.H)
         }
         //y += rowHeights[r] + g.Padding.Y * 2
+        maxX = maxInt(maxX, x)
         y += largestH
     }    
 
     lastRect := g.matrix[rows - 1][cols - 1].Frame.OuterRect
     return Rect{
-        W: lastRect.X + lastRect.W - g.Padding.X + g.Margin.X, 
-        H: lastRect.Y + lastRect.H - g.Padding.Y + g.Margin.Y,
+        W: maxX + g.Margin.X, 
+        H: lastRect.Y + lastRect.H + g.Margin.Y,
     }
 }
 
