@@ -9,11 +9,31 @@ import (
 
 
 type GraphboxItem interface {
+    // Defines a constraint.  It is provided with the coordinates
+    // of the item.
+    Constraint(r, c int) Constraint
 
     // Call to draw this box 
-    Draw(ctx DrawContext, frame BoxFrame)
+    Draw(ctx DrawContext, point Point)
 }
 
+type Constraint interface {
+    Apply(cm ConstraintChanger)
+}
+
+type ConstraintChanger interface {
+    // Calculate the current size between the two grid points
+    GridPointRect(fr, fc, tr, tc int) (int, int)
+
+    // Ensure that the left side of this column has this much space.
+    // Provide space if needed.
+    EnsureLeftIsAtleast(col, newLeft int)
+
+    // Ensure that the top side of this row has this much space.
+    // Provide space if needed.
+    EnsureTopIsAtLeast(row, newTop int) 
+}
+/*
 // An item that takes up space within a cell
 type Graphbox2DItem interface {
 
@@ -26,6 +46,7 @@ type MarginItem interface {
     // Returns the left, right, top and bottom margins
     Margin()    (int, int, int, int)
 }
+*/
 
 
 // A drawing context
@@ -36,12 +57,8 @@ type DrawContext struct {
 }
 
 // Returns the outer rectangle of a particular cell
-func (dc *DrawContext) GridRect(r, c int) (Rect, bool) {
-    if frame, hasFrame := dc.Graphic.frameAtCell(r, c) ; hasFrame {
-        return frame.InnerRect, true
-    } else {
-        return Rect{}, false
-    }
+func (dc *DrawContext) PointAt(r, c int) (Point, bool) {
+    return dc.Graphic.PointAt(r, c)
 }
 
 

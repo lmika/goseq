@@ -39,6 +39,7 @@ func NewTextRect(text string, style TextRectStyle, pos TextRectPos) *TextRect {
     return &TextRect{brect, style, textBox, pos}
 }
 
+/*
 func (r *TextRect) Size() (int, int) {
     if (r.pos == CenterPos) {
         return r.frameRect.W, r.frameRect.H
@@ -56,9 +57,14 @@ func (r *TextRect) Margin() (int, int, int, int) {
         return 0, 0, 0, 0
     }
 }
+*/
 
-func (r *TextRect) Draw(ctx DrawContext, frame BoxFrame) {
-    centerX, centerY := frame.InnerRect.PointAt(CenterGravity)
+func (tr *TextRect) Constraint(r, c int) Constraint {
+    return SizeConstraint{r, c, tr.frameRect.W, tr.frameRect.W, tr.frameRect.H / 2, tr.frameRect.H / 2}
+}
+
+func (r *TextRect) Draw(ctx DrawContext, point Point) {
+    centerX, centerY := point.X, point.Y
 
     if (r.pos == CenterPos) {
         rect := r.frameRect.PositionAt(centerX, centerY, CenterGravity)
@@ -85,10 +91,15 @@ type LifeLine struct {
     TR, TC      int
 }
 
-func (ll *LifeLine) Draw(ctx DrawContext, frame BoxFrame) {
-    fx, fy := frame.InnerRect.PointAt(CenterGravity)
-    if toOuterRect, isCell := ctx.GridRect(ll.TR, ll.TC) ; isCell {
-        tx, ty := toOuterRect.PointAt(CenterGravity)
+func (ll *LifeLine) Constraint(r, c int) Constraint {
+    return nil
+}
+
+//func (ll *LifeLine) Draw(ctx DrawContext, frame BoxFrame) {
+func (ll *LifeLine) Draw(ctx DrawContext, point Point) {
+    fx, fy := point.X, point.Y
+    if point, isPoint := ctx.PointAt(ll.TR, ll.TC) ; isPoint {
+        tx, ty := point.X, point.Y
 
         ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-dasharray:8,8")
     }
@@ -132,18 +143,25 @@ func NewActivityLine(toCol int, text string, style ActivityLineStyle) *ActivityL
     return &ActivityLine{toCol, style, textBox, brect}
 }
 
+/*
 func (al *ActivityLine) Size() (int, int) {
     return 50, al.textBoxRect.H + al.style.PaddingTop + al.style.PaddingBottom + al.style.TextGap
 }
+*/
 
-func (al *ActivityLine) Draw(ctx DrawContext, frame BoxFrame) {
-    lineGravity := SouthGravity
+func (al *ActivityLine) Constraint(r, c int) Constraint {
+    h := al.textBoxRect.H + al.style.PaddingTop + al.style.PaddingBottom + al.style.TextGap
+    w := al.textBoxRect.W
 
-    fx, fy := frame.InnerRect.PointAt(lineGravity)
-    fy -= al.style.PaddingBottom
-    if toOuterRect, isCell := ctx.GridRect(ctx.R, al.TC) ; isCell {
-        tx, ty := toOuterRect.PointAt(lineGravity)
-        ty -= al.style.PaddingBottom
+    return TotalSizeConstraint{r - 1, c, r, al.TC, w, h}
+}
+
+// func (al *ActivityLine) Draw(ctx DrawContext, frame BoxFrame) {
+func (al *ActivityLine) Draw(ctx DrawContext, point Point) {
+
+    fx, fy := point.X, point.Y
+    if point, isPoint := ctx.PointAt(ctx.R, al.TC) ; isPoint {
+        tx, ty := point.X, point.Y
 
         ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black")
         al.drawArrow(ctx, tx, ty, al.TC > ctx.C)
