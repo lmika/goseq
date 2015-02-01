@@ -24,6 +24,19 @@ type Font interface {
     Measure(txt string, size float64) (int, int)
 }
 
+// Given a font, font size, points and gravity, returns a rectangle which will contain
+// the text centered.  The point and gravity describes the location of the rect.
+// The second point is where the text is to start given that it is to be rendered to
+// fill the rectangle with default anchoring and alignment
+func MeasureFontRect(font Font, size int, text string, x, y int, gravity Gravity) (Rect, Point) {
+    w, h := font.Measure(text, float64(size))
+    ox, oy := gravity(w, h)
+    tp := Point{x - ox, y - oy + h}
+    // HACK: May now work in all cases.  Adjust for the hanging measurements
+    tp.Y -= size * 1 / 4 - 1
+    return Rect{x - ox, y - oy, w, h}, tp
+}
+
 
 // A true-type font
 type TTFFont struct {

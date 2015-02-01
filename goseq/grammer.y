@@ -106,6 +106,7 @@ arrowHead
 type parseState struct {
     S           scanner.Scanner
     err         error
+    atEof       bool
     diagram     *Diagram
 }
 
@@ -118,10 +119,14 @@ func newParseState(src io.Reader) *parseState {
 }
 
 func (ps *parseState) Lex(lval *yySymType) int {
+    if ps.atEof {
+        return 0
+    }
     for {
         tok := ps.S.Scan()
         switch tok {
         case scanner.EOF:
+            ps.atEof = true
             return 0
         case ':':
             return ps.scanMessage(lval)
@@ -155,14 +160,27 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
 // Scans a message.  A message is all characters up to the new line
 func (ps *parseState) scanMessage(lval *yySymType) int {
     buf := new(bytes.Buffer)
-    r := ps.S.Next()
+    r := ps.NextRune()
     for ((r != '\n') && (r != scanner.EOF)) {
         buf.WriteRune(r)
-        r = ps.S.Next()
+        r = ps.NextRune()
     }
 
     lval.sval = buf.String()
     return MESSAGE
+}
+
+func (ps *parseState) NextRune() rune {
+    if ps.atEof {
+        return scanner.EOF
+    }
+
+    r := ps.S.Next()
+    if r == scanner.EOF {
+        ps.atEof = true
+    }
+
+    return r
 }
 
 func (ps *parseState) Error(err string) {

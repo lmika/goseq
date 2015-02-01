@@ -1,9 +1,9 @@
-//line goseq/gramma.y:6
+//line goseq/grammer.y:6
 package goseq
 
 import __yyfmt__ "fmt"
 
-//line goseq/gramma.y:6
+//line goseq/grammer.y:6
 import (
 	"bytes"
 	"errors"
@@ -11,7 +11,7 @@ import (
 	"text/scanner"
 )
 
-//line goseq/gramma.y:16
+//line goseq/grammer.y:16
 type yySymType struct {
 	yys       int
 	seqItem   SequenceItem
@@ -43,12 +43,13 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line goseq/gramma.y:103
+//line goseq/grammer.y:103
 
 // Manages the lexer as well as the current diagram being parsed
 type parseState struct {
 	S       scanner.Scanner
 	err     error
+	atEof   bool
 	diagram *Diagram
 }
 
@@ -61,10 +62,14 @@ func newParseState(src io.Reader) *parseState {
 }
 
 func (ps *parseState) Lex(lval *yySymType) int {
+	if ps.atEof {
+		return 0
+	}
 	for {
 		tok := ps.S.Scan()
 		switch tok {
 		case scanner.EOF:
+			ps.atEof = true
 			return 0
 		case ':':
 			return ps.scanMessage(lval)
@@ -98,14 +103,27 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
 // Scans a message.  A message is all characters up to the new line
 func (ps *parseState) scanMessage(lval *yySymType) int {
 	buf := new(bytes.Buffer)
-	r := ps.S.Next()
+	r := ps.NextRune()
 	for (r != '\n') && (r != scanner.EOF) {
 		buf.WriteRune(r)
-		r = ps.S.Next()
+		r = ps.NextRune()
 	}
 
 	lval.sval = buf.String()
 	return MESSAGE
+}
+
+func (ps *parseState) NextRune() rune {
+	if ps.atEof {
+		return scanner.EOF
+	}
+
+	r := ps.S.Next()
+	if r == scanner.EOF {
+		ps.atEof = true
+	}
+
+	return r
 }
 
 func (ps *parseState) Error(err string) {
@@ -414,40 +432,40 @@ yydefault:
 	switch yynt {
 
 	case 6:
-		//line goseq/gramma.y:52
+		//line goseq/grammer.y:52
 		{
 			yylex.(*parseState).diagram.AddSequenceItem(yyS[yypt-0].seqItem)
 		}
 	case 7:
-		//line goseq/gramma.y:59
+		//line goseq/grammer.y:59
 		{
 			yylex.(*parseState).diagram.Title = yyS[yypt-0].sval
 		}
 	case 8:
-		//line goseq/gramma.y:66
+		//line goseq/grammer.y:66
 		{
 			yylex.(*parseState).diagram.GetOrAddActor(yyS[yypt-0].sval)
 		}
 	case 9:
 		yyVAL.seqItem = yyS[yypt-0].seqItem
 	case 10:
-		//line goseq/gramma.y:77
+		//line goseq/grammer.y:77
 		{
 			d := yylex.(*parseState).diagram
 			yyVAL.seqItem = &Action{d.GetOrAddActor(yyS[yypt-3].sval), d.GetOrAddActor(yyS[yypt-1].sval), yyS[yypt-2].arrow, yyS[yypt-0].sval}
 		}
 	case 11:
-		//line goseq/gramma.y:85
+		//line goseq/grammer.y:85
 		{
 			yyVAL.arrow = Arrow{yyS[yypt-1].arrowStem, yyS[yypt-0].arrowHead}
 		}
 	case 12:
-		//line goseq/gramma.y:92
+		//line goseq/grammer.y:92
 		{
 			yyVAL.arrowStem = SolidArrowStem
 		}
 	case 13:
-		//line goseq/gramma.y:99
+		//line goseq/grammer.y:99
 		{
 			yyVAL.arrowHead = SolidArrowHead
 		}

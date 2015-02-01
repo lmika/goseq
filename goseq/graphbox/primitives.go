@@ -1,41 +1,67 @@
 package graphbox
 
 import (
+    "fmt"
     //"log"
 )
+
+
+// Styling options for the actor rect
+type ActorRectStyle struct {
+    Font        Font
+    FontSize    int
+    Padding     Point
+}
+
+// Returns the text style
+func (rs ActorRectStyle) textStyle() string {
+    s := SvgStyle{}
+
+    s.Set("font-family", rs.Font.SvgName())
+    s.Set("font-size", fmt.Sprintf("%dpx", rs.FontSize))
+
+    return s.ToStyle()
+}
+
+// Measure a string based on the font settings
+func (rs ActorRectStyle) measure(s string) (int, int) {
+    return rs.Font.Measure(s, float64(rs.FontSize))
+}
+
 
 
 // Draws an object instance
 type ActorRect struct {
     // Width and height of the rectangle
-    W, H        int
     Text        string
-    Font        Font
-    Padding     Point
+    w, h        int
+    style       ActorRectStyle
 }
 
 func NewActorRect(text string, font Font) *ActorRect {
-    w, h := font.Measure(text, 18.0)
-    padding := Point{16, 8}
-    //log.Printf("W,H = %d,%d", w +  * 2, h)
-    
-    return &ActorRect{w, h, text, font, padding}
+    style := ActorRectStyle{
+        Font:       font,
+        FontSize:   16,
+        Padding:    Point{16, 8},
+    }
+
+    trect, _ := MeasureFontRect(style.Font, style.FontSize, text, 0, 0, NorthWestGravity)
+    brect := trect.BlowOut(style.Padding)
+
+    return &ActorRect{text, brect.W, brect.H, style}
 }
 
 func (r *ActorRect) Size() (int, int) {
-    return r.W + r.Padding.X * 2, r.H + r.Padding.Y * 2
+    return r.w, r.h
 }
 
 func (r *ActorRect) Draw(ctx DrawContext, frame BoxFrame) {
-    centeredRect := frame.InnerRect.CenteredRect(r.W, r.H)
-    tx, ty := centeredRect.PointAt(CenterGravity)
+    centerX, centerY := frame.InnerRect.PointAt(CenterGravity)
+    trect, tp := MeasureFontRect(r.style.Font, r.style.FontSize, r.Text, centerX, centerY, CenterGravity)
+    brect := trect.BlowOut(r.style.Padding)
 
-    ctx.Canvas.Rect(centeredRect.X - r.Padding.X, centeredRect.Y - r.Padding.Y,
-            centeredRect.W + r.Padding.X * 2, centeredRect.H + r.Padding.Y * 2, 
-            "fill:none;stroke:black;fill:white")
-
-    ctx.Canvas.Text(tx, ty, r.Text, "text-anchor:middle;dominant-baseline:middle;font-size:18px;fill:black;" +
-        "font-family:" + r.Font.SvgName() + "")
+    ctx.Canvas.Rect(brect.X, brect.Y, brect.W, brect.H, "stroke:black;fill:white")
+    ctx.Canvas.Text(tp.X, tp.Y, r.Text, r.style.textStyle())
 }
 
 
@@ -54,30 +80,75 @@ func (ll *LifeLine) Draw(ctx DrawContext, frame BoxFrame) {
 }
 
 
+type ActivityLineStyle struct {
+    Font            Font
+    FontSize        int
+    PaddingTop      int
+    PaddingBottom   int
+    TextGap         int
+}
+
+// Returns the text style
+func (as ActivityLineStyle) textStyle() string {
+    s := SvgStyle{}
+
+    s.Set("font-family", as.Font.SvgName())
+    s.Set("font-size", fmt.Sprintf("%dpx", as.FontSize))
+
+    return s.ToStyle()
+}
+
+
 // An activity arrow
 type ActivityLine struct {
     TC           int
     Text         string
+    style        ActivityLineStyle
+
+    height       int
 }
 
-func (r *ActivityLine) Size() (int, int) {
-    return 50, 70
+func NewActivityLine(toCol int, text string, font Font) *ActivityLine {
+    style := ActivityLineStyle{
+        Font:           font,
+        FontSize:       14,
+        PaddingTop:     8,
+        PaddingBottom:  8,
+        TextGap:        8,
+    }
+
+    r, _ := MeasureFontRect(style.Font, style.FontSize, text, 0, 0, NorthWestGravity)
+    height := r.H
+    return &ActivityLine{toCol, text, style, height}
+}
+
+func (al *ActivityLine) Size() (int, int) {
+    return 50, al.height + al.style.PaddingTop + al.style.PaddingBottom + al.style.TextGap
 }
 
 func (al *ActivityLine) Draw(ctx DrawContext, frame BoxFrame) {
-    lineGravity := AtSpecificGravity(0.5, 0.7)
+    lineGravity := SouthGravity
 
     fx, fy := frame.InnerRect.PointAt(lineGravity)
+    fy -= al.style.PaddingBottom
     if toOuterRect, isCell := ctx.GridRect(ctx.R, al.TC) ; isCell {
         tx, ty := toOuterRect.PointAt(lineGravity)
-        ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black")
+        ty -= al.style.PaddingBottom
 
+        ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black")
         al.drawArrow(ctx, tx, ty, al.TC > ctx.C)
 
         textX := fx + (tx - fx) / 2
-        textY := ty - 15
-        ctx.Canvas.Text(textX, textY, al.Text, "text-anchor:middle;dominant-baseline:bottom;font-size:14px;fill:black")
+        textY := ty - al.style.TextGap
+        al.renderMessage(ctx, textX, textY)
     }
+}
+
+func (al *ActivityLine) renderMessage(ctx DrawContext, tx, ty int) {
+    rect, textPoint := MeasureFontRect(al.style.Font, al.style.FontSize, al.Text, tx, ty, SouthGravity)
+
+    ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "fill:white;stroke:white;")
+    ctx.Canvas.Text(textPoint.X, textPoint.Y, al.Text, al.style.textStyle())
 }
 
 // TODO: Type of arrow

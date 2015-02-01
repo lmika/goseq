@@ -33,7 +33,7 @@ func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
         switch itemDetails := item.(type) {
         case *Action:
             g.Put(row, gb.colOfActor(itemDetails.From), 
-                &graphbox.ActivityLine{gb.colOfActor(itemDetails.To), itemDetails.Message})
+                graphbox.NewActivityLine(gb.colOfActor(itemDetails.To), itemDetails.Message, gb.Font))
         }
     }
 

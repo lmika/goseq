@@ -42,7 +42,9 @@ func (dc *DrawContext) GridRect(r, c int) (Rect, bool) {
 // An anchor point located in a rectangle at 0, 0 with the w, h passed in
 type Gravity         func(w, h int) (int, int)
 
+var NorthWestGravity Gravity = func(w, h int) (int, int) { return 0, 0 }
 var CenterGravity Gravity = func(w, h int) (int, int) { return w / 2, h / 2 }
+var SouthGravity Gravity = func(w, h int) (int, int) { return w / 2, h }
 
 
 // A specific gravity
