@@ -7,61 +7,44 @@ import (
 
 
 // Styling options for the actor rect
-type ActorRectStyle struct {
+type TextRectStyle struct {
     Font        Font
     FontSize    int
     Padding     Point
 }
 
-// Returns the text style
-func (rs ActorRectStyle) textStyle() string {
-    s := SvgStyle{}
-
-    s.Set("font-family", rs.Font.SvgName())
-    s.Set("font-size", fmt.Sprintf("%dpx", rs.FontSize))
-
-    return s.ToStyle()
-}
-
-// Measure a string based on the font settings
-func (rs ActorRectStyle) measure(s string) (int, int) {
-    return rs.Font.Measure(s, float64(rs.FontSize))
-}
-
-
-
 // Draws an object instance
-type ActorRect struct {
+type TextRect struct {
     // Width and height of the rectangle
     Text        string
-    w, h        int
-    style       ActorRectStyle
+
+    frameRect   Rect
+    style       TextRectStyle
+    textBox     *TextBox
 }
 
-func NewActorRect(text string, font Font) *ActorRect {
-    style := ActorRectStyle{
-        Font:       font,
-        FontSize:   16,
-        Padding:    Point{16, 8},
-    }
+func NewTextRect(text string, style TextRectStyle) *TextRect {
+    textBox := NewTextBox(style.Font, style.FontSize, MiddleTextAlign)
+    textBox.AddText(text)
 
-    trect, _ := MeasureFontRect(style.Font, style.FontSize, text, 0, 0, NorthWestGravity)
+    trect := textBox.BoundingRect(0, 0, NorthWestGravity)
     brect := trect.BlowOut(style.Padding)
 
-    return &ActorRect{text, brect.W, brect.H, style}
+
+    return &TextRect{text, brect, style, textBox}
 }
 
-func (r *ActorRect) Size() (int, int) {
-    return r.w, r.h
+func (r *TextRect) Size() (int, int) {
+    return r.frameRect.W, r.frameRect.H
 }
 
-func (r *ActorRect) Draw(ctx DrawContext, frame BoxFrame) {
+func (r *TextRect) Draw(ctx DrawContext, frame BoxFrame) {
     centerX, centerY := frame.InnerRect.PointAt(CenterGravity)
-    trect, tp := MeasureFontRect(r.style.Font, r.style.FontSize, r.Text, centerX, centerY, CenterGravity)
-    brect := trect.BlowOut(r.style.Padding)
 
-    ctx.Canvas.Rect(brect.X, brect.Y, brect.W, brect.H, "stroke:black;fill:white")
-    ctx.Canvas.Text(tp.X, tp.Y, r.Text, r.style.textStyle())
+    rect := r.frameRect.PositionTo(centerX, centerY, CenterGravity)
+
+    ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white")
+    r.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
 }
 
 
@@ -108,15 +91,7 @@ type ActivityLine struct {
     height       int
 }
 
-func NewActivityLine(toCol int, text string, font Font) *ActivityLine {
-    style := ActivityLineStyle{
-        Font:           font,
-        FontSize:       14,
-        PaddingTop:     8,
-        PaddingBottom:  8,
-        TextGap:        8,
-    }
-
+func NewActivityLine(toCol int, text string, style ActivityLineStyle) *ActivityLine {
     r, _ := MeasureFontRect(style.Font, style.FontSize, text, 0, 0, NorthWestGravity)
     height := r.H
     return &ActivityLine{toCol, text, style, height}

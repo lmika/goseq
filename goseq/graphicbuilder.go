@@ -4,9 +4,47 @@ import (
     "./graphbox"
 )
 
+
+type DiagramStyles struct {
+    ActorBox            graphbox.TextRectStyle
+    NoteBox             graphbox.TextRectStyle
+    ActivityLine        graphbox.ActivityLineStyle
+}
+
+var DefaultStyle DiagramStyles
+
+func init() {
+    font, err := graphbox.NewTTFFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf")
+    if err != nil { 
+        panic(err)
+    }
+
+    DefaultStyle = DiagramStyles {
+        ActorBox: graphbox.TextRectStyle {
+            Font: font,
+            FontSize: 16,
+            Padding: graphbox.Point{16, 8},
+        },
+        NoteBox: graphbox.TextRectStyle {
+            Font: font,
+            FontSize: 14,
+            Padding: graphbox.Point{8, 4},
+        },
+        ActivityLine: graphbox.ActivityLineStyle{
+            Font:           font,
+            FontSize:       14,
+            PaddingTop:     4,
+            PaddingBottom:  8,
+            TextGap:        8,
+        },
+    }
+}
+
 type GraphicBuilder struct {
     Diagram           *Diagram
+    Graphic           *graphbox.Graphic
     Font              graphbox.Font
+    Style             DiagramStyles
 }
 
 
@@ -16,28 +54,44 @@ func NewGraphicBuilder(d *Diagram) (*GraphicBuilder, error) {
         return nil, err
     }
 
-    return &GraphicBuilder{d, font}, nil
+    return &GraphicBuilder{d, nil, font, DefaultStyle}, nil
 }
 
 func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
     rows, cols := gb.calcRowsAndCols()
-    g := graphbox.NewGraphic(rows, cols)
+    gb.Graphic = graphbox.NewGraphic(rows, cols)
 
-    g.Margin = graphbox.Point{16, 8}
-    g.Padding = graphbox.Point{16, 8}
-    gb.addObjects(g)
+    gb.Graphic.Margin = graphbox.Point{16, 8}
+    gb.Graphic.Padding = graphbox.Point{16, 8}
+    gb.addObjects()
 
     // TEMP
     for i, item := range gb.Diagram.Items {
         row := i + 2
         switch itemDetails := item.(type) {
         case *Action:
-            g.Put(row, gb.colOfActor(itemDetails.From), 
-                graphbox.NewActivityLine(gb.colOfActor(itemDetails.To), itemDetails.Message, gb.Font))
+            gb.putAction(row, itemDetails)
+        case *Note:
+            gb.putNote(row, itemDetails)
         }
     }
 
-    return g
+    return gb.Graphic
+}
+
+// Places a note
+func (gb *GraphicBuilder) putNote(row int, note *Note) {
+    col := gb.colOfActor(note.Actor)
+    gb.Graphic.Put(row, col, graphbox.NewTextRect(note.Message, gb.Style.NoteBox))    
+}
+
+// Places an action
+func (gb *GraphicBuilder) putAction(row int, action *Action) {
+    fromCol := gb.colOfActor(action.From)
+    toCol := gb.colOfActor(action.To)
+    style := gb.Style.ActivityLine
+
+    gb.Graphic.Put(row, fromCol, graphbox.NewActivityLine(toCol, action.Message, style))
 }
 
 // Count the number of rows needed in the graphic
@@ -47,14 +101,14 @@ func (gb *GraphicBuilder) calcRowsAndCols() (int, int) {
 }
 
 // Add the object headers and footers
-func (gb *GraphicBuilder) addObjects(g *graphbox.Graphic) {
+func (gb *GraphicBuilder) addObjects() {
     // TODO: Proper styling
-    bottomRow := g.Rows() - 1
+    bottomRow := gb.Graphic.Rows() - 1
     for rank, actor := range gb.Diagram.Actors {
-        g.Put(1, rank, &graphbox.LifeLine{bottomRow, rank})
+        gb.Graphic.Put(1, rank, &graphbox.LifeLine{bottomRow, rank})
 
-        g.Put(1, rank, graphbox.NewActorRect(actor.Name, gb.Font))
-        g.Put(bottomRow, rank, graphbox.NewActorRect(actor.Name, gb.Font))
+        gb.Graphic.Put(1, rank, graphbox.NewTextRect(actor.Name, gb.Style.ActorBox))
+        gb.Graphic.Put(bottomRow, rank, graphbox.NewTextRect(actor.Name, gb.Style.ActorBox))
     }
 }
 

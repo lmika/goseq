@@ -67,12 +67,12 @@ func (r Rect) PointAt(gravity Gravity) (int, int) {
     return r.X + lx, r.Y + ly
 }
 
-// Returns a new rect which will be a rectangle with the 
-// given dimensions centered in this rect
-func (r Rect) CenteredRect(w, h int) Rect {
-    x := r.X + (r.W / 2) - w / 2
-    y := r.Y + (r.H / 2) - h / 2
-    return Rect{x, y, w, h}
+// Returns a rectangle position at a specific point and a gravity relative
+func (r Rect) PositionTo(x, y int, gravity Gravity) Rect {
+    lx, ly := gravity(r.W, r.H)
+    nx := x - lx
+    ny := y - ly
+    return Rect{nx, ny, r.W, r.H}
 }
 
 // Returns a rectangle blown out by a given size

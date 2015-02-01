@@ -75,9 +75,9 @@ type Arrow struct {
 // Note alignments
 type NoteAlignment int
 const (
-    AlignLeft       NoteAlignment = iota
-    AlignRight                    = iota
-    AlignOver                     = iota
+    LeftNoteAlignment       NoteAlignment = iota
+    RightNoteAlignment                    = iota
+    OverNoteAlignment                     = iota
 )
 
 // A sequence item

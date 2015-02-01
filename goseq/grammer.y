@@ -18,21 +18,24 @@ import (
     arrow       Arrow
     arrowStem   ArrowStem
     arrowHead   ArrowHead
+    noteAlign   NoteAlignment
 
     sval        string
 }
 
-%token  K_TITLE K_PARTICIPANT
+%token  K_TITLE K_PARTICIPANT K_NOTE
+%token  K_LEFT  K_RIGHT  K_OVER  K_OF
 %token  DASH    ANGR
 
 %token  <sval>  MESSAGE
 %token  <sval>  IDENT
 
 %type   <seqItem>   seqitem
-%type   <seqItem>   action
+%type   <seqItem>   action      note
 %type   <arrow>     arrow
 %type   <arrowStem> arrowStem
 %type   <arrowHead> arrowHead
+%type   <noteAlign> noteplace
 
 %%
 
@@ -70,6 +73,7 @@ actor
 
 seqitem
     :   action
+    |   note
     ;
 
 action
@@ -77,6 +81,29 @@ action
     {
         d := yylex.(*parseState).diagram
         $$ = &Action{d.GetOrAddActor($1), d.GetOrAddActor($3), $2, $4}
+    }
+    ;
+
+note
+    :   K_NOTE noteplace IDENT MESSAGE
+    {
+        d := yylex.(*parseState).diagram
+        $$ = &Note{d.GetOrAddActor($3), $2, $4}
+    }
+    ;    
+
+noteplace
+    :   K_LEFT K_OF
+    {
+        $$ = LeftNoteAlignment
+    }
+    |   K_RIGHT K_OF
+    {
+        $$ = RightNoteAlignment
+    }
+    |   K_OVER
+    {
+        $$ = OverNoteAlignment
     }
     ;
 
@@ -151,6 +178,16 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
         return K_TITLE
     case "participant":
         return K_PARTICIPANT
+    case "note":
+        return K_NOTE
+    case "left":
+        return K_LEFT
+    case "right":
+        return K_RIGHT
+    case "over":
+        return K_OVER
+    case "of":
+        return K_OF
     default:
         lval.sval = tokVal
         return IDENT
