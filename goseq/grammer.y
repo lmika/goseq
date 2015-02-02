@@ -12,6 +12,15 @@ import (
     "strings"
     "text/scanner"
 )
+
+var DualRunes = map[string]int {
+    "--":   DOUBLEDASH,
+    "-":    DASH,
+    ">>":   DOUBLEANGR,
+    ">":    ANGR,
+}
+
+
 %}
 
 %union {
@@ -26,7 +35,8 @@ import (
 
 %token  K_TITLE K_PARTICIPANT K_NOTE
 %token  K_LEFT  K_RIGHT  K_OVER  K_OF
-%token  DASH    ANGR
+%token  DASH    DOUBLEDASH
+%token  ANGR    DOUBLEANGR
 
 %token  <sval>  MESSAGE
 %token  <sval>  IDENT
@@ -120,12 +130,20 @@ arrowStem
     {
         $$ = SolidArrowStem
     }
+    |   DOUBLEDASH
+    {
+        $$ = DashedArrowStem
+    }    
     ;
 
 arrowHead
     :   ANGR
     {
         $$ = SolidArrowHead
+    }
+    |   DOUBLEANGR
+    {
+        $$ = OpenArrowHead
     }
     ;
 %%
@@ -158,18 +176,39 @@ func (ps *parseState) Lex(lval *yySymType) int {
             return 0
         case ':':
             return ps.scanMessage(lval)
-        case '-':
-            // TODO: Handle multichar stems
-            return DASH
-        case '>':
-            // TODO: Handle multichar arrow heads
-            return ANGR
+        case '-', '>':
+            if res, isTok := ps.handleDoubleRune(tok) ; isTok {
+                return res
+            } else {
+                ps.Error("Invalid token: " + scanner.TokenString(tok))
+            }
         case scanner.Ident:
             return ps.scanKeywordOrIdent(lval)
         default:
             ps.Error("Invalid token: " + scanner.TokenString(tok))
         }
     }
+}
+
+func (ps *parseState) handleDoubleRune(firstRune rune) (int, bool) {
+    nextRune := ps.S.Peek()
+
+    // Try the double rune
+    if nextRune != scanner.EOF {
+        tokStr := string(firstRune) + string(nextRune)
+        if tok, hasTok := DualRunes[tokStr] ; hasTok {
+            ps.NextRune()
+            return tok, true
+        }
+    }
+
+    // Try the single rune
+    tokStr := string(firstRune)
+    if tok, hasTok := DualRunes[tokStr] ; hasTok {
+        return tok, true
+    }
+
+    return 0, false
 }
 
 func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {

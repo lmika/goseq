@@ -12,6 +12,17 @@ const (
     ObjectY         =   1
 )
 
+// This arrow head to arrow head
+var ArrowHeadMapping = map[ArrowHead]graphbox.ActivityArrowHead {
+    SolidArrowHead: graphbox.SolidArrowHead,
+    OpenArrowHead: graphbox.OpenArrowHead,
+}
+
+var ArrowStemMapping = map[ArrowStem]graphbox.ActivityArrowStem {
+    SolidArrowStem: graphbox.SolidArrowStem,
+    DashedArrowStem: graphbox.DashedArrowStem,
+}
+
 type DiagramStyles struct {
     ActorBox            graphbox.ActorBoxStyle
     NoteBox             graphbox.NoteBoxStyle
@@ -43,12 +54,12 @@ func init() {
         ActivityLine: graphbox.ActivityLineStyle{
             Font: font,
             FontSize: 14,
-            Margin: graphbox.Point{8, 16},
+            Margin: graphbox.Point{16, 8},
             TextGap: 4,
         },
         Title: graphbox.TitleStyle {
             Font: font,
-            FontSize: 24,
+            FontSize: 20,
             Padding: graphbox.Point{16, 8},
         },        
     }
@@ -133,6 +144,9 @@ func (gb *GraphicBuilder) putAction(row int, action *Action) {
     fromCol := gb.colOfActor(action.From)
     toCol := gb.colOfActor(action.To)
     style := gb.Style.ActivityLine
+
+    style.ArrowHead = ArrowHeadMapping[action.Arrow.Head]
+    style.ArrowStem = ArrowStemMapping[action.Arrow.Stem]
 
     gb.Graphic.Put(row, fromCol, graphbox.NewActivityLine(toCol, action.Message, style))
 }

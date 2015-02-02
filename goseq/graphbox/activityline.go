@@ -4,11 +4,25 @@ import (
     "fmt"
 )
 
+type ActivityArrowHead int
+const (
+    SolidArrowHead  ActivityArrowHead   =   iota
+    OpenArrowHead                       =   iota
+)
+
+type ActivityArrowStem int
+const (
+    SolidArrowStem  ActivityArrowStem   =   iota
+    DashedArrowStem                     =   iota
+)
+
 type ActivityLineStyle struct {
     Font            Font
     FontSize        int
     Margin          Point
     TextGap         int
+    ArrowHead       ActivityArrowHead
+    ArrowStem       ActivityArrowStem
 }
 
 // Returns the text style
@@ -57,12 +71,17 @@ func (al *ActivityLine) Draw(ctx DrawContext, point Point) {
     if point, isPoint := ctx.PointAt(ctx.R, al.TC) ; isPoint {
         tx, ty := point.X, point.Y
 
-        ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black")
-        al.drawArrow(ctx, tx, ty, al.TC > ctx.C)
-
         textX := fx + (tx - fx) / 2
         textY := ty - al.style.TextGap
-        al.renderMessage(ctx, textX, textY)
+        al.renderMessage(ctx, textX, textY)        
+
+        if al.style.ArrowStem == DashedArrowStem {
+            ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-dasharray:4,2")
+        } else {
+            ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black")
+        }
+
+        al.drawArrow(ctx, tx, ty, al.TC > ctx.C)
     }
 }
 
@@ -86,5 +105,9 @@ func (al *ActivityLine) drawArrow(ctx DrawContext, x, y int, isRight bool) {
         xs = []int { x + 8, x, x + 8 }
     }
 
-    ctx.Canvas.Polyline(xs, ys, "stroke:black;fill:none")
+    if al.style.ArrowHead == OpenArrowHead {
+        ctx.Canvas.Polyline(xs, ys, "stroke:black;fill:none")
+    } else {
+        ctx.Canvas.Polyline(xs, ys, "stroke:black;fill:black")
+    }
 }

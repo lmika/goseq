@@ -12,7 +12,14 @@ import (
 	"text/scanner"
 )
 
-//line goseq/grammer.y:17
+var DualRunes = map[string]int{
+	"--": DOUBLEDASH,
+	"-":  DASH,
+	">>": DOUBLEANGR,
+	">":  ANGR,
+}
+
+//line goseq/grammer.y:26
 type yySymType struct {
 	yys       int
 	seqItem   SequenceItem
@@ -32,9 +39,11 @@ const K_RIGHT = 57350
 const K_OVER = 57351
 const K_OF = 57352
 const DASH = 57353
-const ANGR = 57354
-const MESSAGE = 57355
-const IDENT = 57356
+const DOUBLEDASH = 57354
+const ANGR = 57355
+const DOUBLEANGR = 57356
+const MESSAGE = 57357
+const IDENT = 57358
 
 var yyToknames = []string{
 	"K_TITLE",
@@ -45,7 +54,9 @@ var yyToknames = []string{
 	"K_OVER",
 	"K_OF",
 	"DASH",
+	"DOUBLEDASH",
 	"ANGR",
+	"DOUBLEANGR",
 	"MESSAGE",
 	"IDENT",
 }
@@ -55,7 +66,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line goseq/grammer.y:131
+//line goseq/grammer.y:149
 
 // Manages the lexer as well as the current diagram being parsed
 type parseState struct {
@@ -85,18 +96,39 @@ func (ps *parseState) Lex(lval *yySymType) int {
 			return 0
 		case ':':
 			return ps.scanMessage(lval)
-		case '-':
-			// TODO: Handle multichar stems
-			return DASH
-		case '>':
-			// TODO: Handle multichar arrow heads
-			return ANGR
+		case '-', '>':
+			if res, isTok := ps.handleDoubleRune(tok); isTok {
+				return res
+			} else {
+				ps.Error("Invalid token: " + scanner.TokenString(tok))
+			}
 		case scanner.Ident:
 			return ps.scanKeywordOrIdent(lval)
 		default:
 			ps.Error("Invalid token: " + scanner.TokenString(tok))
 		}
 	}
+}
+
+func (ps *parseState) handleDoubleRune(firstRune rune) (int, bool) {
+	nextRune := ps.S.Peek()
+
+	// Try the double rune
+	if nextRune != scanner.EOF {
+		tokStr := string(firstRune) + string(nextRune)
+		if tok, hasTok := DualRunes[tokStr]; hasTok {
+			ps.NextRune()
+			return tok, true
+		}
+	}
+
+	// Try the single rune
+	tokStr := string(firstRune)
+	if tok, hasTok := DualRunes[tokStr]; hasTok {
+		return tok, true
+	}
+
+	return 0, false
 }
 
 func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
@@ -182,55 +214,58 @@ var yyExca = []int{
 	-2, 0,
 }
 
-const yyNprod = 19
+const yyNprod = 21
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 30
+const yyLast = 32
 
 var yyAct = []int{
 
-	7, 8, 12, 26, 23, 15, 30, 29, 14, 25,
-	11, 20, 21, 22, 18, 28, 27, 2, 5, 4,
-	3, 13, 1, 19, 24, 17, 16, 10, 9, 6,
+	7, 8, 12, 28, 24, 15, 32, 31, 26, 27,
+	18, 19, 11, 14, 21, 22, 23, 2, 30, 29,
+	5, 13, 4, 3, 1, 20, 25, 17, 16, 10,
+	9, 6,
 }
 var yyPact = []int{
 
-	-4, -1000, -1000, -4, -1000, -1000, -1000, -5, -9, -1000,
-	-1000, 3, 4, -1000, -1000, -1000, -10, -3, -1000, -11,
-	6, 5, -1000, -6, -1000, -1000, -7, -1000, -1000, -1000,
-	-1000,
+	-4, -1000, -1000, -4, -1000, -1000, -1000, -2, -11, -1000,
+	-1000, -1, 7, -1000, -1000, -1000, -12, -5, -1000, -1000,
+	-13, 9, 8, -1000, -8, -1000, -1000, -1000, -9, -1000,
+	-1000, -1000, -1000,
 }
 var yyPgo = []int{
 
-	0, 29, 28, 27, 26, 25, 24, 23, 22, 17,
-	20, 19, 18,
+	0, 31, 30, 29, 28, 27, 26, 25, 24, 17,
+	23, 22, 20,
 }
 var yyR1 = []int{
 
 	0, 8, 9, 9, 10, 10, 10, 11, 12, 1,
-	1, 2, 3, 7, 7, 7, 4, 5, 6,
+	1, 2, 3, 7, 7, 7, 4, 5, 5, 6,
+	6,
 }
 var yyR2 = []int{
 
 	0, 1, 0, 2, 1, 1, 1, 2, 2, 1,
-	1, 4, 4, 2, 2, 1, 2, 1, 1,
+	1, 4, 4, 2, 2, 1, 2, 1, 1, 1,
+	1,
 }
 var yyChk = []int{
 
 	-1000, -8, -9, -10, -11, -12, -1, 4, 5, -2,
-	-3, 14, 6, -9, 13, 14, -4, -5, 11, -7,
-	7, 8, 9, 14, -6, 12, 14, 10, 10, 13,
-	13,
+	-3, 16, 6, -9, 15, 16, -4, -5, 11, 12,
+	-7, 7, 8, 9, 16, -6, 13, 14, 16, 10,
+	10, 15, 15,
 }
 var yyDef = []int{
 
 	2, -2, 1, 2, 4, 5, 6, 0, 0, 9,
-	10, 0, 0, 3, 7, 8, 0, 0, 17, 0,
-	0, 0, 15, 0, 16, 18, 0, 13, 14, 11,
-	12,
+	10, 0, 0, 3, 7, 8, 0, 0, 17, 18,
+	0, 0, 0, 15, 0, 16, 19, 20, 0, 13,
+	14, 11, 12,
 }
 var yyTok1 = []int{
 
@@ -239,7 +274,7 @@ var yyTok1 = []int{
 var yyTok2 = []int{
 
 	2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-	12, 13, 14,
+	12, 13, 14, 15, 16,
 }
 var yyTok3 = []int{
 	0,
@@ -471,17 +506,17 @@ yydefault:
 	switch yynt {
 
 	case 6:
-		//line goseq/grammer.y:56
+		//line goseq/grammer.y:66
 		{
 			yylex.(*parseState).diagram.AddSequenceItem(yyS[yypt-0].seqItem)
 		}
 	case 7:
-		//line goseq/grammer.y:63
+		//line goseq/grammer.y:73
 		{
 			yylex.(*parseState).diagram.Title = yyS[yypt-0].sval
 		}
 	case 8:
-		//line goseq/grammer.y:70
+		//line goseq/grammer.y:80
 		{
 			yylex.(*parseState).diagram.GetOrAddActor(yyS[yypt-0].sval)
 		}
@@ -490,46 +525,56 @@ yydefault:
 	case 10:
 		yyVAL.seqItem = yyS[yypt-0].seqItem
 	case 11:
-		//line goseq/grammer.y:82
+		//line goseq/grammer.y:92
 		{
 			d := yylex.(*parseState).diagram
 			yyVAL.seqItem = &Action{d.GetOrAddActor(yyS[yypt-3].sval), d.GetOrAddActor(yyS[yypt-1].sval), yyS[yypt-2].arrow, yyS[yypt-0].sval}
 		}
 	case 12:
-		//line goseq/grammer.y:90
+		//line goseq/grammer.y:100
 		{
 			d := yylex.(*parseState).diagram
 			yyVAL.seqItem = &Note{d.GetOrAddActor(yyS[yypt-1].sval), yyS[yypt-2].noteAlign, yyS[yypt-0].sval}
 		}
 	case 13:
-		//line goseq/grammer.y:98
+		//line goseq/grammer.y:108
 		{
 			yyVAL.noteAlign = LeftNoteAlignment
 		}
 	case 14:
-		//line goseq/grammer.y:102
+		//line goseq/grammer.y:112
 		{
 			yyVAL.noteAlign = RightNoteAlignment
 		}
 	case 15:
-		//line goseq/grammer.y:106
+		//line goseq/grammer.y:116
 		{
 			yyVAL.noteAlign = OverNoteAlignment
 		}
 	case 16:
-		//line goseq/grammer.y:113
+		//line goseq/grammer.y:123
 		{
 			yyVAL.arrow = Arrow{yyS[yypt-1].arrowStem, yyS[yypt-0].arrowHead}
 		}
 	case 17:
-		//line goseq/grammer.y:120
+		//line goseq/grammer.y:130
 		{
 			yyVAL.arrowStem = SolidArrowStem
 		}
 	case 18:
-		//line goseq/grammer.y:127
+		//line goseq/grammer.y:134
+		{
+			yyVAL.arrowStem = DashedArrowStem
+		}
+	case 19:
+		//line goseq/grammer.y:141
 		{
 			yyVAL.arrowHead = SolidArrowHead
+		}
+	case 20:
+		//line goseq/grammer.y:145
+		{
+			yyVAL.arrowHead = OpenArrowHead
 		}
 	}
 	goto yystack /* stack new state and value */

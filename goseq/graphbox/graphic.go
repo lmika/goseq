@@ -169,11 +169,13 @@ func (g *Graphic) DrawSVG(w io.Writer) {
     }
 
     // DEBUG: Draw the grid
+    /*
     for _, row := range g.matrix {
         for _, cell := range row {
             canvas.Circle(cell.Point.X, cell.Point.Y, 2, "brush:blue")
         }
     }
+    */
 }
 
 // Draws the item
