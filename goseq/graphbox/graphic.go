@@ -96,8 +96,10 @@ func (g *Graphic) repositionGridPoints() (int, int) {
             g.matrix[r][c].Point.X = px
             g.matrix[r][c].Point.Y = py
         }
+        px += g.matrix[r][len(row) - 1].Delta.X + g.Margin.X
         maxX = maxInt(px, maxX)
     }
+    py += g.matrix[len(g.matrix) - 1][0].Delta.Y + g.Margin.Y
 
     return maxX, py
 }
@@ -131,6 +133,17 @@ func (g *Graphic) EnsureTopIsAtLeast(row, newTop int) {
     }
 }
 
+func (g *Graphic) AddLeftToCol(col, newLeft int) {
+    for r := 0; r < g.Rows(); r++ {
+        g.matrix[r][col].Delta.X += newLeft
+    }
+}
+
+func (g *Graphic) AddTopToRow(row, newTop int) {
+    for c := 0; c < g.Cols(); c++ {
+        g.matrix[row][c].Delta.Y += newTop
+    }
+}
 
 // Remeasure the entire drawing.  Returns a rect containing the size of the image
 // TODO: Chean this UP!!!
@@ -265,11 +278,13 @@ func (g *Graphic) DrawSVG(w io.Writer) {
     }
 
     // DEBUG: Draw the grid
+    /*
     for _, row := range g.matrix {
         for _, cell := range row {
             canvas.Circle(cell.Point.X, cell.Point.Y, 2, "brush:blue")
         }
     }
+    */
 }
 
 // Draws the item

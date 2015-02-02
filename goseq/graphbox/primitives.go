@@ -4,30 +4,28 @@ import (
     "fmt"
 )
 
-type TextRectPos int
+type ActorBoxPos int
 const (
-    CenterPos   TextRectPos     =   iota
-    LeftPos                     =   iota
-    RightPos                    =   iota
+    TopActorBox       ActorBoxPos     =   iota
+    BottomActorBox                    =   iota
 )
 
 // Styling options for the actor rect
-type TextRectStyle struct {
+type ActorBoxStyle struct {
     Font        Font
     FontSize    int
     Padding     Point
-    Position    TextRectPos
 }
 
 // Draws an object instance
-type TextRect struct {
+type ActorBox struct {
     frameRect   Rect
-    style       TextRectStyle
+    style       ActorBoxStyle
     textBox     *TextBox
-    pos         TextRectPos
+    pos         ActorBoxPos
 }
 
-func NewTextRect(text string, style TextRectStyle, pos TextRectPos) *TextRect {
+func NewActorBox(text string, style ActorBoxStyle, pos ActorBoxPos) *ActorBox {
     var textAlign TextAlign = MiddleTextAlign
 
     textBox := NewTextBox(style.Font, style.FontSize, textAlign)
@@ -36,53 +34,43 @@ func NewTextRect(text string, style TextRectStyle, pos TextRectPos) *TextRect {
     trect := textBox.BoundingRect()
     brect := trect.BlowOut(style.Padding)
 
-    return &TextRect{brect, style, textBox, pos}
+    return &ActorBox{brect, style, textBox, pos}
 }
 
-/*
-func (r *TextRect) Size() (int, int) {
-    if (r.pos == CenterPos) {
-        return r.frameRect.W, r.frameRect.H
+func (tr *ActorBox) Constraint(r, c int) Constraint {
+    var vertConstraint Constraint
+
+    if (tr.pos == TopActorBox) {
+        vertConstraint = SizeConstraint{r, c, 0, 0, tr.frameRect.H / 2, tr.frameRect.H / 2 + 4}
     } else {
-        return 0, r.frameRect.H
+        vertConstraint = SizeConstraint{r, c, 0, 0, tr.frameRect.H / 2 + 8, tr.frameRect.H / 2}
+    }
+
+    if (tr.pos == TopActorBox) {
+        if (c == 0) {
+            return Constraints([]Constraint {
+                vertConstraint,
+                SizeConstraint{r, c, tr.frameRect.W / 2, 0, 0, 0},
+                AddSizeConstraint{r, c, 0, tr.frameRect.W / 2, 0, 0},
+            })
+        } else {
+            return Constraints([]Constraint {
+                vertConstraint,
+                AddSizeConstraint{r, c, tr.frameRect.W / 2, 0, 0, 0},
+                AddSizeConstraint{r, c, 0, tr.frameRect.W / 2, 0, 0},
+            })
+        }
+    } else {
+        return vertConstraint
     }
 }
 
-func (r *TextRect) Margin() (int, int, int, int) {
-    if (r.pos == LeftPos) {
-        return r.frameRect.W + 8, 0, 0, 0
-    } else if (r.pos == RightPos) {
-        return 0, r.frameRect.W + 8, 0, 0
-    } else {
-        return 0, 0, 0, 0
-    }
-}
-*/
-
-func (tr *TextRect) Constraint(r, c int) Constraint {
-    return SizeConstraint{r, c, tr.frameRect.W, tr.frameRect.W, tr.frameRect.H / 2, tr.frameRect.H / 2}
-}
-
-func (r *TextRect) Draw(ctx DrawContext, point Point) {
+func (r *ActorBox) Draw(ctx DrawContext, point Point) {
     centerX, centerY := point.X, point.Y
 
-    if (r.pos == CenterPos) {
-        rect := r.frameRect.PositionAt(centerX, centerY, CenterGravity)
-        ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white")
-        r.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
-    } else if (r.pos == LeftPos) {
-        offsetX := centerX - 8
-        textOffsetX := centerX - r.style.Padding.X - 8
-        rect := r.frameRect.PositionAt(offsetX, centerY, EastGravity)
-        ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white")
-        r.textBox.Render(ctx.Canvas, textOffsetX, centerY, EastGravity)
-    } else if (r.pos == RightPos) {
-        offsetX := centerX + 4 * 2
-        textOffsetX := centerX + r.style.Padding.X + 4 * 2
-        rect := r.frameRect.PositionAt(offsetX, centerY, WestGravity)
-        ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white")
-        r.textBox.Render(ctx.Canvas, textOffsetX, centerY, WestGravity)
-    }
+    rect := r.frameRect.PositionAt(centerX, centerY, CenterGravity)
+    ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white")
+    r.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
 }
 
 
@@ -150,10 +138,15 @@ func (al *ActivityLine) Size() (int, int) {
 */
 
 func (al *ActivityLine) Constraint(r, c int) Constraint {
-    h := al.textBoxRect.H + al.style.PaddingTop + al.style.PaddingBottom + al.style.TextGap
+    h := al.textBoxRect.H + al.style.PaddingTop + al.style.TextGap
     w := al.textBoxRect.W
 
-    return TotalSizeConstraint{r - 1, c, r, al.TC, w, h}
+    _ = h
+    _ = w
+    return Constraints([]Constraint{ 
+        AddSizeConstraint{r, c, 0, 0, h, al.style.PaddingBottom},
+        TotalSizeConstraint{r - 1, c, r, al.TC, w + 32, 0},
+    })
 }
 
 // func (al *ActivityLine) Draw(ctx DrawContext, frame BoxFrame) {

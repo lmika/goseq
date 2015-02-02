@@ -6,8 +6,8 @@ import (
 
 
 type DiagramStyles struct {
-    ActorBox            graphbox.TextRectStyle
-    NoteBox             graphbox.TextRectStyle
+    ActorBox            graphbox.ActorBoxStyle
+    NoteBox             graphbox.NoteBoxStyle
     ActivityLine        graphbox.ActivityLineStyle
 }
 
@@ -20,12 +20,12 @@ func init() {
     }
 
     DefaultStyle = DiagramStyles {
-        ActorBox: graphbox.TextRectStyle {
+        ActorBox: graphbox.ActorBoxStyle {
             Font: font,
             FontSize: 16,
             Padding: graphbox.Point{16, 8},
         },
-        NoteBox: graphbox.TextRectStyle {
+        NoteBox: graphbox.NoteBoxStyle {
             Font: font,
             FontSize: 14,
             Padding: graphbox.Point{8, 4},
@@ -95,18 +95,18 @@ func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
 
 // Places a note
 func (gb *GraphicBuilder) putNote(row int, note *Note) {
-    var pos graphbox.TextRectPos
+    var pos graphbox.NoteBoxPos
 
     if note.Align == LeftNoteAlignment {
-        pos = graphbox.LeftPos
+        pos = graphbox.LeftNotePos
     } else if note.Align == OverNoteAlignment {
-        pos = graphbox.CenterPos
+        pos = graphbox.CenterNotePos
     } else if note.Align == RightNoteAlignment {
-        pos = graphbox.RightPos
+        pos = graphbox.RightNotePos
     }
 
     col := gb.colOfActor(note.Actor)
-    gb.Graphic.Put(row, col, graphbox.NewTextRect(note.Message, gb.Style.NoteBox, pos))    
+    gb.Graphic.Put(row, col, graphbox.NewNoteBox(note.Message, gb.Style.NoteBox, pos))    
 }
 
 // Places an action
@@ -173,8 +173,8 @@ func (gb *GraphicBuilder) addObjects() {
         col := gb.colOfActor(actor)
         gb.Graphic.Put(1, col, &graphbox.LifeLine{bottomRow, col})
 
-        gb.Graphic.Put(1, col, graphbox.NewTextRect(actor.Name, gb.Style.ActorBox, graphbox.CenterPos))
-        gb.Graphic.Put(bottomRow, col, graphbox.NewTextRect(actor.Name, gb.Style.ActorBox, graphbox.CenterPos))
+        gb.Graphic.Put(1, col, graphbox.NewActorBox(actor.Name, gb.Style.ActorBox, graphbox.TopActorBox))
+        gb.Graphic.Put(bottomRow, col, graphbox.NewActorBox(actor.Name, gb.Style.ActorBox, graphbox.BottomActorBox))
     }
 }
 

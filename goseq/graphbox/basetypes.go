@@ -32,6 +32,10 @@ type ConstraintChanger interface {
     // Ensure that the top side of this row has this much space.
     // Provide space if needed.
     EnsureTopIsAtLeast(row, newTop int) 
+
+    AddLeftToCol(col, newLeft int)
+
+    AddTopToRow(row, newTop int)
 }
 /*
 // An item that takes up space within a cell
