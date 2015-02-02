@@ -30,10 +30,16 @@ type DiagramStyles struct {
     Title               graphbox.TitleStyle
 }
 
+
+const (
+    //FontName = "/usr/share/fonts/truetype/freefont/FreeSans.ttf"
+    FontName = "/usr/share/fonts/dejavu/DejaVuSans.ttf"
+)
+
 var DefaultStyle DiagramStyles
 
 func init() {
-    font, err := graphbox.NewTTFFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf")
+    font, err := graphbox.NewTTFFont(FontName)
     if err != nil { 
         panic(err)
     }
@@ -80,7 +86,6 @@ type actorInfo struct {
 type GraphicBuilder struct {
     Diagram           *Diagram
     Graphic           *graphbox.Graphic
-    Font              graphbox.Font
     Style             DiagramStyles
 
     actorInfos        []actorInfo
@@ -88,12 +93,7 @@ type GraphicBuilder struct {
 
 
 func NewGraphicBuilder(d *Diagram) (*GraphicBuilder, error) {
-    font, err := graphbox.NewTTFFont("/usr/share/fonts/truetype/freefont/FreeSans.ttf")
-    if err != nil {
-        return nil, err
-    }
-
-    return &GraphicBuilder{d, nil, font, DefaultStyle, nil}, nil
+    return &GraphicBuilder{d, nil, DefaultStyle, nil}, nil
 }
 
 func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
@@ -188,12 +188,22 @@ func (gb *GraphicBuilder) determineActorInfo() int {
 func (gb *GraphicBuilder) addObjects() {
     // TODO: Proper styling
     bottomRow := gb.Graphic.Rows() - 1
-    for _, actor := range gb.Diagram.Actors {
+    for rank, actor := range gb.Diagram.Actors {
+        var actorBoxPos graphbox.ActorBoxPos
+
+        if rank == 0 {
+            actorBoxPos = graphbox.LeftActorBox
+        } else if rank == len(gb.Diagram.Actors) - 1 {
+            actorBoxPos = graphbox.RightActorBox
+        } else {
+            actorBoxPos = graphbox.MiddleActorBox
+        }
+
         col := gb.colOfActor(actor)
         gb.Graphic.Put(ObjectY, col, &graphbox.LifeLine{bottomRow, col})
 
-        gb.Graphic.Put(ObjectY, col, graphbox.NewActorBox(actor.Name, gb.Style.ActorBox, graphbox.TopActorBox))
-        gb.Graphic.Put(bottomRow, col, graphbox.NewActorBox(actor.Name, gb.Style.ActorBox, graphbox.BottomActorBox))
+        gb.Graphic.Put(ObjectY, col, graphbox.NewActorBox(actor.Name, gb.Style.ActorBox, actorBoxPos | graphbox.TopActorBox))
+        gb.Graphic.Put(bottomRow, col, graphbox.NewActorBox(actor.Name, gb.Style.ActorBox, actorBoxPos | graphbox.BottomActorBox))
     }
 }
 

@@ -6,6 +6,12 @@ const (
     BottomActorBox                    =   iota
 )
 
+const (
+    LeftActorBox      ActorBoxPos     =   (iota << 8)
+    MiddleActorBox                    =   (iota << 8)
+    RightActorBox                     =   (iota << 8)
+)
+
 // Styling options for the actor rect
 type ActorBoxStyle struct {
     Font        Font
@@ -36,19 +42,26 @@ func NewActorBox(text string, style ActorBoxStyle, pos ActorBoxPos) *ActorBox {
 
 func (tr *ActorBox) Constraint(r, c int) Constraint {
     var vertConstraint Constraint
+    posHoriz, posVert := tr.pos & 0xFF00, tr.pos & 0xFF
 
-    if (tr.pos == TopActorBox) {
+    if posVert == TopActorBox {
         vertConstraint = SizeConstraint{r, c, 0, 0, tr.frameRect.H / 2, tr.frameRect.H / 2 + tr.style.Margin.Y}
     } else {
         vertConstraint = SizeConstraint{r, c, 0, 0, tr.frameRect.H / 2 + tr.style.Margin.Y, tr.frameRect.H / 2}
     }
 
-    if (tr.pos == TopActorBox) {
-        if (c == 1) {
+    if posVert == TopActorBox {
+        if posHoriz == LeftActorBox {
             return Constraints([]Constraint {
                 vertConstraint,
                 SizeConstraint{r, c, tr.frameRect.W / 2, 0, 0, 0},
                 AddSizeConstraint{r, c, 0, tr.frameRect.W / 2 + tr.style.Margin.X, 0, 0},
+            })
+        } else if posHoriz == RightActorBox {
+            return Constraints([]Constraint {
+                vertConstraint,
+                SizeConstraint{r, c, 0, tr.frameRect.W / 2, 0, 0},
+                AddSizeConstraint{r, c, tr.frameRect.W / 2 + tr.style.Margin.X, 0, 0, 0},
             })
         } else {
             return Constraints([]Constraint {

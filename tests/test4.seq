@@ -1,0 +1,4 @@
+participant C
+participant B
+participant A
+Note right of A: By listing the participants\n you can change their order
