@@ -37,20 +37,6 @@ type ConstraintChanger interface {
 
     AddTopToRow(row, newTop int)
 }
-/*
-// An item that takes up space within a cell
-type Graphbox2DItem interface {
-
-    // The width and height of this particlar item
-    Size()      (int, int)
-}
-
-// An item that requires custom margins
-type MarginItem interface {
-    // Returns the left, right, top and bottom margins
-    Margin()    (int, int, int, int)
-}
-*/
 
 
 // A drawing context

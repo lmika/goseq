@@ -66,18 +66,4 @@ func (sc TotalSizeConstraint) Apply(cm ConstraintChanger) {
             cm.EnsureTopIsAtLeast(r, heightOfEachCell)
         }
     }
-
-    /*
-    if (sc.R >= 0) && (sc.C >= 0) && (sc.R < g.Rows()) && (sc.C < g.Cols()) {
-        for r := 0; r < g.Rows(); r++ {
-            g.matrix[r][sc.C].Delta.X = maxInt(g.matrix[r][sc.C].Delta.X, sc.Left)
-            g.matrix[r][sc.C + 1].Delta.X = maxInt(g.matrix[r][sc.C + 1].Delta.X, sc.Right)
-        }
-
-        for c := 0; c < g.Cols(); c++ {
-            g.matrix[sc.R][c].Delta.Y = maxInt(g.matrix[sc.R][c].Delta.Y, sc.Top)
-            g.matrix[sc.R + 1][c].Delta.Y = maxInt(g.matrix[sc.R + 1][c].Delta.Y, sc.Bottom)
-        }
-    }
-    */
 }

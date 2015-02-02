@@ -24,18 +24,20 @@ func init() {
             Font: font,
             FontSize: 16,
             Padding: graphbox.Point{16, 8},
+            Margin: graphbox.Point{8, 8},
         },
         NoteBox: graphbox.NoteBoxStyle {
             Font: font,
             FontSize: 14,
             Padding: graphbox.Point{8, 4},
+            Margin: graphbox.Point{8, 8},
         },
         ActivityLine: graphbox.ActivityLineStyle{
             Font:           font,
             FontSize:       14,
-            PaddingTop:     4,
+            PaddingTop:     8,
             PaddingBottom:  8,
-            TextGap:        8,
+            TextGap:        4,
         },
     }
 }
@@ -129,20 +131,6 @@ func (gb *GraphicBuilder) calcRowsAndCols() (int, int) {
 // Determine actor information.  Returns the number of colums required
 func (gb *GraphicBuilder) determineActorInfo() int {
     gb.actorInfos = make([]actorInfo, len(gb.Diagram.Actors))
-
-    // Determine whether the actor requires cells to the left or right.
-    // These are cells to place notes
-    /*
-    for _, item := range gb.Diagram.Items {
-        if note, isNote := item.(*Note) ; isNote {
-            if (note.Align == LeftNoteAlignment) {
-                gb.actorInfos[note.Actor.rank].ExtraLeftCol = true
-            } else if (note.Align == RightNoteAlignment) {
-                gb.actorInfos[note.Actor.rank].ExtraRightCol = true
-            }
-        }
-    }
-    */
 
     // Allocate the columns
     cols := 0

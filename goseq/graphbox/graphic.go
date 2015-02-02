@@ -145,114 +145,6 @@ func (g *Graphic) AddTopToRow(row, newTop int) {
     }
 }
 
-// Remeasure the entire drawing.  Returns a rect containing the size of the image
-// TODO: Chean this UP!!!
-/*
-func (g *Graphic) remeasure() Rect {
-
-    cols, rows := g.Cols(), g.Rows()
-    colWidths := make([]int, g.Cols())
-    rowHeights := make([]int, g.Rows())
-
-    // Gaps between rows and columns (to the left or or top of)
-    colGaps := make([]int, g.Cols() + 1)
-    rowGaps := make([]int, g.Rows() + 1)
-
-    for r := 1; r < len(rowGaps); r++ {
-        rowGaps[r] = g.Padding.Y
-    }
-    for c := 1; c < len(colGaps); c++ {
-        colGaps[c] = g.Padding.X
-    }
-
-    // Resize the cells
-    for _, item := range g.items {
-        if (item.R >= 0) && (item.C >= 0) && (item.R < len(g.matrix)) && (item.C < len(g.matrix[item.R])) {
-            if item2d, is2dItem := item.Item.(Graphbox2DItem) ; is2dItem {
-                itemWidth, itemHeight := item2d.Size()
-                rowHeights[item.R] = maxInt(rowHeights[item.R], itemHeight)
-                colWidths[item.C] = maxInt(colWidths[item.C], itemWidth)
-            }
-        }
-    }
-
-    // Determine padding.  The total gap between two colums is the total amount of gap requested by
-    // the two columns PLUS the widths of each of the two columns MINUS the column widths.
-    //
-    // This is to make it possible to interlink overlaps
-    //
-    // EG:
-    //
-    //          [  |      ]   [ |  ]
-    //            [| ] [        | ]
-    for _, item := range g.items {
-        if (item.R >= 0) && (item.C >= 0) && (item.R < len(g.matrix)) && (item.C < len(g.matrix[item.R])) {
-            requestW, requestH := 0, 0
-            if item2d, is2dItem := item.Item.(Graphbox2DItem) ; is2dItem {
-                requestW, requestH = item2d.Size()
-            }
-
-            // If the item requires a margin.
-            if marginItem, isMarginItem := item.Item.(MarginItem) ; isMarginItem {
-                l, r, t, b := marginItem.Margin()
-
-                rowGaps[item.R] = maxInt(rowGaps[item.R], t + requestH / 2 - rowHeights[item.R] / 2)
-                colGaps[item.C] = maxInt(colGaps[item.C], l + requestW / 2 - colWidths[item.C] / 2)
-
-                if (item.R < len(g.matrix) - 1) {
-                    rowGaps[item.R + 1] = maxInt(rowGaps[item.R + 1], b + requestH / 2 - rowHeights[item.R + 1] / 2)
-                } else {
-                    rowGaps[item.R + 1] = maxInt(rowGaps[item.R + 1], b + requestH / 2)
-                }
-                if (item.C < len(g.matrix[item.R]) - 1) {
-                    colGaps[item.C + 1] = maxInt(colGaps[item.C + 1], r + requestW / 2 - colWidths[item.C + 1] / 2)
-                } else {
-                    colGaps[item.C + 1] = maxInt(colGaps[item.C + 1], r + requestW / 2)
-                }
-            }
-        }
-    }
-
-    // Recalculate cell rectanges
-    y := g.Margin.Y - rowGaps[0]
-    for r, row := range g.matrix {
-        x := g.Margin.X
-        largestH := 0
-        for c, _ := range row {
-            cr, rr := colWidths[c], rowHeights[r]
-            innerRect := Rect {
-                X: colGaps[c] + x,
-                Y: rowGaps[r] + y,
-                W: cr,
-                H: rr,
-            }
-
-            ox := x
-            oy := y
-            outerRect := Rect {
-                X: ox,
-                Y: oy,
-                W: colGaps[c] + cr + colGaps[c + 1],
-                H: rowGaps[r] + rr + rowGaps[r + 1],
-            }
-
-            g.matrix[r][c].Frame = BoxFrame{outerRect, innerRect}
-
-            x += colGaps[c] + cr
-            largestH = maxInt(largestH, outerRect.H)
-        }
-        //y += rowHeights[r] + g.Padding.Y * 2
-        y += largestH
-    }    
-
-    lastRect := g.matrix[rows - 1][cols - 1].Frame.OuterRect
-    return Rect{
-        W: lastRect.X + lastRect.W + g.Margin.X,
-        H: lastRect.Y + lastRect.H + g.Margin.Y,
-    }
-}
-*/
-
 // Sets a point in the matrix.  If the point is beyond the scope of the matrix,
 // returns false.
 func (g *Graphic) Put(r, c int, item GraphboxItem) bool {
@@ -299,16 +191,6 @@ func (g *Graphic) drawItem(canvas *svg.SVG, item itemInstance) {
     item.Item.Draw(ctx, point)
 }
 
-// Gets the outer rectangle of a particular cell
-/*
-func (g *Graphic) frameAtCell(r, c int) (BoxFrame, bool) {
-    if (r >= 0) && (c >= 0) && (r < len(g.matrix)) && (c < len(g.matrix[r])) {
-        return g.matrix[r][c].Frame, true
-    } else {
-        return BoxFrame{}, false
-    }
-}
-*/
 func (g *Graphic) PointAt(r, c int) (Point, bool) {
     if (r >= 0) && (c >= 0) && (r < len(g.matrix)) && (c < len(g.matrix[r])) {
         return g.matrix[r][c].Point, true

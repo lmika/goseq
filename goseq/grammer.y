@@ -9,6 +9,7 @@ import (
     "io"
     "bytes"
     "errors"
+    "strings"
     "text/scanner"
 )
 %}
@@ -215,7 +216,7 @@ func (ps *parseState) scanMessage(lval *yySymType) int {
         r = ps.NextRune()
     }
 
-    lval.sval = buf.String()
+    lval.sval = strings.TrimSpace(buf.String())
     return MESSAGE
 }
 

@@ -8,6 +8,10 @@ import (
 )
 
 
+const (
+    LINE_GAP = 1
+)
+
 type TextAlign  int
 const (
     LeftTextAlign TextAlign = iota
@@ -46,10 +50,10 @@ func (tb *TextBox) Measure() (int, int) {
     for _, line := range tb.Lines {
         lw, lh := tb.measureLine(line)
         w = maxInt(w, lw)
-        h += lh
+        h += lh + LINE_GAP
     }
 
-    return w, h
+    return w, h - LINE_GAP
 }
 
 // Measures a line
@@ -93,7 +97,7 @@ func (tb *TextBox) Render(svg *svg.SVG, x, y int, gravity Gravity) {
         textBottom := currY + lineH - (tb.FontSize * 1 / 4 - 1)
         svg.Text(textLeft, textBottom, line, style)
 
-        currY += lineH
+        currY += lineH + LINE_GAP
     }
 }
 

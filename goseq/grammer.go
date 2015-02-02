@@ -8,10 +8,11 @@ import (
 	"bytes"
 	"errors"
 	"io"
+	"strings"
 	"text/scanner"
 )
 
-//line goseq/grammer.y:16
+//line goseq/grammer.y:17
 type yySymType struct {
 	yys       int
 	seqItem   SequenceItem
@@ -54,7 +55,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line goseq/grammer.y:130
+//line goseq/grammer.y:131
 
 // Manages the lexer as well as the current diagram being parsed
 type parseState struct {
@@ -142,7 +143,7 @@ func (ps *parseState) scanMessage(lval *yySymType) int {
 		r = ps.NextRune()
 	}
 
-	lval.sval = buf.String()
+	lval.sval = strings.TrimSpace(buf.String())
 	return MESSAGE
 }
 
@@ -470,17 +471,17 @@ yydefault:
 	switch yynt {
 
 	case 6:
-		//line goseq/grammer.y:55
+		//line goseq/grammer.y:56
 		{
 			yylex.(*parseState).diagram.AddSequenceItem(yyS[yypt-0].seqItem)
 		}
 	case 7:
-		//line goseq/grammer.y:62
+		//line goseq/grammer.y:63
 		{
 			yylex.(*parseState).diagram.Title = yyS[yypt-0].sval
 		}
 	case 8:
-		//line goseq/grammer.y:69
+		//line goseq/grammer.y:70
 		{
 			yylex.(*parseState).diagram.GetOrAddActor(yyS[yypt-0].sval)
 		}
@@ -489,44 +490,44 @@ yydefault:
 	case 10:
 		yyVAL.seqItem = yyS[yypt-0].seqItem
 	case 11:
-		//line goseq/grammer.y:81
+		//line goseq/grammer.y:82
 		{
 			d := yylex.(*parseState).diagram
 			yyVAL.seqItem = &Action{d.GetOrAddActor(yyS[yypt-3].sval), d.GetOrAddActor(yyS[yypt-1].sval), yyS[yypt-2].arrow, yyS[yypt-0].sval}
 		}
 	case 12:
-		//line goseq/grammer.y:89
+		//line goseq/grammer.y:90
 		{
 			d := yylex.(*parseState).diagram
 			yyVAL.seqItem = &Note{d.GetOrAddActor(yyS[yypt-1].sval), yyS[yypt-2].noteAlign, yyS[yypt-0].sval}
 		}
 	case 13:
-		//line goseq/grammer.y:97
+		//line goseq/grammer.y:98
 		{
 			yyVAL.noteAlign = LeftNoteAlignment
 		}
 	case 14:
-		//line goseq/grammer.y:101
+		//line goseq/grammer.y:102
 		{
 			yyVAL.noteAlign = RightNoteAlignment
 		}
 	case 15:
-		//line goseq/grammer.y:105
+		//line goseq/grammer.y:106
 		{
 			yyVAL.noteAlign = OverNoteAlignment
 		}
 	case 16:
-		//line goseq/grammer.y:112
+		//line goseq/grammer.y:113
 		{
 			yyVAL.arrow = Arrow{yyS[yypt-1].arrowStem, yyS[yypt-0].arrowHead}
 		}
 	case 17:
-		//line goseq/grammer.y:119
+		//line goseq/grammer.y:120
 		{
 			yyVAL.arrowStem = SolidArrowStem
 		}
 	case 18:
-		//line goseq/grammer.y:126
+		//line goseq/grammer.y:127
 		{
 			yyVAL.arrowHead = SolidArrowHead
 		}
