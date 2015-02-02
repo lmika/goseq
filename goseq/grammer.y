@@ -174,7 +174,7 @@ func (ps *parseState) Lex(lval *yySymType) int {
 
 func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
     tokVal := ps.S.TokenText()
-    switch tokVal {
+    switch strings.ToLower(tokVal) {
     case "title":
         return K_TITLE
     case "participant":

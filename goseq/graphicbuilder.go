@@ -5,10 +5,18 @@ import (
 )
 
 
+// Various position offsets
+const (
+    ObjectLeftX     =   1
+    TitleY          =   0
+    ObjectY         =   1
+)
+
 type DiagramStyles struct {
     ActorBox            graphbox.ActorBoxStyle
     NoteBox             graphbox.NoteBoxStyle
     ActivityLine        graphbox.ActivityLineStyle
+    Title               graphbox.TitleStyle
 }
 
 var DefaultStyle DiagramStyles
@@ -33,12 +41,16 @@ func init() {
             Margin: graphbox.Point{8, 8},
         },
         ActivityLine: graphbox.ActivityLineStyle{
-            Font:           font,
-            FontSize:       14,
-            PaddingTop:     8,
-            PaddingBottom:  8,
-            TextGap:        4,
+            Font: font,
+            FontSize: 14,
+            Margin: graphbox.Point{8, 16},
+            TextGap: 4,
         },
+        Title: graphbox.TitleStyle {
+            Font: font,
+            FontSize: 24,
+            Padding: graphbox.Point{16, 8},
+        },        
     }
 }
 
@@ -78,7 +90,12 @@ func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
     gb.Graphic = graphbox.NewGraphic(rows, cols)
 
     gb.Graphic.Margin = graphbox.Point{16, 8}
-    gb.Graphic.Padding = graphbox.Point{64, 8}
+
+    // Add a title
+    if gb.Diagram.Title != "" {
+        gb.Graphic.Put(0, 0, graphbox.NewTitle(cols, gb.Diagram.Title, gb.Style.Title))
+    }
+
     gb.addObjects()
 
     // TEMP
@@ -125,7 +142,7 @@ func (gb *GraphicBuilder) calcRowsAndCols() (int, int) {
     cols := gb.determineActorInfo()
 
     // 1 for the title, object header and object footer
-    return len(gb.Diagram.Items) + 2 + 1, cols
+    return len(gb.Diagram.Items) + ObjectY + 2, cols
 }
 
 // Determine actor information.  Returns the number of colums required
@@ -133,7 +150,7 @@ func (gb *GraphicBuilder) determineActorInfo() int {
     gb.actorInfos = make([]actorInfo, len(gb.Diagram.Actors))
 
     // Allocate the columns
-    cols := 0
+    cols := ObjectLeftX
     for _, actor := range gb.Diagram.Actors {
         colsRequiredByActor := 1
         actorCol := cols
@@ -159,9 +176,9 @@ func (gb *GraphicBuilder) addObjects() {
     bottomRow := gb.Graphic.Rows() - 1
     for _, actor := range gb.Diagram.Actors {
         col := gb.colOfActor(actor)
-        gb.Graphic.Put(1, col, &graphbox.LifeLine{bottomRow, col})
+        gb.Graphic.Put(ObjectY, col, &graphbox.LifeLine{bottomRow, col})
 
-        gb.Graphic.Put(1, col, graphbox.NewActorBox(actor.Name, gb.Style.ActorBox, graphbox.TopActorBox))
+        gb.Graphic.Put(ObjectY, col, graphbox.NewActorBox(actor.Name, gb.Style.ActorBox, graphbox.TopActorBox))
         gb.Graphic.Put(bottomRow, col, graphbox.NewActorBox(actor.Name, gb.Style.ActorBox, graphbox.BottomActorBox))
     }
 }

@@ -7,8 +7,7 @@ import (
 type ActivityLineStyle struct {
     Font            Font
     FontSize        int
-    PaddingTop      int
-    PaddingBottom   int
+    Margin          Point
     TextGap         int
 }
 
@@ -40,14 +39,14 @@ func NewActivityLine(toCol int, text string, style ActivityLineStyle) *ActivityL
 }
 
 func (al *ActivityLine) Constraint(r, c int) Constraint {
-    h := al.textBoxRect.H + al.style.PaddingTop + al.style.TextGap
+    h := al.textBoxRect.H + al.style.Margin.Y + al.style.TextGap
     w := al.textBoxRect.W
 
     _ = h
     _ = w
     return Constraints([]Constraint{ 
-        AddSizeConstraint{r, c, 0, 0, h, al.style.PaddingBottom},
-        TotalSizeConstraint{r - 1, c, r, al.TC, w + 32, 0},
+        AddSizeConstraint{r, c, 0, 0, h, al.style.Margin.Y},
+        TotalSizeConstraint{r - 1, c, r, al.TC, w + al.style.Margin.X * 2, 0},
     })
 }
 

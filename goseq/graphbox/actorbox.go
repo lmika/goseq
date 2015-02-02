@@ -44,7 +44,7 @@ func (tr *ActorBox) Constraint(r, c int) Constraint {
     }
 
     if (tr.pos == TopActorBox) {
-        if (c == 0) {
+        if (c == 1) {
             return Constraints([]Constraint {
                 vertConstraint,
                 SizeConstraint{r, c, tr.frameRect.W / 2, 0, 0, 0},
