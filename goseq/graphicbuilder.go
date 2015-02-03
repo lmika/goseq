@@ -24,6 +24,7 @@ var ArrowStemMapping = map[ArrowStem]graphbox.ActivityArrowStem {
 }
 
 type DiagramStyles struct {
+    Margin              graphbox.Point
     ActorBox            graphbox.ActorBoxStyle
     NoteBox             graphbox.NoteBoxStyle
     ActivityLine        graphbox.ActivityLineStyle
@@ -45,6 +46,7 @@ func init() {
     }
 
     DefaultStyle = DiagramStyles {
+        Margin: graphbox.Point{8, 8},
         ActorBox: graphbox.ActorBoxStyle {
             Font: font,
             FontSize: 16,
@@ -100,7 +102,7 @@ func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
     rows, cols := gb.calcRowsAndCols()
     gb.Graphic = graphbox.NewGraphic(rows, cols)
 
-    gb.Graphic.Margin = graphbox.Point{16, 8}
+    gb.Graphic.Margin = gb.Style.Margin
 
     // Add a title
     if gb.Diagram.Title != "" {
@@ -110,13 +112,17 @@ func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
     gb.addObjects()
 
     // TEMP
-    for i, item := range gb.Diagram.Items {
-        row := i + 2
-        switch itemDetails := item.(type) {
-        case *Action:
-            gb.putAction(row, itemDetails)
-        case *Note:
-            gb.putNote(row, itemDetails)
+    if len(gb.Diagram.Items) == 0 {
+        gb.Graphic.Put(2, 0, &graphbox.Spacer{graphbox.Point{0, 64}})
+    } else {
+        for i, item := range gb.Diagram.Items {
+            row := i + 2
+            switch itemDetails := item.(type) {
+            case *Action:
+                gb.putAction(row, itemDetails)
+            case *Note:
+                gb.putNote(row, itemDetails)
+            }
         }
     }
 
@@ -156,7 +162,11 @@ func (gb *GraphicBuilder) calcRowsAndCols() (int, int) {
     cols := gb.determineActorInfo()
 
     // 1 for the title, object header and object footer
-    return len(gb.Diagram.Items) + ObjectY + 2, cols
+    if (len(gb.Diagram.Items) == 0) {
+        return ObjectY + 3, cols
+    } else {
+        return len(gb.Diagram.Items) + ObjectY + 2, cols
+    }    
 }
 
 // Determine actor information.  Returns the number of colums required
