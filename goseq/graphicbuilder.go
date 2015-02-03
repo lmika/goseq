@@ -1,6 +1,8 @@
 package goseq
 
 import (
+    "errors"
+
     "./graphbox"
 )
 
@@ -32,20 +34,32 @@ type DiagramStyles struct {
 }
 
 
+/*
 const (
     //FontName = "/usr/share/fonts/truetype/freefont/FreeSans.ttf"
     FontName = "/usr/share/fonts/dejavu/DejaVuSans.ttf"
 )
+*/
 
-var DefaultStyle DiagramStyles
+//var DefaultStyle DiagramStyles
 
-func init() {
-    font, err := graphbox.NewTTFFont(FontName)
-    if err != nil { 
-        panic(err)
+// Initializes the style.  Returns either the style, or an error
+func initStyle() (*DiagramStyles, error) {
+
+    // Attempts to find a font
+    fontName := LocateFont()
+    if fontName == "" {
+        return nil, errors.New("Could not locate a suitable font")
     }
 
-    DefaultStyle = DiagramStyles {
+    // Attempts to load the font
+    font, err := graphbox.NewTTFFont(fontName)
+    if err != nil { 
+        return nil, err
+    }
+
+    // Returns the style
+    style := &DiagramStyles {
         Margin: graphbox.Point{8, 8},
         ActorBox: graphbox.ActorBoxStyle {
             Font: font,
@@ -71,6 +85,8 @@ func init() {
             Padding: graphbox.Point{16, 8},
         },        
     }
+
+    return style, nil
 }
 
 
@@ -88,14 +104,19 @@ type actorInfo struct {
 type GraphicBuilder struct {
     Diagram           *Diagram
     Graphic           *graphbox.Graphic
-    Style             DiagramStyles
+    Style             *DiagramStyles
 
     actorInfos        []actorInfo
 }
 
 
 func NewGraphicBuilder(d *Diagram) (*GraphicBuilder, error) {
-    return &GraphicBuilder{d, nil, DefaultStyle, nil}, nil
+    style, err := initStyle()
+    if err != nil {
+        return nil, err
+    }
+
+    return &GraphicBuilder{d, nil, style, nil}, nil
 }
 
 func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
