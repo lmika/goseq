@@ -19,6 +19,9 @@ type Graphic struct {
 
     // The margin between items
     Margin      Point
+
+    // Show the grid
+    ShowGrid    bool
 }
 
 func NewGraphic(rows, cols int) *Graphic {
@@ -170,10 +173,12 @@ func (g *Graphic) DrawSVG(w io.Writer) {
         g.drawItem(canvas, item)
     }
 
-    // DEBUG: Draw the grid
-    for _, row := range g.matrix {
-        for _, cell := range row {
-            canvas.Circle(cell.Point.X, cell.Point.Y, 2, "brush:blue")
+    // Draw the grid.  Used manily for debugging
+    if g.ShowGrid {
+        for _, row := range g.matrix {
+            for _, cell := range row {
+                canvas.Circle(cell.Point.X, cell.Point.Y, 2, "brush:blue")
+            }
         }
     }
 }
