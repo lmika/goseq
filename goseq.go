@@ -3,8 +3,7 @@ package main
 import (
     "os"
     "log"
-    "./goseq"
-//    "./goseq/graphbox"
+    "bitbucket.org/lmika/goseq/goseq"
 )
 
 func main() {

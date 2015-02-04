@@ -3,7 +3,7 @@ package goseq
 import (
     "errors"
 
-    "./graphbox"
+    "bitbucket.org/lmika/goseq/goseq/graphbox"
 )
 
 
