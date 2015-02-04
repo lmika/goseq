@@ -15,6 +15,7 @@ var winFontDirectory string = "C:\\Windows\\Fonts"
 
 // Desirable fonts
 var ttfFonts = []string {
+    "calibri.ttf",
     "verdana.ttf",
     "arial.ttf",
 }

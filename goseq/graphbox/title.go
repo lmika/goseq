@@ -29,9 +29,9 @@ func (al *Title) Constraint(r, c int) Constraint {
 
     _ = h
     _ = w
-    return Constraints([]Constraint{ 
+    return Constraints([]Constraint{
         AddSizeConstraint{r, c, 0, 0, h, al.style.Padding.Y},
-        TotalSizeConstraint{r, c, r + 1, al.TC, w + al.style.Padding.X * 2, 0},
+        TotalSizeConstraint{r, c, r + 1, al.TC, w + al.style.Padding.X, 0},
     })
 }
 

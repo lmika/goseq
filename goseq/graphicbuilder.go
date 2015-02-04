@@ -82,8 +82,8 @@ func initStyle() (*DiagramStyles, error) {
         Title: graphbox.TitleStyle {
             Font: font,
             FontSize: 20,
-            Padding: graphbox.Point{16, 16},
-        },        
+            Padding: graphbox.Point{0, 16},
+        },
     }
 
     return style, nil
