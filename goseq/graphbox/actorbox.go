@@ -78,6 +78,6 @@ func (r *ActorBox) Draw(ctx DrawContext, point Point) {
     centerX, centerY := point.X, point.Y
 
     rect := r.frameRect.PositionAt(centerX, centerY, CenterGravity)
-    ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white")
+    ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white;stroke-width:1.5px;")
     r.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
 }

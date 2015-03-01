@@ -1,0 +1,5 @@
+Title: Multilined\nText entries.
+A->B: Normal line\nNormal line
+B-->C: Dashed line\nDashed line
+C->>D: Open arrow\nOpen arrow
+D-->>A: Dashed open arrow\nDashed open arrow

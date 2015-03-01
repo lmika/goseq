@@ -76,9 +76,9 @@ func (al *ActivityLine) Draw(ctx DrawContext, point Point) {
         al.renderMessage(ctx, textX, textY)        
 
         if al.style.ArrowStem == DashedArrowStem {
-            ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-dasharray:4,2")
+            ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-dasharray:4,2;stroke-width:1.5px;")
         } else {
-            ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black")
+            ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-width:1.5px;")
         }
 
         al.drawArrow(ctx, tx, ty, al.TC > ctx.C)

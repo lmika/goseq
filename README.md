@@ -11,3 +11,8 @@ To install it:
 
     go get bitbucket.org/lmika/goseq
 
+To allow automatic generation of PNG files, ImageMagick is required.  To disable this feature, add the `noim` tag:
+
+    go get -tags noim bitbucket.org/lmika/goseq
+
+This will disable the `-p` flag.
