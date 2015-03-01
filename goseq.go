@@ -6,8 +6,8 @@ import (
     "bitbucket.org/lmika/goseq/goseq"
 )
 
-func main() {
-    diagram, err := goseq.Parse(os.Stdin)
+func main() {    
+    diagram, err := goseq.Parse(os.Stdin)    
 
     if err != nil {
         log.Fatal(err)

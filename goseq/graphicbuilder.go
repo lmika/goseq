@@ -34,15 +34,6 @@ type DiagramStyles struct {
 }
 
 
-/*
-const (
-    //FontName = "/usr/share/fonts/truetype/freefont/FreeSans.ttf"
-    FontName = "/usr/share/fonts/dejavu/DejaVuSans.ttf"
-)
-*/
-
-//var DefaultStyle DiagramStyles
-
 // Initializes the style.  Returns either the style, or an error
 func initStyle() (*DiagramStyles, error) {
 
@@ -82,7 +73,7 @@ func initStyle() (*DiagramStyles, error) {
         Title: graphbox.TitleStyle {
             Font: font,
             FontSize: 20,
-            Padding: graphbox.Point{0, 16},
+            Padding: graphbox.Point{4, 16},
         },
     }
 

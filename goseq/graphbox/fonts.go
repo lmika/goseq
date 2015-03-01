@@ -86,7 +86,8 @@ func (ttf *TTFFont) Measure(txt string, size float64) (int, int) {
 
 // Return the SVG Name
 func (ttf *TTFFont) SvgName() string {
-    return ttf.fontName
+    // !!HACK!!  Need to properly determine how specific font families are defined in SVG
+    return ttf.fontName + ",sans-serif"
 }
 
 

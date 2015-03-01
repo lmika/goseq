@@ -16,7 +16,7 @@ type Title struct {
 }
 
 func NewTitle(toCol int, text string, style TitleStyle) *Title {
-    textBox := NewTextBox(style.Font, style.FontSize, MiddleTextAlign)
+    textBox := NewTextBox(style.Font, style.FontSize, LeftTextAlign)
     textBox.AddText(text)
 
     brect := textBox.BoundingRect()
@@ -39,16 +39,17 @@ func (al *Title) Draw(ctx DrawContext, point Point) {
     fx, fy := point.X, point.Y
     if point, isPoint := ctx.PointAt(ctx.R, al.TC) ; isPoint {
         tx, _ := point.X, point.Y
+        _ = tx
 
-        textX := fx + (tx - fx) / 2
+        textX := fx + al.style.Padding.X // + (tx - fx) / 2
         textY := fy - al.style.Padding.Y
         al.renderMessage(ctx, textX, textY)
     }
 }
 
 func (al *Title) renderMessage(ctx DrawContext, tx, ty int) {
-    rect := al.textBoxRect.PositionAt(tx, ty, SouthGravity)
+    rect := al.textBoxRect.PositionAt(tx, ty, SouthWestGravity)
 
     ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "fill:white;stroke:white;")
-    al.textBox.Render(ctx.Canvas, tx, ty, SouthGravity)
+    al.textBox.Render(ctx.Canvas, tx, ty, SouthWestGravity)
 }
