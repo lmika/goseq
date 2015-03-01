@@ -16,6 +16,6 @@ func (ll *LifeLine) Draw(ctx DrawContext, point Point) {
     if point, isPoint := ctx.PointAt(ll.TR, ll.TC) ; isPoint {
         tx, ty := point.X, point.Y
 
-        ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-dasharray:8,8;stroke-width:1.5px;")
+        ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-dasharray:8,8;stroke-width:2px;")
     }
 }

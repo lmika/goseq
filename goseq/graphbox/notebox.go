@@ -61,19 +61,19 @@ func (r *NoteBox) Draw(ctx DrawContext, point Point) {
 
     if (r.pos == CenterNotePos) {
         rect := r.frameRect.PositionAt(centerX, centerY, CenterGravity)
-        ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white;stroke-width:1.5px;")
+        ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white;stroke-width:2px;")
         r.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
     } else if (r.pos == LeftNotePos) {
         offsetX := centerX - marginX
         textOffsetX := centerX - r.style.Padding.X - marginX
         rect := r.frameRect.PositionAt(offsetX, centerY, EastGravity)
-        ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white;stroke-width:1.5px;")
+        ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white;stroke-width:2px;")
         r.textBox.Render(ctx.Canvas, textOffsetX, centerY, EastGravity)
     } else if (r.pos == RightNotePos) {
         offsetX := centerX + marginX
         textOffsetX := centerX + r.style.Padding.X + marginX
         rect := r.frameRect.PositionAt(offsetX, centerY, WestGravity)
-        ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white;stroke-width:1.5px;")
+        ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white;stroke-width:2px;")
         r.textBox.Render(ctx.Canvas, textOffsetX, centerY, WestGravity)
     }
 }
