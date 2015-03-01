@@ -46,7 +46,7 @@ func (tr *NoteBox) Constraint(r, c int) Constraint {
     } else if (tr.pos == RightNotePos) {
         horizConstraint = SizeConstraint{r, c, marginX, tr.frameRect.W + marginX * 2, 0, 0}
     } else {
-        horizConstraint = SizeConstraint{r, c, tr.frameRect.W, tr.frameRect.W, 0, 0}
+        horizConstraint = SizeConstraint{r, c, tr.frameRect.W / 2 + marginX, tr.frameRect.W / 2 + marginX, 0, 0}
     }
 
     return Constraints([]Constraint {

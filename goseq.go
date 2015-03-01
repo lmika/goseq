@@ -4,19 +4,27 @@ import (
     "os"
     "log"
     "flag"
+    "path/filepath"
 
     "bitbucket.org/lmika/goseq/goseq"
 )
 
-var flagPng = flag.Bool("p", false, "Render the image as a PNG")
+// Name of the output file
+var flagOut = flag.String("o", "", "Output file")
 
 func main() {    
     renderer := SvgRenderer
 
     flag.Parse()
 
-    if *flagPng {
-        renderer = PngRenderer
+    // Select a suitable renderer (based on the suffix of the output file, if there is one)
+    if *flagOut != "" {
+        ext := filepath.Ext(*flagOut)
+        if ext == ".png" {
+            renderer = PngRenderer
+        } else if ext != ".svg" {
+            log.Fatal("Unrecognised extension: " + ext)
+        }
     }
 
     diagram, err := goseq.Parse(os.Stdin)
@@ -24,8 +32,7 @@ func main() {
         log.Fatal(err)
     }
 
-    //err = diagram.WriteSVG(os.Stdout)
-    err = renderer(diagram, "")
+    err = renderer(diagram, *flagOut)
     if err != nil {
         log.Fatal(err)
     }
