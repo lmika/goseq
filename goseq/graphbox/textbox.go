@@ -9,7 +9,7 @@ import (
 
 
 const (
-    LINE_GAP = 1
+    LINE_GAP = 2
 )
 
 type TextAlign  int
