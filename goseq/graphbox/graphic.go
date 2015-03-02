@@ -115,8 +115,8 @@ func (g *Graphic) repositionGridPoints() (int, int) {
 // the first row/column
 func (g *Graphic) GridPointRect(fr, fc, tr, tc int) (int, int) {
     w, h := 0, 0
-    for r := fr + 1; r < tr; r++ {
-        for c := fc + 1; c < tc; c++ {
+    for r := fr + 1; r <= tr; r++ {
+        for c := fc + 1; c <= tc; c++ {
             w += g.matrix[r][c].Delta.X
             h += g.matrix[r][c].Delta.Y
         }
@@ -177,7 +177,7 @@ func (g *Graphic) DrawSVG(w io.Writer) {
     if g.ShowGrid {
         for _, row := range g.matrix {
             for _, cell := range row {
-                canvas.Circle(cell.Point.X, cell.Point.Y, 2, "brush:blue")
+                canvas.Circle(cell.Point.X, cell.Point.Y, 2, "brush:red;stroke:red;")
             }
         }
     }

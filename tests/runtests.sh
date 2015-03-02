@@ -26,6 +26,7 @@ function runTest()
 function runTests()
 {
     for name in *.seq; do
+        echo "Test: $name" >&2
         local outFile="$name.${RESULT_SUFFIX}"
 
         runTest "$name" "$outFile"

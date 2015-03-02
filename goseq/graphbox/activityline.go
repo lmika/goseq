@@ -58,9 +58,15 @@ func (al *ActivityLine) Constraint(r, c int) Constraint {
 
     _ = h
     _ = w
+
+    lc, rc := c, al.TC
+    if al.TC < c {
+        lc, rc = al.TC, c
+    }
+
     return Constraints([]Constraint{ 
         AddSizeConstraint{r, c, 0, 0, h, al.style.Margin.Y},
-        TotalSizeConstraint{r - 1, c, r, al.TC, w + al.style.Margin.X * 2, 0},
+        TotalSizeConstraint{r - 1, lc, r, rc, w + al.style.Margin.X * 2, 0},
     })
 }
 
