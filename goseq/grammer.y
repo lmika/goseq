@@ -80,6 +80,10 @@ actor
     {
         yylex.(*parseState).diagram.GetOrAddActor($2)
     }
+    |   K_PARTICIPANT IDENT MESSAGE
+    {
+        yylex.(*parseState).diagram.GetOrAddActorWithOptions($2, $3)
+    }
     ;
 
 seqitem

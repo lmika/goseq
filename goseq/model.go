@@ -17,13 +17,17 @@ type Diagram struct {
 // Returns an actor by name.  If the actor is undefined, a new actor
 // is created and added to the end of the slice.
 func (d *Diagram) GetOrAddActor(name string) *Actor {
+    return d.GetOrAddActorWithOptions(name, name)
+}
+
+func (d *Diagram) GetOrAddActorWithOptions(name string, label string) *Actor {
     for _, a := range d.Actors {
         if a.Name == name {
             return a
         }
     }
 
-    na := &Actor{name, len(d.Actors)}
+    na := &Actor{name, label, len(d.Actors)}
     d.Actors = append(d.Actors, na)
     return na
 }
@@ -47,6 +51,7 @@ func (d *Diagram) WriteSVG(w io.Writer) error {
 // A participant
 type Actor struct {
     Name            string
+    Label           string
     rank            int
 }
 

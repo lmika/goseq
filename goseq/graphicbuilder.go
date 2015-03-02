@@ -121,7 +121,7 @@ func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
         gb.Graphic.Put(0, 0, graphbox.NewTitle(cols, gb.Diagram.Title, gb.Style.Title))
     }
 
-    gb.addObjects()
+    gb.addActors()
 
     // TEMP
     if len(gb.Diagram.Items) == 0 {
@@ -207,7 +207,7 @@ func (gb *GraphicBuilder) determineActorInfo() int {
 }
 
 // Add the object headers and footers
-func (gb *GraphicBuilder) addObjects() {
+func (gb *GraphicBuilder) addActors() {
     // TODO: Proper styling
     bottomRow := gb.Graphic.Rows() - 1
     for rank, actor := range gb.Diagram.Actors {
@@ -224,8 +224,8 @@ func (gb *GraphicBuilder) addObjects() {
         col := gb.colOfActor(actor)
         gb.Graphic.Put(ObjectY, col, &graphbox.LifeLine{bottomRow, col})
 
-        gb.Graphic.Put(ObjectY, col, graphbox.NewActorBox(actor.Name, gb.Style.ActorBox, actorBoxPos | graphbox.TopActorBox))
-        gb.Graphic.Put(bottomRow, col, graphbox.NewActorBox(actor.Name, gb.Style.ActorBox, actorBoxPos | graphbox.BottomActorBox))
+        gb.Graphic.Put(ObjectY, col, graphbox.NewActorBox(actor.Label, gb.Style.ActorBox, actorBoxPos | graphbox.TopActorBox))
+        gb.Graphic.Put(bottomRow, col, graphbox.NewActorBox(actor.Label, gb.Style.ActorBox, actorBoxPos | graphbox.BottomActorBox))
     }
 }
 

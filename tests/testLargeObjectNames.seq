@@ -1,0 +1,12 @@
+// Large object names.
+//
+// (also testing comments as well)
+//
+
+participant A: This is A
+participant B: <<prototype>>\nThis is\ncalled object\nB
+participant C: And this has a long object name
+
+A->B: All good
+B->A: Absolutely
+C->A: Yes, all good as well.
