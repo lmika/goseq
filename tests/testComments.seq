@@ -1,0 +1,21 @@
+/*
+    This is a block comment.
+    Just like GO
+*/
+
+// This is a line comment.
+// Also supplied by the scanner used by GO.
+
+# This is a hash comment.
+# Hash comments are custom.
+
+A->B: This is a /* tricky */ remark.
+B->A: This is the response // of the remark.
+A->B: Hash comments #are not supported# in remarks.
+
+# B->A: This is missing
+// B->A: Also missing
+/*
+  B->A: Bla
+  A->B: Bla
+*/

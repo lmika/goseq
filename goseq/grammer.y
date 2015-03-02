@@ -178,6 +178,8 @@ func (ps *parseState) Lex(lval *yySymType) int {
         case scanner.EOF:
             ps.atEof = true
             return 0
+        case '#':
+            ps.scanComment()
         case ':':
             return ps.scanMessage(lval)
         case '-', '>':
@@ -261,6 +263,14 @@ func (ps *parseState) scanMessage(lval *yySymType) int {
 
     lval.sval = strings.TrimSpace(buf.String())
     return MESSAGE
+}
+
+// Scans a comment.  This ignores all characters up to the new line.
+func (ps *parseState) scanComment() {
+    r := ps.NextRune()
+    for ((r != '\n') && (r != scanner.EOF)) {
+        r = ps.NextRune()
+    }
 }
 
 func (ps *parseState) NextRune() rune {
