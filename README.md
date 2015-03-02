@@ -16,3 +16,11 @@ To allow automatic generation of PNG files, ImageMagick is required.  To disable
     go get -tags noim bitbucket.org/lmika/goseq
 
 This will disable the `-p` flag.
+
+## Usage
+
+    goseq [FLAGS] FILES ...
+
+Supported flags:
+
+* `-o filename`: Specify output filename (either .svg or, if supported, .png)

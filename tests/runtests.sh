@@ -19,7 +19,7 @@ function runTest()
     local inFile="$1"
     local outFile="$2"
 
-    $TEST_BIN < $inFile > $outFile
+    $TEST_BIN $inFile > $outFile
     echo "$inFile $outFile"
 }
 

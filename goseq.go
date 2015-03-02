@@ -2,7 +2,7 @@ package main
 
 import (
     "os"
-    "log"
+    "fmt"
     "flag"
     "path/filepath"
 
@@ -12,8 +12,43 @@ import (
 // Name of the output file
 var flagOut = flag.String("o", "", "Output file")
 
+// Die with error
+func die(msg string) {
+    fmt.Fprintf(os.Stderr, "goseq: %s\n", msg)
+    os.Exit(1)
+}
+
+// Processes a file
+func processFile(inFilename string, outFilename string, renderer Renderer) error {
+    var infile *os.File
+    var err error
+
+    if inFilename == "-" {
+        infile = os.Stdin
+    } else {
+        infile, err = os.Open(inFilename)
+        if err != nil {
+            return err
+        }
+        defer infile.Close()
+    }
+
+    diagram, err := goseq.Parse(infile)
+    if err != nil {
+        return err
+    }
+
+    err = renderer(diagram, outFilename)
+    if err != nil {
+        return err
+    }
+
+    return nil
+}
+
 func main() {    
     renderer := SvgRenderer
+    outFile := ""
 
     flag.Parse()
 
@@ -23,17 +58,24 @@ func main() {
         if ext == ".png" {
             renderer = PngRenderer
         } else if ext != ".svg" {
-            log.Fatal("Unrecognised extension: " + ext)
+            die("Unsupported extension: " + ext)
         }
+
+        outFile = *flagOut
     }
 
-    diagram, err := goseq.Parse(os.Stdin)
-    if err != nil {
-        log.Fatal(err)
-    }
-
-    err = renderer(diagram, *flagOut)
-    if err != nil {
-        log.Fatal(err)
+    // Process each file (or stdin)
+    if flag.NArg() == 0 {
+        err := processFile("-", outFile, renderer)
+        if err != nil {
+            die("stdin - " + err.Error())
+        }
+    } else {
+        for _, inFile := range flag.Args() {
+            err := processFile(inFile, outFile, renderer)
+            if err != nil {
+                die(inFile + " - " + err.Error())
+            }
+        }
     }
 }
