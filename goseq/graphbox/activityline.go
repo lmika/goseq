@@ -106,14 +106,14 @@ func (al *ActivityLine) drawArrow(ctx DrawContext, x, y int, isRight bool) {
 
     ys = []int { y - 5, y, y + 5 }
     if isRight {
-        xs = []int { x - 8, x, x - 8 }
+        xs = []int { x - 9, x, x - 9 }
     } else {
-        xs = []int { x + 8, x, x + 8 }
+        xs = []int { x + 9, x, x + 9 }
     }
 
     if al.style.ArrowHead == OpenArrowHead {
-        ctx.Canvas.Polyline(xs, ys, "stroke:black;fill:none")
+        ctx.Canvas.Polyline(xs, ys, "stroke:black;fill:none;stroke-width:2px;")
     } else {
-        ctx.Canvas.Polyline(xs, ys, "stroke:black;fill:black")
+        ctx.Canvas.Polyline(xs, ys, "stroke:black;fill:black;stroke-width:2px;")
     }
 }
