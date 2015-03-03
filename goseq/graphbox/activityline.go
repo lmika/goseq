@@ -52,7 +52,7 @@ func NewActivityLine(toCol int, text string, style ActivityLineStyle) *ActivityL
     return &ActivityLine{toCol, style, textBox, brect}
 }
 
-func (al *ActivityLine) Constraint(r, c int) Constraint {
+func (al *ActivityLine) Constraint(r, c int, applier ConstraintApplier) {
     h := al.textBoxRect.H + al.style.Margin.Y + al.style.TextGap
     w := al.textBoxRect.W
 
@@ -63,11 +63,9 @@ func (al *ActivityLine) Constraint(r, c int) Constraint {
     if al.TC < c {
         lc, rc = al.TC, c
     }
-
-    return Constraints([]Constraint{ 
-        AddSizeConstraint{r, c, 0, 0, h, al.style.Margin.Y},
-        TotalSizeConstraint{r - 1, lc, r, rc, w + al.style.Margin.X * 2, 0},
-    })
+ 
+    applier.Apply(AddSizeConstraint{r, c, 0, 0, h, al.style.Margin.Y})
+    applier.Apply(TotalSizeConstraint{r - 1, lc, r, rc, w + al.style.Margin.X * 2, 0})
 }
 
 // func (al *ActivityLine) Draw(ctx DrawContext, frame BoxFrame) {

@@ -67,11 +67,10 @@ func (g *Graphic) remeasure() (int, int) {
 
     // Run through the constraints
     for _, item := range g.items {
-        constraint := item.Item.Constraint(item.R, item.C)
-        if constraint != nil {
-            constraint.Apply(g)
-        }
+        item.Item.Constraint(item.R, item.C, ConstraintApplier{g})
     }
+
+    g.propogateDeltas()
 
     // Reposition the grid points
     return g.repositionGridPoints()
@@ -109,43 +108,51 @@ func (g *Graphic) repositionGridPoints() (int, int) {
 }
 
 
-// Implementation of ConstrantModifier
+// Implementation of ConstrantModifier.
+//
+// While updating constraints:
+//
+//      - The first column is used to maintain Y deltas
+//      - The first row is used to maintain X deltas
 //
 // TODO: Instead of using loops, add cheats like only using
 // the first row/column
 func (g *Graphic) GridPointRect(fr, fc, tr, tc int) (int, int) {
     w, h := 0, 0
     for r := fr + 1; r <= tr; r++ {
-        for c := fc + 1; c <= tc; c++ {
-            w += g.matrix[r][c].Delta.X
-            h += g.matrix[r][c].Delta.Y
-        }
+        h += g.matrix[r][0].Delta.Y
+    }
+    for c := fc + 1; c <= tc; c++ {
+        w += g.matrix[0][c].Delta.X
     }
 
     return w, h
 }
 
 func (g *Graphic) EnsureLeftIsAtleast(col, newLeft int) {
-    for r := 0; r < g.Rows(); r++ {
-        g.matrix[r][col].Delta.X = maxInt(g.matrix[r][col].Delta.X, newLeft)
-    }
+    g.matrix[0][col].Delta.X = maxInt(g.matrix[0][col].Delta.X, newLeft)
 }
 
 func (g *Graphic) EnsureTopIsAtLeast(row, newTop int) {
-    for c := 0; c < g.Cols(); c++ {
-        g.matrix[row][c].Delta.Y = maxInt(g.matrix[row][c].Delta.Y, newTop)
-    }
+    g.matrix[row][0].Delta.Y = maxInt(g.matrix[row][0].Delta.Y, newTop)
 }
 
 func (g *Graphic) AddLeftToCol(col, newLeft int) {
-    for r := 0; r < g.Rows(); r++ {
-        g.matrix[r][col].Delta.X += newLeft
-    }
+    g.matrix[0][col].Delta.X += newLeft
 }
 
 func (g *Graphic) AddTopToRow(row, newTop int) {
-    for c := 0; c < g.Cols(); c++ {
-        g.matrix[row][c].Delta.Y += newTop
+    g.matrix[row][0].Delta.Y += newTop
+}
+
+// Deltas are store at 0 row (for Y deltas) and 0 col (for X deltas) for
+// speed reasons.  Change all deltas to match the
+func (g *Graphic) propogateDeltas() {
+    for r, row := range g.matrix {
+        for c := range row {
+            g.matrix[r][c].Delta.X = g.matrix[0][c].Delta.X
+            g.matrix[r][c].Delta.Y = g.matrix[r][0].Delta.Y
+        }
     }
 }
 

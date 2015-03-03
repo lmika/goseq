@@ -40,7 +40,7 @@ func NewActorBox(text string, style ActorBoxStyle, pos ActorBoxPos) *ActorBox {
     return &ActorBox{brect, style, textBox, pos}
 }
 
-func (tr *ActorBox) Constraint(r, c int) Constraint {
+func (tr *ActorBox) Constraint(r, c int, applier ConstraintApplier) {
     var vertConstraint Constraint
     posHoriz, posVert := tr.pos & 0xFF00, tr.pos & 0xFF
 
@@ -52,25 +52,19 @@ func (tr *ActorBox) Constraint(r, c int) Constraint {
 
     if posVert == TopActorBox {
         if posHoriz == LeftActorBox {
-            return Constraints([]Constraint {
-                vertConstraint,
-                SizeConstraint{r, c, tr.frameRect.W / 2, 0, 0, 0},
-                AddSizeConstraint{r, c, 0, tr.frameRect.W / 2 + tr.style.Margin.X, 0, 0},
-            })
+            applier.Apply(vertConstraint)
+            applier.Apply(SizeConstraint{r, c, tr.frameRect.W / 2, 0, 0, 0})
+            applier.Apply(AddSizeConstraint{r, c, 0, tr.frameRect.W / 2 + tr.style.Margin.X, 0, 0})
         } else if posHoriz == RightActorBox {
-            return Constraints([]Constraint {
-                vertConstraint,
-                SizeConstraint{r, c, 0, tr.frameRect.W / 2, 0, 0},
-                AddSizeConstraint{r, c, tr.frameRect.W / 2 + tr.style.Margin.X, 0, 0, 0},
-            })
+            applier.Apply(vertConstraint)
+            applier.Apply(SizeConstraint{r, c, 0, tr.frameRect.W / 2, 0, 0})
+            applier.Apply(AddSizeConstraint{r, c, tr.frameRect.W / 2 + tr.style.Margin.X, 0, 0, 0})
         } else {
-            return Constraints([]Constraint {
-                vertConstraint,
-                AddSizeConstraint{r, c, tr.frameRect.W / 2 + tr.style.Margin.X, tr.frameRect.W / 2 + tr.style.Margin.X, 0, 0},
-            })
+            applier.Apply(vertConstraint)
+            applier.Apply(AddSizeConstraint{r, c, tr.frameRect.W / 2 + tr.style.Margin.X, tr.frameRect.W / 2 + tr.style.Margin.X, 0, 0})
         }
     } else {
-        return vertConstraint
+        applier.Apply(vertConstraint)
     }
 }
 

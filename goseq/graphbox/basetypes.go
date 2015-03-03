@@ -11,11 +11,21 @@ import (
 type GraphboxItem interface {
     // Defines a constraint.  It is provided with the coordinates
     // of the item.
-    Constraint(r, c int) Constraint
+    Constraint(r, c int, applier ConstraintApplier)
 
     // Call to draw this box 
     Draw(ctx DrawContext, point Point)
 }
+
+type ConstraintApplier struct {
+    cc  ConstraintChanger
+}
+
+func (ca ConstraintApplier) Apply(constraint Constraint) {
+    constraint.Apply(ca.cc)
+}
+
+
 
 type Constraint interface {
     Apply(cm ConstraintChanger)

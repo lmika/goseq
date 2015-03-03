@@ -2,6 +2,7 @@ package graphbox
 
 
 // An array of constraints
+/*
 type Constraints    []Constraint
 
 func (cs Constraints) Apply(cm ConstraintChanger) {
@@ -9,6 +10,8 @@ func (cs Constraints) Apply(cm ConstraintChanger) {
         c.Apply(cm)
     }
 }
+*/
+
 
 
 // Apply a size constraint which requests a minimum gap between

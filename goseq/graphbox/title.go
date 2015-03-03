@@ -23,16 +23,12 @@ func NewTitle(toCol int, text string, style TitleStyle) *Title {
     return &Title{toCol, style, textBox, brect}
 }
 
-func (al *Title) Constraint(r, c int) Constraint {
+func (al *Title) Constraint(r, c int, applier ConstraintApplier) {
     h := al.textBoxRect.H + al.style.Padding.Y
     w := al.textBoxRect.W
 
-    _ = h
-    _ = w
-    return Constraints([]Constraint{
-        AddSizeConstraint{r, c, 0, 0, h, al.style.Padding.Y},
-        TotalSizeConstraint{r, c, r + 1, al.TC, w + al.style.Padding.X, 0},
-    })
+    applier.Apply(AddSizeConstraint{r, c, 0, 0, h, al.style.Padding.Y})
+    applier.Apply(TotalSizeConstraint{r, c, r + 1, al.TC, w + al.style.Padding.X, 0})
 }
 
 func (al *Title) Draw(ctx DrawContext, point Point) {

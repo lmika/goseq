@@ -6,8 +6,7 @@ type LifeLine struct {
     TR, TC      int
 }
 
-func (ll *LifeLine) Constraint(r, c int) Constraint {
-    return nil
+func (ll *LifeLine) Constraint(r, c int, applier ConstraintApplier) {
 }
 
 //func (ll *LifeLine) Draw(ctx DrawContext, frame BoxFrame) {

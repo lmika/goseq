@@ -36,7 +36,7 @@ func NewNoteBox(text string, style NoteBoxStyle, pos NoteBoxPos) *NoteBox {
     return &NoteBox{brect, style, textBox, pos}
 }
 
-func (tr *NoteBox) Constraint(r, c int) Constraint {
+func (tr *NoteBox) Constraint(r, c int, applier ConstraintApplier) {
     var horizConstraint Constraint
 
     marginX := tr.style.Margin.X
@@ -49,10 +49,8 @@ func (tr *NoteBox) Constraint(r, c int) Constraint {
         horizConstraint = SizeConstraint{r, c, tr.frameRect.W / 2 + marginX, tr.frameRect.W / 2 + marginX, 0, 0}
     }
 
-    return Constraints([]Constraint {
-        horizConstraint,
-        AddSizeConstraint{r, c, 0, 0, tr.frameRect.H / 2 + marginY, tr.frameRect.H / 2 + marginY},
-    })
+    applier.Apply(horizConstraint)
+    applier.Apply(AddSizeConstraint{r, c, 0, 0, tr.frameRect.H / 2 + marginY, tr.frameRect.H / 2 + marginY})
 }
 
 func (r *NoteBox) Draw(ctx DrawContext, point Point) {
