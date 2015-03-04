@@ -9,7 +9,6 @@ type LifeLine struct {
 func (ll *LifeLine) Constraint(r, c int, applier ConstraintApplier) {
 }
 
-//func (ll *LifeLine) Draw(ctx DrawContext, frame BoxFrame) {
 func (ll *LifeLine) Draw(ctx DrawContext, point Point) {
     fx, fy := point.X, point.Y
     if point, isPoint := ctx.PointAt(ll.TR, ll.TC) ; isPoint {

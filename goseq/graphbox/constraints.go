@@ -1,19 +1,6 @@
 package graphbox
 
 
-// An array of constraints
-/*
-type Constraints    []Constraint
-
-func (cs Constraints) Apply(cm ConstraintChanger) {
-    for _, c := range cs {
-        c.Apply(cm)
-    }
-}
-*/
-
-
-
 // Apply a size constraint which requests a minimum gap between
 // points
 type SizeConstraint struct {

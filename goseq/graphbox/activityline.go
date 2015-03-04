@@ -11,33 +11,6 @@ const (
     BarbArrowHead                       =   iota
 )
 
-type arrowHeadStyle struct {
-    // Points from the origin
-    Xs              []int
-    Ys              []int
-
-    // Base style for the arrow head
-    BaseStyle       SvgStyle
-}
-
-var arrowHeadStyles = map[ActivityArrowHead]*arrowHeadStyle {
-    SolidArrowHead: &arrowHeadStyle {
-        Xs: []int { -9, 0, -9 },
-        Ys: []int { -5, 0, 5 },
-        BaseStyle: StyleFromString("stroke:black;fill:black;stroke-width:2px;"),
-    },
-    OpenArrowHead: &arrowHeadStyle {
-        Xs: []int { -9, 0, -9 },
-        Ys: []int { -5, 0, 5 },
-        BaseStyle: StyleFromString("stroke:black;fill:none;stroke-width:2px;"),
-    },
-    BarbArrowHead: &arrowHeadStyle {
-        Xs: []int { -11, 0 },
-        Ys: []int { -7, 0 },
-        BaseStyle: StyleFromString("stroke:black;fill:black;stroke-width:2px;"),
-    },
-}
-
 type ActivityArrowStem int
 const (
     SolidArrowStem  ActivityArrowStem   =   iota
@@ -85,12 +58,13 @@ func NewActivityLine(toCol int, text string, style ActivityLineStyle) *ActivityL
 }
 
 func (al *ActivityLine) Constraint(r, c int, applier ConstraintApplier) {
+    /*
     h := al.textBoxRect.H + al.style.Margin.Y + al.style.TextGap
     w := al.textBoxRect.W
 
     _ = h
     _ = w
-
+    */
     lc, rc := c, al.TC
     if al.TC < c {
         lc, rc = al.TC, c
@@ -100,7 +74,6 @@ func (al *ActivityLine) Constraint(r, c int, applier ConstraintApplier) {
     applier.Apply(TotalSizeConstraint{r - 1, lc, r, rc, w + al.style.Margin.X * 2, 0})
 }
 
-// func (al *ActivityLine) Draw(ctx DrawContext, frame BoxFrame) {
 func (al *ActivityLine) Draw(ctx DrawContext, point Point) {
 
     fx, fy := point.X, point.Y
@@ -127,32 +100,19 @@ func (al *ActivityLine) renderMessage(ctx DrawContext, tx, ty int) {
 
     ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "fill:white;stroke:white;")
     al.textBox.Render(ctx.Canvas, tx, ty, SouthGravity)
-    //ctx.Canvas.Text(textPoint.X, textPoint.Y, al.Text, al.style.textStyle())
 }
 
-// TODO: Type of arrow
+// Draws the arrow head.
 func (al *ActivityLine) drawArrow(ctx DrawContext, x, y int, isRight bool) {
-    /*
-    var oxs, oys []int
+    headStyle := arrowHeadStyles[al.style.ArrowHead]
 
-    switch al.style.ArrowHead {
-    case OpenArrowHead, SolidArrowHead:
-        oxs = []int { -9, 0, -9 }
-        oys = []int { -5, 0, 5 }
-    case BarbArrowHead:
-        oxs = []int { -9, 0 }
-        oys = []int { -5, 0 }
-    }
-    */
-    style := arrowHeadStyles[al.style.ArrowHead]
-
-    var xs, ys = make([]int, len(style.Xs)), make([]int, len(style.Ys))
+    var xs, ys = make([]int, len(headStyle.Xs)), make([]int, len(headStyle.Ys))
     if len(xs) != len(ys) {
         panic("length of xs and ys must be the same")
     }
 
-    for i := range style.Xs {
-        ox, oy := style.Xs[i], style.Ys[i]
+    for i := range headStyle.Xs {
+        ox, oy := headStyle.Xs[i], headStyle.Ys[i]
         if isRight {
             xs[i] = x + ox
         } else {
@@ -161,21 +121,34 @@ func (al *ActivityLine) drawArrow(ctx DrawContext, x, y int, isRight bool) {
         ys[i] = y + oy
     }
 
-    ctx.Canvas.Polyline(xs, ys, style.BaseStyle.ToStyle())
-/*
-    ys = []int { y - 5, y, y + 5 }
-    if isRight {
-        xs = []int { x - 9, x, x - 9 }
-    } else {
-        xs = []int { x + 9, x, x + 9 }
-    }
-*/
+    ctx.Canvas.Polyline(xs, ys, headStyle.BaseStyle.ToStyle())
+}
 
-/*
-    if al.style.ArrowHead == OpenArrowHead {
-        ctx.Canvas.Polyline(xs, ys, "stroke:black;fill:none;stroke-width:2px;")
-    } else {
-        ctx.Canvas.Polyline(xs, ys, "stroke:black;fill:black;stroke-width:2px;")
-    }
-*/
+// Style information for arrow heads
+type arrowHeadStyle struct {
+    // Points from the origin
+    Xs              []int
+    Ys              []int
+
+    // Base style for the arrow head
+    BaseStyle       SvgStyle
+}
+
+// Styling of the arrow head
+var arrowHeadStyles = map[ActivityArrowHead]*arrowHeadStyle {
+    SolidArrowHead: &arrowHeadStyle {
+        Xs: []int { -9, 0, -9 },
+        Ys: []int { -5, 0, 5 },
+        BaseStyle: StyleFromString("stroke:black;fill:black;stroke-width:2px;"),
+    },
+    OpenArrowHead: &arrowHeadStyle {
+        Xs: []int { -9, 0, -9 },
+        Ys: []int { -5, 0, 5 },
+        BaseStyle: StyleFromString("stroke:black;fill:none;stroke-width:2px;"),
+    },
+    BarbArrowHead: &arrowHeadStyle {
+        Xs: []int { -11, 0 },
+        Ys: []int { -7, 0 },
+        BaseStyle: StyleFromString("stroke:black;fill:black;stroke-width:2px;"),
+    },
 }
