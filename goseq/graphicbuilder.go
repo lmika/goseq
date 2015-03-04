@@ -18,6 +18,7 @@ const (
 var ArrowHeadMapping = map[ArrowHead]graphbox.ActivityArrowHead {
     SolidArrowHead: graphbox.SolidArrowHead,
     OpenArrowHead: graphbox.OpenArrowHead,
+    BarbArrowHead: graphbox.BarbArrowHead,
 }
 
 var ArrowStemMapping = map[ArrowStem]graphbox.ActivityArrowStem {

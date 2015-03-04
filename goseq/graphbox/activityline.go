@@ -8,13 +8,45 @@ type ActivityArrowHead int
 const (
     SolidArrowHead  ActivityArrowHead   =   iota
     OpenArrowHead                       =   iota
+    BarbArrowHead                       =   iota
 )
+
+type arrowHeadStyle struct {
+    // Points from the origin
+    Xs              []int
+    Ys              []int
+
+    // Base style for the arrow head
+    BaseStyle       SvgStyle
+}
+
+var arrowHeadStyles = map[ActivityArrowHead]*arrowHeadStyle {
+    SolidArrowHead: &arrowHeadStyle {
+        Xs: []int { -9, 0, -9 },
+        Ys: []int { -5, 0, 5 },
+        BaseStyle: StyleFromString("stroke:black;fill:black;stroke-width:2px;"),
+    },
+    OpenArrowHead: &arrowHeadStyle {
+        Xs: []int { -9, 0, -9 },
+        Ys: []int { -5, 0, 5 },
+        BaseStyle: StyleFromString("stroke:black;fill:none;stroke-width:2px;"),
+    },
+    BarbArrowHead: &arrowHeadStyle {
+        Xs: []int { -11, 0 },
+        Ys: []int { -7, 0 },
+        BaseStyle: StyleFromString("stroke:black;fill:black;stroke-width:2px;"),
+    },
+}
 
 type ActivityArrowStem int
 const (
     SolidArrowStem  ActivityArrowStem   =   iota
     DashedArrowStem                     =   iota
 )
+
+
+
+
 
 type ActivityLineStyle struct {
     Font            Font
@@ -100,18 +132,50 @@ func (al *ActivityLine) renderMessage(ctx DrawContext, tx, ty int) {
 
 // TODO: Type of arrow
 func (al *ActivityLine) drawArrow(ctx DrawContext, x, y int, isRight bool) {
-    var xs, ys []int
+    /*
+    var oxs, oys []int
 
+    switch al.style.ArrowHead {
+    case OpenArrowHead, SolidArrowHead:
+        oxs = []int { -9, 0, -9 }
+        oys = []int { -5, 0, 5 }
+    case BarbArrowHead:
+        oxs = []int { -9, 0 }
+        oys = []int { -5, 0 }
+    }
+    */
+    style := arrowHeadStyles[al.style.ArrowHead]
+
+    var xs, ys = make([]int, len(style.Xs)), make([]int, len(style.Ys))
+    if len(xs) != len(ys) {
+        panic("length of xs and ys must be the same")
+    }
+
+    for i := range style.Xs {
+        ox, oy := style.Xs[i], style.Ys[i]
+        if isRight {
+            xs[i] = x + ox
+        } else {
+            xs[i] = x - ox
+        }
+        ys[i] = y + oy
+    }
+
+    ctx.Canvas.Polyline(xs, ys, style.BaseStyle.ToStyle())
+/*
     ys = []int { y - 5, y, y + 5 }
     if isRight {
         xs = []int { x - 9, x, x - 9 }
     } else {
         xs = []int { x + 9, x, x + 9 }
     }
+*/
 
+/*
     if al.style.ArrowHead == OpenArrowHead {
         ctx.Canvas.Polyline(xs, ys, "stroke:black;fill:none;stroke-width:2px;")
     } else {
         ctx.Canvas.Polyline(xs, ys, "stroke:black;fill:black;stroke-width:2px;")
     }
+*/
 }

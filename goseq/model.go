@@ -68,6 +68,7 @@ type ArrowHead  int
 const (
     SolidArrowHead  ArrowHead = iota
     OpenArrowHead             = iota
+    BarbArrowHead             = iota
 )
 
 

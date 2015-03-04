@@ -15,11 +15,13 @@ import (
 var DualRunes = map[string]int{
 	"--": DOUBLEDASH,
 	"-":  DASH,
+
 	">>": DOUBLEANGR,
 	">":  ANGR,
+	"*>": STARANGR,
 }
 
-//line goseq/grammer.y:26
+//line goseq/grammer.y:28
 type yySymType struct {
 	yys       int
 	seqItem   SequenceItem
@@ -42,8 +44,9 @@ const DASH = 57353
 const DOUBLEDASH = 57354
 const ANGR = 57355
 const DOUBLEANGR = 57356
-const MESSAGE = 57357
-const IDENT = 57358
+const STARANGR = 57357
+const MESSAGE = 57358
+const IDENT = 57359
 
 var yyToknames = []string{
 	"K_TITLE",
@@ -57,6 +60,7 @@ var yyToknames = []string{
 	"DOUBLEDASH",
 	"ANGR",
 	"DOUBLEANGR",
+	"STARANGR",
 	"MESSAGE",
 	"IDENT",
 }
@@ -66,7 +70,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line goseq/grammer.y:153
+//line goseq/grammer.y:159
 
 // Manages the lexer as well as the current diagram being parsed
 type parseState struct {
@@ -98,7 +102,7 @@ func (ps *parseState) Lex(lval *yySymType) int {
 			ps.scanComment()
 		case ':':
 			return ps.scanMessage(lval)
-		case '-', '>':
+		case '-', '>', '*':
 			if res, isTok := ps.handleDoubleRune(tok); isTok {
 				return res
 			} else {
@@ -224,58 +228,58 @@ var yyExca = []int{
 	-2, 0,
 }
 
-const yyNprod = 22
+const yyNprod = 23
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 33
+const yyLast = 34
 
 var yyAct = []int{
 
-	7, 8, 12, 29, 25, 15, 33, 32, 27, 28,
-	31, 30, 11, 24, 14, 18, 19, 21, 22, 23,
-	2, 5, 4, 3, 13, 1, 20, 26, 17, 16,
-	10, 9, 6,
+	7, 8, 12, 30, 27, 28, 29, 25, 5, 15,
+	34, 33, 32, 11, 24, 14, 18, 19, 21, 22,
+	23, 2, 31, 4, 3, 13, 1, 20, 26, 17,
+	16, 10, 9, 6,
 }
 var yyPact = []int{
 
-	-4, -1000, -1000, -4, -1000, -1000, -1000, -1, -11, -1000,
-	-1000, 4, 10, -1000, -1000, -2, -12, -5, -1000, -1000,
-	-13, 1, 0, -1000, -1000, -8, -1000, -1000, -1000, -9,
-	-1000, -1000, -1000, -1000,
+	-4, -1000, -1000, -4, -1000, -1000, -1000, -1, -8, -1000,
+	-1000, 5, 11, -1000, -1000, -2, -10, -9, -1000, -1000,
+	-14, 12, 2, -1000, -1000, -5, -1000, -1000, -1000, -1000,
+	-6, -1000, -1000, -1000, -1000,
 }
 var yyPgo = []int{
 
-	0, 32, 31, 30, 29, 28, 27, 26, 25, 20,
-	23, 22, 21,
+	0, 33, 32, 31, 30, 29, 28, 27, 26, 21,
+	24, 23, 8,
 }
 var yyR1 = []int{
 
 	0, 8, 9, 9, 10, 10, 10, 11, 12, 12,
 	1, 1, 2, 3, 7, 7, 7, 4, 5, 5,
-	6, 6,
+	6, 6, 6,
 }
 var yyR2 = []int{
 
 	0, 1, 0, 2, 1, 1, 1, 2, 2, 3,
 	1, 1, 4, 4, 2, 2, 1, 2, 1, 1,
-	1, 1,
+	1, 1, 1,
 }
 var yyChk = []int{
 
 	-1000, -8, -9, -10, -11, -12, -1, 4, 5, -2,
-	-3, 16, 6, -9, 15, 16, -4, -5, 11, 12,
-	-7, 7, 8, 9, 15, 16, -6, 13, 14, 16,
-	10, 10, 15, 15,
+	-3, 17, 6, -9, 16, 17, -4, -5, 11, 12,
+	-7, 7, 8, 9, 16, 17, -6, 13, 14, 15,
+	17, 10, 10, 16, 16,
 }
 var yyDef = []int{
 
 	2, -2, 1, 2, 4, 5, 6, 0, 0, 10,
 	11, 0, 0, 3, 7, 8, 0, 0, 18, 19,
-	0, 0, 0, 16, 9, 0, 17, 20, 21, 0,
-	14, 15, 12, 13,
+	0, 0, 0, 16, 9, 0, 17, 20, 21, 22,
+	0, 14, 15, 12, 13,
 }
 var yyTok1 = []int{
 
@@ -284,7 +288,7 @@ var yyTok1 = []int{
 var yyTok2 = []int{
 
 	2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-	12, 13, 14, 15, 16,
+	12, 13, 14, 15, 16, 17,
 }
 var yyTok3 = []int{
 	0,
@@ -516,22 +520,22 @@ yydefault:
 	switch yynt {
 
 	case 6:
-		//line goseq/grammer.y:66
+		//line goseq/grammer.y:68
 		{
 			yylex.(*parseState).diagram.AddSequenceItem(yyS[yypt-0].seqItem)
 		}
 	case 7:
-		//line goseq/grammer.y:73
+		//line goseq/grammer.y:75
 		{
 			yylex.(*parseState).diagram.Title = yyS[yypt-0].sval
 		}
 	case 8:
-		//line goseq/grammer.y:80
+		//line goseq/grammer.y:82
 		{
 			yylex.(*parseState).diagram.GetOrAddActor(yyS[yypt-0].sval)
 		}
 	case 9:
-		//line goseq/grammer.y:84
+		//line goseq/grammer.y:86
 		{
 			yylex.(*parseState).diagram.GetOrAddActorWithOptions(yyS[yypt-1].sval, yyS[yypt-0].sval)
 		}
@@ -540,56 +544,61 @@ yydefault:
 	case 11:
 		yyVAL.seqItem = yyS[yypt-0].seqItem
 	case 12:
-		//line goseq/grammer.y:96
+		//line goseq/grammer.y:98
 		{
 			d := yylex.(*parseState).diagram
 			yyVAL.seqItem = &Action{d.GetOrAddActor(yyS[yypt-3].sval), d.GetOrAddActor(yyS[yypt-1].sval), yyS[yypt-2].arrow, yyS[yypt-0].sval}
 		}
 	case 13:
-		//line goseq/grammer.y:104
+		//line goseq/grammer.y:106
 		{
 			d := yylex.(*parseState).diagram
 			yyVAL.seqItem = &Note{d.GetOrAddActor(yyS[yypt-1].sval), yyS[yypt-2].noteAlign, yyS[yypt-0].sval}
 		}
 	case 14:
-		//line goseq/grammer.y:112
+		//line goseq/grammer.y:114
 		{
 			yyVAL.noteAlign = LeftNoteAlignment
 		}
 	case 15:
-		//line goseq/grammer.y:116
+		//line goseq/grammer.y:118
 		{
 			yyVAL.noteAlign = RightNoteAlignment
 		}
 	case 16:
-		//line goseq/grammer.y:120
+		//line goseq/grammer.y:122
 		{
 			yyVAL.noteAlign = OverNoteAlignment
 		}
 	case 17:
-		//line goseq/grammer.y:127
+		//line goseq/grammer.y:129
 		{
 			yyVAL.arrow = Arrow{yyS[yypt-1].arrowStem, yyS[yypt-0].arrowHead}
 		}
 	case 18:
-		//line goseq/grammer.y:134
+		//line goseq/grammer.y:136
 		{
 			yyVAL.arrowStem = SolidArrowStem
 		}
 	case 19:
-		//line goseq/grammer.y:138
+		//line goseq/grammer.y:140
 		{
 			yyVAL.arrowStem = DashedArrowStem
 		}
 	case 20:
-		//line goseq/grammer.y:145
+		//line goseq/grammer.y:147
 		{
 			yyVAL.arrowHead = SolidArrowHead
 		}
 	case 21:
-		//line goseq/grammer.y:149
+		//line goseq/grammer.y:151
 		{
 			yyVAL.arrowHead = OpenArrowHead
+		}
+	case 22:
+		//line goseq/grammer.y:155
+		{
+			yyVAL.arrowHead = BarbArrowHead
 		}
 	}
 	goto yystack /* stack new state and value */

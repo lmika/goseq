@@ -4,6 +4,9 @@
 package graphbox
 
 import (
+    "strings"
+    "fmt"
+
     "github.com/ajstarks/svgo"
 )
 
@@ -120,4 +123,45 @@ type BoxFrame struct {
 
     // The inner rectangle.
     InnerRect       Rect
+}
+
+
+// A SVG style
+type SvgStyle map[string]string
+
+// Converts a style in a CSS base string to a SvgStyle
+func StyleFromString(str string) SvgStyle {
+    ss := SvgStyle{}
+
+    for _, prop := range strings.Split(str, ";") {
+        kv := strings.Split(prop, ":")
+        if len(kv) == 2 {
+            ss[strings.TrimSpace(kv[0])] = strings.TrimSpace(kv[1])
+        }
+    }
+
+    return ss
+}
+
+// Add the styles from the other svgstyle to this one
+func (ss SvgStyle) Extend(other SvgStyle) {
+    if len(other) == 0 {
+        return
+    }
+
+    for k, v := range ss {
+        ss[k] = v
+    }
+}
+
+func (ss SvgStyle) Set(key, value string) {
+    ss[key] = value
+}
+
+func (ss SvgStyle) ToStyle() string {
+    s := ""
+    for k, v := range ss {
+        s += fmt.Sprintf("%s:%s;", k, v)
+    }
+    return s
 }
