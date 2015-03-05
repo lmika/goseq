@@ -58,18 +58,14 @@ func NewActivityLine(toCol int, text string, style ActivityLineStyle) *ActivityL
 }
 
 func (al *ActivityLine) Constraint(r, c int, applier ConstraintApplier) {
-    /*
     h := al.textBoxRect.H + al.style.Margin.Y + al.style.TextGap
     w := al.textBoxRect.W
 
-    _ = h
-    _ = w
-    */
     lc, rc := c, al.TC
     if al.TC < c {
         lc, rc = al.TC, c
     }
- 
+
     applier.Apply(AddSizeConstraint{r, c, 0, 0, h, al.style.Margin.Y})
     applier.Apply(TotalSizeConstraint{r - 1, lc, r, rc, w + al.style.Margin.X * 2, 0})
 }
