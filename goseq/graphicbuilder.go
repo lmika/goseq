@@ -117,11 +117,6 @@ func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
 
     gb.Graphic.Margin = gb.Style.Margin
 
-    // Add a title
-    if gb.Diagram.Title != "" {
-        gb.Graphic.Put(0, 0, graphbox.NewTitle(cols, gb.Diagram.Title, gb.Style.Title))
-    }
-
     gb.addActors()
 
     // TEMP
@@ -137,6 +132,11 @@ func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
                 gb.putNote(row, itemDetails)
             }
         }
+    }
+
+    // Add a title
+    if gb.Diagram.Title != "" {
+        gb.Graphic.Put(0, 0, graphbox.NewTitle(cols, gb.Diagram.Title, gb.Style.Title))
     }
 
     return gb.Graphic

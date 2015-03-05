@@ -27,7 +27,7 @@ func (al *Title) Constraint(r, c int, applier ConstraintApplier) {
     h := al.textBoxRect.H + al.style.Padding.Y
     w := al.textBoxRect.W
 
-    applier.Apply(AddSizeConstraint{r, c, 0, 0, h, al.style.Padding.Y})
+    applier.Apply(SizeConstraint{r, c, 0, 0, h, al.style.Padding.Y})
     applier.Apply(TotalSizeConstraint{r, c, r + 1, al.TC, w + al.style.Padding.X, 0})
 }
 
