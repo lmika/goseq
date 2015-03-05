@@ -37,7 +37,7 @@ var DualRunes = map[string]int {
 
 %token  K_TITLE K_PARTICIPANT K_NOTE
 %token  K_LEFT  K_RIGHT  K_OVER  K_OF
-%token  K_GAP
+%token  K_HORIZONTAL K_GAP
 
 %token  DASH    DOUBLEDASH
 %token  ANGR    DOUBLEANGR      STARANGR
@@ -113,9 +113,9 @@ note
     ;
 
 gap
-    :   K_GAP MESSAGE
+    :   K_HORIZONTAL K_GAP MESSAGE
     {
-        $$ = &Divider{$2}
+        $$ = &Divider{$3}
     }
     ;
 
@@ -252,6 +252,8 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
         return K_OF
     case "gap":
         return K_GAP
+    case "horizontal":
+        return K_HORIZONTAL
     default:
         lval.sval = tokVal
         return IDENT

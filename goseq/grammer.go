@@ -40,14 +40,15 @@ const K_LEFT = 57349
 const K_RIGHT = 57350
 const K_OVER = 57351
 const K_OF = 57352
-const K_GAP = 57353
-const DASH = 57354
-const DOUBLEDASH = 57355
-const ANGR = 57356
-const DOUBLEANGR = 57357
-const STARANGR = 57358
-const MESSAGE = 57359
-const IDENT = 57360
+const K_HORIZONTAL = 57353
+const K_GAP = 57354
+const DASH = 57355
+const DOUBLEDASH = 57356
+const ANGR = 57357
+const DOUBLEANGR = 57358
+const STARANGR = 57359
+const MESSAGE = 57360
+const IDENT = 57361
 
 var yyToknames = []string{
 	"K_TITLE",
@@ -57,6 +58,7 @@ var yyToknames = []string{
 	"K_RIGHT",
 	"K_OVER",
 	"K_OF",
+	"K_HORIZONTAL",
 	"K_GAP",
 	"DASH",
 	"DOUBLEDASH",
@@ -158,6 +160,8 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
 		return K_OF
 	case "gap":
 		return K_GAP
+	case "horizontal":
+		return K_HORIZONTAL
 	default:
 		lval.sval = tokVal
 		return IDENT
@@ -238,26 +242,26 @@ const yyPrivate = 57344
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 37
+const yyLast = 38
 
 var yyAct = []int{
 
 	7, 8, 13, 33, 30, 31, 32, 14, 5, 28,
-	17, 37, 36, 35, 12, 27, 26, 16, 20, 21,
-	23, 24, 25, 2, 34, 4, 3, 15, 1, 22,
-	29, 19, 18, 11, 10, 9, 6,
+	17, 38, 37, 36, 26, 12, 27, 16, 20, 21,
+	23, 24, 25, 2, 35, 34, 4, 15, 3, 1,
+	22, 29, 19, 18, 11, 10, 9, 6,
 }
 var yyPact = []int{
 
-	-4, -1000, -1000, -4, -1000, -1000, -1000, 0, -8, -1000,
-	-1000, -1000, 6, 13, -1, -1000, -1000, -2, -9, -10,
-	-1000, -1000, -15, 14, 3, -1000, -1000, -1000, -5, -1000,
-	-1000, -1000, -1000, -6, -1000, -1000, -1000, -1000,
+	-4, -1000, -1000, -4, -1000, -1000, -1000, -1, -9, -1000,
+	-1000, -1000, 5, 13, 2, -1000, -1000, -2, -10, -11,
+	-1000, -1000, -16, 15, 14, -1000, -5, -1000, -6, -1000,
+	-1000, -1000, -1000, -7, -1000, -1000, -1000, -1000, -1000,
 }
 var yyPgo = []int{
 
-	0, 36, 35, 34, 33, 32, 31, 30, 29, 28,
-	23, 26, 25, 8,
+	0, 37, 36, 35, 34, 33, 32, 31, 30, 29,
+	23, 28, 26, 8,
 }
 var yyR1 = []int{
 
@@ -268,22 +272,22 @@ var yyR1 = []int{
 var yyR2 = []int{
 
 	0, 1, 0, 2, 1, 1, 1, 2, 2, 3,
-	1, 1, 1, 4, 4, 2, 2, 2, 1, 2,
+	1, 1, 1, 4, 4, 3, 2, 2, 1, 2,
 	1, 1, 1, 1, 1,
 }
 var yyChk = []int{
 
 	-1000, -9, -10, -11, -12, -13, -1, 4, 5, -2,
-	-3, -4, 18, 6, 11, -10, 17, 18, -5, -6,
-	12, 13, -8, 7, 8, 9, 17, 17, 18, -7,
-	14, 15, 16, 18, 10, 10, 17, 17,
+	-3, -4, 19, 6, 11, -10, 18, 19, -5, -6,
+	13, 14, -8, 7, 8, 9, 12, 18, 19, -7,
+	15, 16, 17, 19, 10, 10, 18, 18, 18,
 }
 var yyDef = []int{
 
 	2, -2, 1, 2, 4, 5, 6, 0, 0, 10,
 	11, 12, 0, 0, 0, 3, 7, 8, 0, 0,
-	20, 21, 0, 0, 0, 18, 15, 9, 0, 19,
-	22, 23, 24, 0, 16, 17, 13, 14,
+	20, 21, 0, 0, 0, 18, 0, 9, 0, 19,
+	22, 23, 24, 0, 16, 17, 15, 13, 14,
 }
 var yyTok1 = []int{
 
@@ -292,7 +296,7 @@ var yyTok1 = []int{
 var yyTok2 = []int{
 
 	2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-	12, 13, 14, 15, 16, 17, 18,
+	12, 13, 14, 15, 16, 17, 18, 19,
 }
 var yyTok3 = []int{
 	0,
