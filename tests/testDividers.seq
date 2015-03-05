@@ -1,5 +1,7 @@
 Client->Server: Is it ready?
-Server->Client: No, not yet.
 gap: Some time passes
+Server->Client: No.
+gap: Some more\ntime passes\nthis time.
 Client->Server: Is it ready now?
-Server->Client: Yes it is.
+gap: This is a relatively long gap
+Server->Client: Yes

@@ -1,7 +1,5 @@
 package graphbox
 
-import "log"
-
 // Divider style
 type DividerStyle struct {
     Font        Font
@@ -33,8 +31,8 @@ func NewDivider(toCol int, text string, style DividerStyle) *Divider {
 func (div *Divider) Constraint(r, c int, applier ConstraintApplier) {
     // There must be enought horizontal space to accomodate the text
     // and vertical space to display the divider
-    requiredHeight := div.marginRect.Y + div.style.Margin.Y * 2
-    requiredWidth := div.marginRect.X + div.style.Margin.X * 2
+    requiredHeight := div.marginRect.H + div.style.Margin.Y * 2
+    requiredWidth := div.marginRect.W + div.style.Margin.X * 2
 
     applier.Apply(AddSizeConstraint{r, c, 0, 0, requiredHeight / 2, requiredHeight / 2})
     applier.Apply(TotalSizeConstraint{r - 1, c, r, div.TC, requiredWidth, 0})    
@@ -48,9 +46,8 @@ func (div *Divider) Draw(ctx DrawContext, point Point) {
         centerY := fy
 
         // Draw the boundary
-        borderRect := Rect{fx, fy, tx - fx, div.marginRect.H}
-        log.Println(borderRect)
-        ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, "fill:white;stroke:red;")
+        borderRect := Rect{fx, fy - div.marginRect.H / 2, tx - fx, div.marginRect.H}
+        ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, "fill:white;stroke:white;")
 
         // Center text
         div.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
