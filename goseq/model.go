@@ -114,3 +114,9 @@ type Action struct {
     // The message
     Message     string
 }
+
+// Defines a divider, which spans the diagram.
+type Divider struct {
+    // The message
+    Message     string
+}

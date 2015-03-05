@@ -1,0 +1,5 @@
+Client->Server: Is it ready?
+Server->Client: No, not yet.
+gap: Some time passes
+Client->Server: Is it ready now?
+Server->Client: Yes it is.

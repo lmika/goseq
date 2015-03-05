@@ -26,6 +26,7 @@ type Graphic struct {
 
 func NewGraphic(rows, cols int) *Graphic {
     g := &Graphic{}
+    g.ShowGrid = true
     g.resizeTo(rows + 1, cols + 1)
     return g
 }

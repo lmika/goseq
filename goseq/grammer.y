@@ -37,6 +37,8 @@ var DualRunes = map[string]int {
 
 %token  K_TITLE K_PARTICIPANT K_NOTE
 %token  K_LEFT  K_RIGHT  K_OVER  K_OF
+%token  K_GAP
+
 %token  DASH    DOUBLEDASH
 %token  ANGR    DOUBLEANGR      STARANGR
 
@@ -44,7 +46,7 @@ var DualRunes = map[string]int {
 %token  <sval>  IDENT
 
 %type   <seqItem>   seqitem
-%type   <seqItem>   action      note
+%type   <seqItem>   action      note    gap
 %type   <arrow>     arrow
 %type   <arrowStem> arrowStem
 %type   <arrowHead> arrowHead
@@ -91,6 +93,7 @@ actor
 seqitem
     :   action
     |   note
+    |   gap
     ;
 
 action
@@ -107,7 +110,14 @@ note
         d := yylex.(*parseState).diagram
         $$ = &Note{d.GetOrAddActor($3), $2, $4}
     }
-    ;    
+    ;
+
+gap
+    :   K_GAP MESSAGE
+    {
+        $$ = &Divider{$2}
+    }
+    ;
 
 noteplace
     :   K_LEFT K_OF
@@ -240,6 +250,8 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
         return K_OVER
     case "of":
         return K_OF
+    case "gap":
+        return K_GAP
     default:
         lval.sval = tokVal
         return IDENT

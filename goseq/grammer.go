@@ -40,13 +40,14 @@ const K_LEFT = 57349
 const K_RIGHT = 57350
 const K_OVER = 57351
 const K_OF = 57352
-const DASH = 57353
-const DOUBLEDASH = 57354
-const ANGR = 57355
-const DOUBLEANGR = 57356
-const STARANGR = 57357
-const MESSAGE = 57358
-const IDENT = 57359
+const K_GAP = 57353
+const DASH = 57354
+const DOUBLEDASH = 57355
+const ANGR = 57356
+const DOUBLEANGR = 57357
+const STARANGR = 57358
+const MESSAGE = 57359
+const IDENT = 57360
 
 var yyToknames = []string{
 	"K_TITLE",
@@ -56,6 +57,7 @@ var yyToknames = []string{
 	"K_RIGHT",
 	"K_OVER",
 	"K_OF",
+	"K_GAP",
 	"DASH",
 	"DOUBLEDASH",
 	"ANGR",
@@ -70,7 +72,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line goseq/grammer.y:159
+//line goseq/grammer.y:169
 
 // Manages the lexer as well as the current diagram being parsed
 type parseState struct {
@@ -154,6 +156,8 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
 		return K_OVER
 	case "of":
 		return K_OF
+	case "gap":
+		return K_GAP
 	default:
 		lval.sval = tokVal
 		return IDENT
@@ -228,58 +232,58 @@ var yyExca = []int{
 	-2, 0,
 }
 
-const yyNprod = 23
+const yyNprod = 25
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 34
+const yyLast = 37
 
 var yyAct = []int{
 
-	7, 8, 12, 30, 27, 28, 29, 25, 5, 15,
-	34, 33, 32, 11, 24, 14, 18, 19, 21, 22,
-	23, 2, 31, 4, 3, 13, 1, 20, 26, 17,
-	16, 10, 9, 6,
+	7, 8, 13, 33, 30, 31, 32, 14, 5, 28,
+	17, 37, 36, 35, 12, 27, 26, 16, 20, 21,
+	23, 24, 25, 2, 34, 4, 3, 15, 1, 22,
+	29, 19, 18, 11, 10, 9, 6,
 }
 var yyPact = []int{
 
-	-4, -1000, -1000, -4, -1000, -1000, -1000, -1, -8, -1000,
-	-1000, 5, 11, -1000, -1000, -2, -10, -9, -1000, -1000,
-	-14, 12, 2, -1000, -1000, -5, -1000, -1000, -1000, -1000,
-	-6, -1000, -1000, -1000, -1000,
+	-4, -1000, -1000, -4, -1000, -1000, -1000, 0, -8, -1000,
+	-1000, -1000, 6, 13, -1, -1000, -1000, -2, -9, -10,
+	-1000, -1000, -15, 14, 3, -1000, -1000, -1000, -5, -1000,
+	-1000, -1000, -1000, -6, -1000, -1000, -1000, -1000,
 }
 var yyPgo = []int{
 
-	0, 33, 32, 31, 30, 29, 28, 27, 26, 21,
-	24, 23, 8,
+	0, 36, 35, 34, 33, 32, 31, 30, 29, 28,
+	23, 26, 25, 8,
 }
 var yyR1 = []int{
 
-	0, 8, 9, 9, 10, 10, 10, 11, 12, 12,
-	1, 1, 2, 3, 7, 7, 7, 4, 5, 5,
-	6, 6, 6,
+	0, 9, 10, 10, 11, 11, 11, 12, 13, 13,
+	1, 1, 1, 2, 3, 4, 8, 8, 8, 5,
+	6, 6, 7, 7, 7,
 }
 var yyR2 = []int{
 
 	0, 1, 0, 2, 1, 1, 1, 2, 2, 3,
-	1, 1, 4, 4, 2, 2, 1, 2, 1, 1,
-	1, 1, 1,
+	1, 1, 1, 4, 4, 2, 2, 2, 1, 2,
+	1, 1, 1, 1, 1,
 }
 var yyChk = []int{
 
-	-1000, -8, -9, -10, -11, -12, -1, 4, 5, -2,
-	-3, 17, 6, -9, 16, 17, -4, -5, 11, 12,
-	-7, 7, 8, 9, 16, 17, -6, 13, 14, 15,
-	17, 10, 10, 16, 16,
+	-1000, -9, -10, -11, -12, -13, -1, 4, 5, -2,
+	-3, -4, 18, 6, 11, -10, 17, 18, -5, -6,
+	12, 13, -8, 7, 8, 9, 17, 17, 18, -7,
+	14, 15, 16, 18, 10, 10, 17, 17,
 }
 var yyDef = []int{
 
 	2, -2, 1, 2, 4, 5, 6, 0, 0, 10,
-	11, 0, 0, 3, 7, 8, 0, 0, 18, 19,
-	0, 0, 0, 16, 9, 0, 17, 20, 21, 22,
-	0, 14, 15, 12, 13,
+	11, 12, 0, 0, 0, 3, 7, 8, 0, 0,
+	20, 21, 0, 0, 0, 18, 15, 9, 0, 19,
+	22, 23, 24, 0, 16, 17, 13, 14,
 }
 var yyTok1 = []int{
 
@@ -288,7 +292,7 @@ var yyTok1 = []int{
 var yyTok2 = []int{
 
 	2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
-	12, 13, 14, 15, 16, 17,
+	12, 13, 14, 15, 16, 17, 18,
 }
 var yyTok3 = []int{
 	0,
@@ -520,22 +524,22 @@ yydefault:
 	switch yynt {
 
 	case 6:
-		//line goseq/grammer.y:68
+		//line goseq/grammer.y:70
 		{
 			yylex.(*parseState).diagram.AddSequenceItem(yyS[yypt-0].seqItem)
 		}
 	case 7:
-		//line goseq/grammer.y:75
+		//line goseq/grammer.y:77
 		{
 			yylex.(*parseState).diagram.Title = yyS[yypt-0].sval
 		}
 	case 8:
-		//line goseq/grammer.y:82
+		//line goseq/grammer.y:84
 		{
 			yylex.(*parseState).diagram.GetOrAddActor(yyS[yypt-0].sval)
 		}
 	case 9:
-		//line goseq/grammer.y:86
+		//line goseq/grammer.y:88
 		{
 			yylex.(*parseState).diagram.GetOrAddActorWithOptions(yyS[yypt-1].sval, yyS[yypt-0].sval)
 		}
@@ -544,59 +548,66 @@ yydefault:
 	case 11:
 		yyVAL.seqItem = yyS[yypt-0].seqItem
 	case 12:
-		//line goseq/grammer.y:98
+		yyVAL.seqItem = yyS[yypt-0].seqItem
+	case 13:
+		//line goseq/grammer.y:101
 		{
 			d := yylex.(*parseState).diagram
 			yyVAL.seqItem = &Action{d.GetOrAddActor(yyS[yypt-3].sval), d.GetOrAddActor(yyS[yypt-1].sval), yyS[yypt-2].arrow, yyS[yypt-0].sval}
 		}
-	case 13:
-		//line goseq/grammer.y:106
+	case 14:
+		//line goseq/grammer.y:109
 		{
 			d := yylex.(*parseState).diagram
 			yyVAL.seqItem = &Note{d.GetOrAddActor(yyS[yypt-1].sval), yyS[yypt-2].noteAlign, yyS[yypt-0].sval}
 		}
-	case 14:
-		//line goseq/grammer.y:114
+	case 15:
+		//line goseq/grammer.y:117
+		{
+			yyVAL.seqItem = &Divider{yyS[yypt-0].sval}
+		}
+	case 16:
+		//line goseq/grammer.y:124
 		{
 			yyVAL.noteAlign = LeftNoteAlignment
 		}
-	case 15:
-		//line goseq/grammer.y:118
+	case 17:
+		//line goseq/grammer.y:128
 		{
 			yyVAL.noteAlign = RightNoteAlignment
 		}
-	case 16:
-		//line goseq/grammer.y:122
+	case 18:
+		//line goseq/grammer.y:132
 		{
 			yyVAL.noteAlign = OverNoteAlignment
 		}
-	case 17:
-		//line goseq/grammer.y:129
+	case 19:
+		//line goseq/grammer.y:139
 		{
 			yyVAL.arrow = Arrow{yyS[yypt-1].arrowStem, yyS[yypt-0].arrowHead}
 		}
-	case 18:
-		//line goseq/grammer.y:136
+	case 20:
+		//line goseq/grammer.y:146
 		{
 			yyVAL.arrowStem = SolidArrowStem
 		}
-	case 19:
-		//line goseq/grammer.y:140
+	case 21:
+		//line goseq/grammer.y:150
 		{
 			yyVAL.arrowStem = DashedArrowStem
 		}
-	case 20:
-		//line goseq/grammer.y:147
+	case 22:
+		//line goseq/grammer.y:157
 		{
 			yyVAL.arrowHead = SolidArrowHead
 		}
-	case 21:
-		//line goseq/grammer.y:151
+	case 23:
+		//line goseq/grammer.y:161
 		{
 			yyVAL.arrowHead = OpenArrowHead
 		}
-	case 22:
-		//line goseq/grammer.y:155
+	case 24:
+		//line goseq/grammer.y:165
 		{
 			yyVAL.arrowHead = BarbArrowHead
 		}

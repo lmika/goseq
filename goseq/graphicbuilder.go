@@ -32,6 +32,7 @@ type DiagramStyles struct {
     NoteBox             graphbox.NoteBoxStyle
     ActivityLine        graphbox.ActivityLineStyle
     Title               graphbox.TitleStyle
+    Divider             graphbox.DividerStyle
 }
 
 
@@ -76,6 +77,12 @@ func initStyle() (*DiagramStyles, error) {
             FontSize: 20,
             Padding: graphbox.Point{4, 16},
         },
+        Divider: graphbox.DividerStyle{
+            Font: font,
+            FontSize: 14,
+            Padding: graphbox.Point{16, 8},
+            Margin: graphbox.Point{8, 8},
+        },        
     }
 
     return style, nil
@@ -130,6 +137,8 @@ func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
                 gb.putAction(row, itemDetails)
             case *Note:
                 gb.putNote(row, itemDetails)
+            case *Divider:
+                gb.putDivider(row, itemDetails)
             }
         }
     }
@@ -168,6 +177,15 @@ func (gb *GraphicBuilder) putAction(row int, action *Action) {
     style.ArrowStem = ArrowStemMapping[action.Arrow.Stem]
 
     gb.Graphic.Put(row, fromCol, graphbox.NewActivityLine(toCol, action.Message, style))
+}
+
+// Places a divider
+func (gb *GraphicBuilder) putDivider(row int, action *Divider) {
+    fromCol := 0
+    toCol := gb.Graphic.Cols()
+    style := gb.Style.Divider
+
+    gb.Graphic.Put(row, fromCol, graphbox.NewDivider(toCol, action.Message, style))
 }
 
 // Count the number of rows needed in the graphic
