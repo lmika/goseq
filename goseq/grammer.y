@@ -26,18 +26,19 @@ var DualRunes = map[string]int {
 %}
 
 %union {
-    seqItem     SequenceItem
-    arrow       Arrow
-    arrowStem   ArrowStem
-    arrowHead   ArrowHead
-    noteAlign   NoteAlignment
+    seqItem         SequenceItem
+    arrow           Arrow
+    arrowStem       ArrowStem
+    arrowHead       ArrowHead
+    noteAlign       NoteAlignment
+    dividerType     DividerType
 
-    sval        string
+    sval            string
 }
 
 %token  K_TITLE K_PARTICIPANT K_NOTE
 %token  K_LEFT  K_RIGHT  K_OVER  K_OF
-%token  K_HORIZONTAL K_GAP
+%token  K_HORIZONTAL K_GAP K_LINE
 
 %token  DASH    DOUBLEDASH
 %token  ANGR    DOUBLEANGR      STARANGR
@@ -45,12 +46,13 @@ var DualRunes = map[string]int {
 %token  <sval>  MESSAGE
 %token  <sval>  IDENT
 
-%type   <seqItem>   seqitem
-%type   <seqItem>   action      note    gap
-%type   <arrow>     arrow
-%type   <arrowStem> arrowStem
-%type   <arrowHead> arrowHead
-%type   <noteAlign> noteplace
+%type   <seqItem>       seqitem
+%type   <seqItem>       action      note    gap
+%type   <arrow>         arrow
+%type   <arrowStem>     arrowStem
+%type   <arrowHead>     arrowHead
+%type   <noteAlign>     noteplace
+%type   <dividerType>   dividerType
 
 %%
 
@@ -113,9 +115,20 @@ note
     ;
 
 gap
-    :   K_HORIZONTAL K_GAP MESSAGE
+    :   K_HORIZONTAL dividerType MESSAGE
     {
-        $$ = &Divider{$3}
+        $$ = &Divider{$3, $2}
+    }
+    ;
+
+dividerType
+    :   K_GAP
+    {
+        $$ = DTGap
+    }
+    |   K_LINE
+    {
+        $$ = DTLine
     }
     ;
 
@@ -252,6 +265,8 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
         return K_OF
     case "gap":
         return K_GAP
+    case "line":
+        return K_LINE
     case "horizontal":
         return K_HORIZONTAL
     default:

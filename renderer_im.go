@@ -1,6 +1,7 @@
 // Extra renderers available if ImageMagick is available.
 //
-// +build !noim
+
+//+build !noim
 
 package main
 

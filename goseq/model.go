@@ -39,7 +39,7 @@ func (d *Diagram) AddSequenceItem(item SequenceItem) {
 
 // Write the diagram as an SVG
 func (d *Diagram) WriteSVG(w io.Writer) error {
-    gb, err := NewGraphicBuilder(d)
+    gb, err := NewGraphicBuilder(d, DefaultStyle)
     if err != nil {
         return err
     }
@@ -115,8 +115,18 @@ type Action struct {
     Message     string
 }
 
+type DividerType int
+
+const (
+    DTGap   DividerType = iota
+    DTLine
+)
+
 // Defines a divider, which spans the diagram.
 type Divider struct {
     // The message
     Message     string
+
+    // The divider type
+    Type        DividerType
 }

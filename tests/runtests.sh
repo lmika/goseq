@@ -68,5 +68,5 @@ function cleanUp()
 
 go build -o $TEST_BIN ../. || die "Failed to build goseq"
 
-runTests | buildResultsPage > res.html
+runTests | buildResultsPage > testout.html
 cleanUp

@@ -33,10 +33,6 @@ func locateWinTTFFont(ttfDir string) string {
 }
 
 // Locates an appropriate font on Window
-func locateWindowsFont() string {
+func LocateFont() string {
     return locateWinTTFFont(winFontDirectory)
-}
-
-func init() {
-    fontLocatorFn = locateWindowsFont
 }

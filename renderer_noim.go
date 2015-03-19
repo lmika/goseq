@@ -1,6 +1,7 @@
 // Renderers disabled if noim is specified
 //
-// +build noim
+
+//+build noim
 
 package main
 

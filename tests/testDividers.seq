@@ -3,5 +3,5 @@ horizontal gap: Some time passes
 Server->Client: No.
 horizontal gap: Some more\ntime passes\nthis time.
 Client->Server: Is it ready now?
-horizontal gap: This is a relatively long gap
+horizontal line: This is a relatively long gap
 Server->Client: Yes

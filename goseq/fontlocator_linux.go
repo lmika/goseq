@@ -47,15 +47,11 @@ func locateTTFFont(ttfDir string) string {
 }
 
 // Locates an appropriate font on the linux file system
-func locateLinuxFont() string {
+func LocateFont() string {
     fontDir := locateTTFDirectory()
     if fontDir != "" {
         return locateTTFFont(fontDir)
     } else {
         return ""
     }
-}
-
-func init() {
-    fontLocatorFn = locateLinuxFont
 }

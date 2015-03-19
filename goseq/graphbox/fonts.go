@@ -67,6 +67,7 @@ func NewTTFFont(path string) (*TTFFont, error) {
 }
 
 // Measures the size of a font
+// TODO: For long bits of text, the measurement can be slightly off
 func (ttf *TTFFont) Measure(txt string, size float64) (int, int) {
     img := nopDrawImage(0)
 

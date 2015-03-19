@@ -1,11 +1,26 @@
 package graphbox
 
+// Divider shape
+type DividerShape int
+
+const (
+    // A rectangle which will span the entire graphic from end to end.
+    // The text will be centered in front of it.    
+    DSFullRect  DividerShape    = iota
+
+    // A line which will span the entire grapic.  The text will be
+    // centered in front of it.
+    DSFullLine
+)
+
 // Divider style
 type DividerStyle struct {
     Font        Font
     FontSize    int
     Padding     Point
     Margin      Point
+    TextPadding Point
+    Shape       DividerShape
 }
 
 
@@ -45,11 +60,22 @@ func (div *Divider) Draw(ctx DrawContext, point Point) {
         centerX := fx + (tx - fx) / 2
         centerY := fy
 
-        // Draw the boundary
         borderRect := Rect{fx, fy - div.marginRect.H / 2, tx - fx, div.marginRect.H}
-        ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, "fill:white;stroke:white;")
+        textBoxRect := div.textBoxRect.PositionAt(centerX, centerY, CenterGravity).BlowOut(div.style.TextPadding)
 
-        // Center text
-        div.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
+        // Draw the shape and text
+        switch div.style.Shape {
+        case DSFullRect:
+            ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, "fill:white;stroke:white;")
+            div.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
+        case DSFullLine:
+            // Draw the rectangle for clearing the image
+            ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, "fill:white;stroke:white;")
+            ctx.Canvas.Line(borderRect.X, centerY, borderRect.W, centerY, "fill:white;stroke:black;stroke-width:2px;stroke-dasharray:16,8")
+
+            ctx.Canvas.Rect(textBoxRect.X, textBoxRect.Y, textBoxRect.W, textBoxRect.H, "fill:white;stroke:white;")
+            div.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
+        }
     }    
 }
+

@@ -26,68 +26,22 @@ var ArrowStemMapping = map[ArrowStem]graphbox.ActivityArrowStem {
     DashedArrowStem: graphbox.DashedArrowStem,
 }
 
-type DiagramStyles struct {
-    Margin              graphbox.Point
-    ActorBox            graphbox.ActorBoxStyle
-    NoteBox             graphbox.NoteBoxStyle
-    ActivityLine        graphbox.ActivityLineStyle
-    Title               graphbox.TitleStyle
-    Divider             graphbox.DividerStyle
-}
-
-
-// Initializes the style.  Returns either the style, or an error
-func initStyle() (*DiagramStyles, error) {
-
+// Must load a suitable font.  Returns the font or panics.
+func mustLoadFont() *graphbox.TTFFont {
     // Attempts to find a font
     fontName := LocateFont()
     if fontName == "" {
-        return nil, errors.New("Could not locate a suitable font")
+        panic(errors.New("Could not locate a suitable font"))
     }
 
     // Attempts to load the font
     font, err := graphbox.NewTTFFont(fontName)
     if err != nil { 
-        return nil, err
+        panic(err)
     }
 
-    // Returns the style
-    style := &DiagramStyles {
-        Margin: graphbox.Point{8, 8},
-        ActorBox: graphbox.ActorBoxStyle {
-            Font: font,
-            FontSize: 16,
-            Padding: graphbox.Point{16, 8},
-            Margin: graphbox.Point{8, 8},
-        },
-        NoteBox: graphbox.NoteBoxStyle {
-            Font: font,
-            FontSize: 14,
-            Padding: graphbox.Point{8, 4},
-            Margin: graphbox.Point{8, 8},
-        },
-        ActivityLine: graphbox.ActivityLineStyle{
-            Font: font,
-            FontSize: 14,
-            Margin: graphbox.Point{16, 8},
-            TextGap: 4,
-        },
-        Title: graphbox.TitleStyle {
-            Font: font,
-            FontSize: 20,
-            Padding: graphbox.Point{4, 16},
-        },
-        Divider: graphbox.DividerStyle{
-            Font: font,
-            FontSize: 14,
-            Padding: graphbox.Point{16, 8},
-            Margin: graphbox.Point{8, 8},
-        },        
-    }
-
-    return style, nil
+    return font
 }
-
 
 // Information about a particular actor
 type actorInfo struct {
@@ -109,12 +63,7 @@ type GraphicBuilder struct {
 }
 
 
-func NewGraphicBuilder(d *Diagram) (*GraphicBuilder, error) {
-    style, err := initStyle()
-    if err != nil {
-        return nil, err
-    }
-
+func NewGraphicBuilder(d *Diagram, style *DiagramStyles) (*GraphicBuilder, error) {
     return &GraphicBuilder{d, nil, style, nil}, nil
 }
 
@@ -183,7 +132,7 @@ func (gb *GraphicBuilder) putAction(row int, action *Action) {
 func (gb *GraphicBuilder) putDivider(row int, action *Divider) {
     fromCol := 0
     toCol := gb.Graphic.Cols()
-    style := gb.Style.Divider
+    style := gb.Style.Divider[action.Type]
 
     gb.Graphic.Put(row, fromCol, graphbox.NewDivider(toCol, action.Message, style))
 }
