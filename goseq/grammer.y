@@ -10,6 +10,7 @@ import (
     "bytes"
     "errors"
     "strings"
+    "fmt"
     "text/scanner"
 )
 
@@ -322,7 +323,8 @@ func (ps *parseState) NextRune() rune {
 }
 
 func (ps *parseState) Error(err string) {
-    ps.err = errors.New(err)
+    errMsg := fmt.Sprintf("%s near line %d", err, ps.S.Line)
+    ps.err = errors.New(errMsg)
 }
 
 
