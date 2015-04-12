@@ -1,6 +1,6 @@
 // Linux font locator implementation
 
-package goseq
+package seqdiagram
 
 import (
     "os"

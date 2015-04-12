@@ -1,9 +1,9 @@
-package goseq
+package seqdiagram
 
 import (
     "errors"
 
-    "bitbucket.org/lmika/goseq/goseq/graphbox"
+    "bitbucket.org/lmika/goseq/seqdiagram/graphbox"
 )
 
 

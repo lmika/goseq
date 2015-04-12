@@ -3,17 +3,17 @@ package main
 import (
     "os"
 
-    "bitbucket.org/lmika/goseq/goseq"
+    "bitbucket.org/lmika/goseq/seqdiagram"
 )
 
 // Renders the result of the SVG to a destination (e.g. a file)
 // If the filename is blank, the result is to go to the "default" destination
 // (which is up to the renderer).
-type Renderer func(diagram *goseq.Diagram, target string) error
+type Renderer func(diagram *seqdiagram.Diagram, target string) error
 
 
 // The default renderer: write the diagram to SVG
-func SvgRenderer(diagram *goseq.Diagram, target string) error {
+func SvgRenderer(diagram *seqdiagram.Diagram, target string) error {
     if target != "" {
         file, err := os.Create(target)
         if err != nil {

@@ -1,7 +1,7 @@
 // Locates font on the system.  This is depending on the GOOS
 //
 
-package goseq
+package seqdiagram
 
 
 // The locateFont function is the function that the appropriate fontlocator_* file

@@ -6,7 +6,7 @@ import (
     "flag"
     "path/filepath"
 
-    "bitbucket.org/lmika/goseq/goseq"
+    "bitbucket.org/lmika/goseq/seqdiagram"
 )
 
 // Name of the output file
@@ -33,7 +33,7 @@ func processFile(inFilename string, outFilename string, renderer Renderer) error
         defer infile.Close()
     }
 
-    diagram, err := goseq.Parse(infile)
+    diagram, err := seqdiagram.ParseDiagram(infile, inFilename)
     if err != nil {
         return err
     }

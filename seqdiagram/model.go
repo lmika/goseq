@@ -1,10 +1,12 @@
 // AST nodes used for by goseq
 //
 
-package goseq
+package seqdiagram
 
 import (
     "io"
+
+    "bitbucket.org/lmika/goseq/seqdiagram/parse"
 )
 
 // Top level diagram definition
@@ -12,6 +14,29 @@ type Diagram struct {
     Title           string
     Actors          []*Actor
     Items           []SequenceItem
+}
+
+// Creates a new, empty diagram
+func NewDiagram() *Diagram {
+    return &Diagram{}
+}
+
+// Parses a diagram from a reader and returns the diagram or an error
+func ParseDiagram(r io.Reader, filename string) (*Diagram, error) {
+    //d := NewDiagram()
+    nl, err := parse.Parse(r, filename)
+    if err != nil {
+        return nil, err
+    }
+
+    d := NewDiagram()
+    tb := &treeBuilder{nl, filename}
+    err = tb.buildTree(d)
+    if err != nil {
+        return nil, err
+    }
+
+    return d, nil
 }
 
 // Returns an actor by name.  If the actor is undefined, a new actor
