@@ -40,7 +40,7 @@ var DualRunes = map[string]int {
 
 %token  K_TITLE K_PARTICIPANT K_NOTE
 %token  K_LEFT  K_RIGHT  K_OVER  K_OF
-%token  K_HORIZONTAL K_GAP K_LINE
+%token  K_HORIZONTAL K_GAP K_LINE K_FRAME
 
 %token  DASH    DOUBLEDASH
 %token  ANGR    DOUBLEANGR      STARANGR
@@ -118,7 +118,11 @@ note
     ;
 
 gap
-    :   K_HORIZONTAL dividerType MESSAGE
+    :   K_HORIZONTAL dividerType
+    {
+        $$ = &GapNode{$2, ""}
+    }
+    |   K_HORIZONTAL dividerType MESSAGE
     {
         $$ = &GapNode{$2, $3}
     }
@@ -127,6 +131,7 @@ gap
 dividerType
     :   K_GAP               { $$ = EMPTY_GAP }
     |   K_LINE              { $$ = LINE_GAP }
+    |   K_FRAME             { $$ = FRAME_GAP }
     ;
 
 noteplace
@@ -240,6 +245,8 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
         return K_OF
     case "gap":
         return K_GAP
+    case "frame":
+        return K_FRAME
     case "line":
         return K_LINE
     case "horizontal":

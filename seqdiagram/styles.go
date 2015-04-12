@@ -64,6 +64,14 @@ var DefaultStyle = &DiagramStyles {
             TextPadding: graphbox.Point{0, 0},
             Shape: graphbox.DSFullRect,
         },
+        DTFrame: graphbox.DividerStyle {
+            Font: standardFont,
+            FontSize: 14,
+            Padding: graphbox.Point{16, 8},
+            Margin: graphbox.Point{8, 8},
+            TextPadding: graphbox.Point{0, 0},
+            Shape: graphbox.DSFramedRect,
+        },
         DTLine: graphbox.DividerStyle {
             Font: standardFont,
             FontSize: 14,

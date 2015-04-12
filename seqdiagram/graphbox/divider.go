@@ -8,6 +8,9 @@ const (
     // The text will be centered in front of it.    
     DSFullRect  DividerShape    = iota
 
+    // Like FulLRect but using a framed rectangle
+    DSFramedRect
+
     // A line which will span the entire grapic.  The text will be
     // centered in front of it.
     DSFullLine
@@ -29,6 +32,7 @@ type Divider struct {
     TC              int
 
     style           DividerStyle
+    hasText         bool
     textBox         *TextBox
     textBoxRect     Rect
     marginRect      Rect
@@ -40,7 +44,7 @@ func NewDivider(toCol int, text string, style DividerStyle) *Divider {
     textBoxRect := textBox.BoundingRect()
     marginRect := textBoxRect.BlowOut(style.Padding)
 
-    return &Divider{toCol, style, textBox, textBoxRect, marginRect}
+    return &Divider{toCol, style, text != "", textBox, textBoxRect, marginRect}
 }
 
 func (div *Divider) Constraint(r, c int, applier ConstraintApplier) {
@@ -68,13 +72,18 @@ func (div *Divider) Draw(ctx DrawContext, point Point) {
         case DSFullRect:
             ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, "fill:white;stroke:white;")
             div.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
+        case DSFramedRect:
+            ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, "fill:white;stroke:black;stroke-width:2px")
+            div.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
         case DSFullLine:
             // Draw the rectangle for clearing the image
             ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, "fill:white;stroke:white;")
-            ctx.Canvas.Line(borderRect.X, centerY, borderRect.W, centerY, "fill:white;stroke:black;stroke-width:2px;stroke-dasharray:16,8")
+            ctx.Canvas.Line(borderRect.X, centerY, borderRect.W, centerY, "fill:white;stroke:black;stroke-width:2px;") //stroke-dasharray:16,8")
 
-            ctx.Canvas.Rect(textBoxRect.X, textBoxRect.Y, textBoxRect.W, textBoxRect.H, "fill:white;stroke:white;")
-            div.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
+            if div.hasText {
+                ctx.Canvas.Rect(textBoxRect.X, textBoxRect.Y, textBoxRect.W, textBoxRect.H, "fill:white;stroke:white;")
+                div.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
+            }
         }
     }    
 }

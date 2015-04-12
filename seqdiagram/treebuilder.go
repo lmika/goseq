@@ -27,6 +27,7 @@ var noteAlignmentMap = map[parse.NoteAlignment]NoteAlignment {
 
 var dividerTypeMap = map[parse.GapType]DividerType {
     parse.EMPTY_GAP: DTGap,
+    parse.FRAME_GAP: DTFrame,
     parse.LINE_GAP: DTLine,
 }
 

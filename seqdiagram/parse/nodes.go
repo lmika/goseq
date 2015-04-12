@@ -83,6 +83,7 @@ type GapType    int
 const (
     EMPTY_GAP GapType = iota
     LINE_GAP        = iota
+    FRAME_GAP       = iota
 )
 
 type GapNode struct {

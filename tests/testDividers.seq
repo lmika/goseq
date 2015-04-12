@@ -1,7 +1,7 @@
 Client->Server: Is it ready?
 horizontal gap: Some time passes
 Server->Client: No.
-horizontal gap: Some more\ntime passes\nthis time.
+horizontal frame: Some more\ntime passes\nthis time.
 Client->Server: Is it ready now?
 horizontal line: This is a relatively long gap
 Server->Client: Yes

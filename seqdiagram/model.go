@@ -144,6 +144,7 @@ type DividerType int
 
 const (
     DTGap   DividerType = iota
+    DTFrame
     DTLine
 )
 
