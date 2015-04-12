@@ -9,19 +9,18 @@ import (
 
 // Various position offsets
 const (
-    ObjectLeftX     =   1
-    TitleY          =   0
-    ObjectY         =   1
+    posObjectLeftX     =   1
+    posObjectY         =   1
 )
 
 // This arrow head to arrow head
-var ArrowHeadMapping = map[ArrowHead]graphbox.ActivityArrowHead {
+var graphboxArrowHeadMapping = map[ArrowHead]graphbox.ActivityArrowHead {
     SolidArrowHead: graphbox.SolidArrowHead,
     OpenArrowHead: graphbox.OpenArrowHead,
     BarbArrowHead: graphbox.BarbArrowHead,
 }
 
-var ArrowStemMapping = map[ArrowStem]graphbox.ActivityArrowStem {
+var graphboxArrowStemMapping = map[ArrowStem]graphbox.ActivityArrowStem {
     SolidArrowStem: graphbox.SolidArrowStem,
     DashedArrowStem: graphbox.DashedArrowStem,
 }
@@ -54,7 +53,7 @@ type actorInfo struct {
 }
 
 
-type GraphicBuilder struct {
+type graphicBuilder struct {
     Diagram           *Diagram
     Graphic           *graphbox.Graphic
     Style             *DiagramStyles
@@ -63,11 +62,11 @@ type GraphicBuilder struct {
 }
 
 
-func NewGraphicBuilder(d *Diagram, style *DiagramStyles) (*GraphicBuilder, error) {
-    return &GraphicBuilder{d, nil, style, nil}, nil
+func newGraphicBuilder(d *Diagram, style *DiagramStyles) (*graphicBuilder, error) {
+    return &graphicBuilder{d, nil, style, nil}, nil
 }
 
-func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
+func (gb *graphicBuilder) buildGraphic() *graphbox.Graphic {
     rows, cols := gb.calcRowsAndCols()
     gb.Graphic = graphbox.NewGraphic(rows, cols)
 
@@ -101,7 +100,7 @@ func (gb *GraphicBuilder) BuildGraphic() *graphbox.Graphic {
 }
 
 // Places a note
-func (gb *GraphicBuilder) putNote(row int, note *Note) {
+func (gb *graphicBuilder) putNote(row int, note *Note) {
     var pos graphbox.NoteBoxPos
 
     if note.Align == LeftNoteAlignment {
@@ -117,19 +116,19 @@ func (gb *GraphicBuilder) putNote(row int, note *Note) {
 }
 
 // Places an action
-func (gb *GraphicBuilder) putAction(row int, action *Action) {
+func (gb *graphicBuilder) putAction(row int, action *Action) {
     fromCol := gb.colOfActor(action.From)
     toCol := gb.colOfActor(action.To)
     style := gb.Style.ActivityLine
 
-    style.ArrowHead = ArrowHeadMapping[action.Arrow.Head]
-    style.ArrowStem = ArrowStemMapping[action.Arrow.Stem]
+    style.ArrowHead = graphboxArrowHeadMapping[action.Arrow.Head]
+    style.ArrowStem = graphboxArrowStemMapping[action.Arrow.Stem]
 
     gb.Graphic.Put(row, fromCol, graphbox.NewActivityLine(toCol, action.Message, style))
 }
 
 // Places a divider
-func (gb *GraphicBuilder) putDivider(row int, action *Divider) {
+func (gb *graphicBuilder) putDivider(row int, action *Divider) {
     fromCol := 0
     toCol := gb.Graphic.Cols()
     style := gb.Style.Divider[action.Type]
@@ -138,23 +137,23 @@ func (gb *GraphicBuilder) putDivider(row int, action *Divider) {
 }
 
 // Count the number of rows needed in the graphic
-func (gb *GraphicBuilder) calcRowsAndCols() (int, int) {
+func (gb *graphicBuilder) calcRowsAndCols() (int, int) {
     cols := gb.determineActorInfo()
 
     // 1 for the title, object header and object footer
     if (len(gb.Diagram.Items) == 0) {
-        return ObjectY + 3, cols
+        return posObjectY + 3, cols
     } else {
-        return len(gb.Diagram.Items) + ObjectY + 2, cols
+        return len(gb.Diagram.Items) + posObjectY + 2, cols
     }    
 }
 
 // Determine actor information.  Returns the number of colums required
-func (gb *GraphicBuilder) determineActorInfo() int {
+func (gb *graphicBuilder) determineActorInfo() int {
     gb.actorInfos = make([]actorInfo, len(gb.Diagram.Actors))
 
     // Allocate the columns
-    cols := ObjectLeftX
+    cols := posObjectLeftX
     for _, actor := range gb.Diagram.Actors {
         colsRequiredByActor := 1
         actorCol := cols
@@ -175,7 +174,7 @@ func (gb *GraphicBuilder) determineActorInfo() int {
 }
 
 // Add the object headers and footers
-func (gb *GraphicBuilder) addActors() {
+func (gb *graphicBuilder) addActors() {
     // TODO: Proper styling
     bottomRow := gb.Graphic.Rows() - 1
     for rank, actor := range gb.Diagram.Actors {
@@ -190,14 +189,14 @@ func (gb *GraphicBuilder) addActors() {
         }
 
         col := gb.colOfActor(actor)
-        gb.Graphic.Put(ObjectY, col, &graphbox.LifeLine{bottomRow, col})
+        gb.Graphic.Put(posObjectY, col, &graphbox.LifeLine{bottomRow, col})
 
-        gb.Graphic.Put(ObjectY, col, graphbox.NewActorBox(actor.Label, gb.Style.ActorBox, actorBoxPos | graphbox.TopActorBox))
+        gb.Graphic.Put(posObjectY, col, graphbox.NewActorBox(actor.Label, gb.Style.ActorBox, actorBoxPos | graphbox.TopActorBox))
         gb.Graphic.Put(bottomRow, col, graphbox.NewActorBox(actor.Label, gb.Style.ActorBox, actorBoxPos | graphbox.BottomActorBox))
     }
 }
 
 // Returns the column position of an actor
-func (gb *GraphicBuilder) colOfActor(actor *Actor) int {
+func (gb *graphicBuilder) colOfActor(actor *Actor) int {
     return gb.actorInfos[actor.rank].Col
 }

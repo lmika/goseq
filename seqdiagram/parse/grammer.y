@@ -27,13 +27,6 @@ var DualRunes = map[string]int {
 %}
 
 %union {
-    /*
-    seqItem         SequenceItem
-    arrow           Arrow
-    arrowStem       ArrowStem
-    arrowHead       ArrowHead
-    dividerType     DividerType
-    */
     nodeList        *NodeList
     node            Node
     arrow           ArrowType
@@ -90,16 +83,11 @@ decl
     |   action
     |   note
     |   gap
-    //{
-        //yylex.(*parseState).diagram.AddSequenceItem($1)
-    //    $$ = $1
-    //}
     ;
 
 title
     :   K_TITLE MESSAGE
     {
-        //yylex.(*parseState).diagram.Title = $2
         $$ = &TitleNode{$2}
     }
     ;
@@ -107,29 +95,17 @@ title
 actor
     :   K_PARTICIPANT IDENT
     {
-        //yylex.(*parseState).diagram.GetOrAddActor($2)
         $$ = &ActorNode{$2, false, ""}
     }
     |   K_PARTICIPANT IDENT MESSAGE
     {
-        //yylex.(*parseState).diagram.GetOrAddActorWithOptions($2, $3)
         $$ = &ActorNode{$2, true, $3}
     }
     ;
 
-/*
-seqitem
-    :   action
-    |   note
-    |   gap
-    ;
-    */
-
 action
     :   IDENT arrow IDENT MESSAGE
     {
-        //d := yylex.(*parseState).diagram
-        //$$ = &Action{d.GetOrAddActor($1), d.GetOrAddActor($3), $2, $4}
         $$ = &ActionNode{$1, $3, $2, $4}
     }
     ;
@@ -137,8 +113,6 @@ action
 note
     :   K_NOTE noteplace IDENT MESSAGE
     {
-        //d := yylex.(*parseState).diagram
-        //$$ = &Note{d.GetOrAddActor($3), $2, $4}
         $$ = &NoteNode{$3, $2, $4}
     }
     ;
@@ -146,7 +120,6 @@ note
 gap
     :   K_HORIZONTAL dividerType MESSAGE
     {
-        //$$ = &Divider{$3, $2}
         $$ = &GapNode{$2, $3}
     }
     ;

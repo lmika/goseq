@@ -64,12 +64,12 @@ func (d *Diagram) AddSequenceItem(item SequenceItem) {
 
 // Write the diagram as an SVG
 func (d *Diagram) WriteSVG(w io.Writer) error {
-    gb, err := NewGraphicBuilder(d, DefaultStyle)
+    gb, err := newGraphicBuilder(d, DefaultStyle)
     if err != nil {
         return err
     }
 
-    gb.BuildGraphic().DrawSVG(w)
+    gb.buildGraphic().DrawSVG(w)
     return nil
 }
 
