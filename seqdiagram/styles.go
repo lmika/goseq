@@ -69,7 +69,7 @@ var DefaultStyle = &DiagramStyles {
             FontSize: 14,
             Padding: graphbox.Point{16, 4},
             Margin: graphbox.Point{8, 16},
-            TextPadding: graphbox.Point{0, 0},
+            TextPadding: graphbox.Point{4, 2},
             Shape: graphbox.DSFullLine,
         },
     },
