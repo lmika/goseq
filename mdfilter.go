@@ -30,14 +30,17 @@ func (cb *MarkdownFilter) Scan() error {
 
     for scanner.Scan() {
         line := scanner.Text()
+        trimmedLine := strings.TrimSpace(line)
         indent := cb.lineIndent(line)
 
-        if (!inblock) && (indent >= currentIndent + 4) && (strings.HasPrefix(strings.TrimSpace(line), "#!goseq")) {
+        if (!inblock) && (indent >= currentIndent + 4) && (strings.HasPrefix(trimmedLine, "#!goseq")) {
             inblock = true
-        } else if (inblock) && (indent <= currentIndent - 4) {
+            currentIndent = indent
+        } else if (inblock) && (indent <= currentIndent - 4) && (trimmedLine != "") {
             inblock = false
             cb.handler(blockcontent.String(), cb.output)
             blockcontent.Reset()
+            currentIndent = indent
         }
 
         if inblock {
@@ -46,7 +49,6 @@ func (cb *MarkdownFilter) Scan() error {
             fmt.Fprintln(cb.output, line)
         }
 
-        currentIndent = indent
         //log.Println(inblock, line)
     }
 

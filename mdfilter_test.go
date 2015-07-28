@@ -22,7 +22,6 @@ This is normal markdown again`
     expMd := `
 This is normal markdown
 
-
 This is normal markdown again
 `
 
@@ -30,7 +29,7 @@ This is normal markdown again
 
     assert.Equal("[" + actual + "]", "[" + expMd + "]")
     assert.Equal(len(blocks), 1)
-    assert.Equal(blocks[0], "    #!goseq\n    This is some seq diagram\n")
+    assert.Equal(blocks[0], "    #!goseq\n    This is some seq diagram\n\n")
 }
 
 
@@ -62,7 +61,6 @@ This is normal markdown
 
 Back to normal markdown
 
-
 This is normal markdown again
 asdasdasdasdasdasdasd
 
@@ -72,7 +70,7 @@ asdasdasdasdasdasdasd
 
     assert.Equal("[" + actual + "]", "[" + expMd + "]")
     assert.Equal(len(blocks), 2)
-    assert.Equal(blocks[0], "    #!goseq\n    This is some seq diagram\n    \n    More sequence diagram\n")
+    assert.Equal(blocks[0], "    #!goseq\n    This is some seq diagram\n    \n    More sequence diagram\n\n")
     assert.Equal(blocks[1], "    #!goseq\n    Seq diagram again\n")
 }
 
