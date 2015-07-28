@@ -9,6 +9,9 @@ import (
 
 // Top level diagram definition
 type Diagram struct {
+    // Process instructions.  These are caught by the lexer if the first line begins with
+    // "#!goseq"
+    ProcessInstr    string
     Title           string
     Actors          []*Actor
     Items           []SequenceItem

@@ -303,9 +303,26 @@ func (ps *parseState) scanMessage(lval *yySymType) int {
 
 // Scans a comment.  This ignores all characters up to the new line.
 func (ps *parseState) scanComment() {
+    var buf *bytes.Buffer
+
     r := ps.NextRune()
+    if (r == '!') {
+        // This starts a processor instruction
+        buf = new(bytes.Buffer)
+    }
+
     for ((r != '\n') && (r != scanner.EOF)) {
+        if buf != nil {
+            buf.WriteRune(r)
+        }
         r = ps.NextRune()
+    }
+
+    if buf != nil {
+        procInstr := buf.String()
+        if strings.HasPrefix(procInstr, "!goseq") {
+            ps.diagram.ProcessInstr = strings.TrimSpace(strings.TrimPrefix(procInstr, "!goseq"))
+        }
     }
 }
 

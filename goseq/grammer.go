@@ -1,9 +1,9 @@
-//line goseq/grammer.y:6
+//line grammer.y:6
 package goseq
 
 import __yyfmt__ "fmt"
 
-//line goseq/grammer.y:6
+//line grammer.y:6
 import (
 	"bytes"
 	"errors"
@@ -22,7 +22,7 @@ var DualRunes = map[string]int{
 	"*>": STARANGR,
 }
 
-//line goseq/grammer.y:29
+//line grammer.y:29
 type yySymType struct {
 	yys         int
 	seqItem     SequenceItem
@@ -78,7 +78,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line goseq/grammer.y:183
+//line grammer.y:183
 
 // Manages the lexer as well as the current diagram being parsed
 type parseState struct {
@@ -201,9 +201,26 @@ func (ps *parseState) scanMessage(lval *yySymType) int {
 
 // Scans a comment.  This ignores all characters up to the new line.
 func (ps *parseState) scanComment() {
+	var buf *bytes.Buffer
+
 	r := ps.NextRune()
+	if r == '!' {
+		// This starts a processor instruction
+		buf = new(bytes.Buffer)
+	}
+
 	for (r != '\n') && (r != scanner.EOF) {
+		if buf != nil {
+			buf.WriteRune(r)
+		}
 		r = ps.NextRune()
+	}
+
+	if buf != nil {
+		procInstr := buf.String()
+		if strings.HasPrefix(procInstr, "!goseq") {
+			ps.diagram.ProcessInstr = strings.TrimSpace(strings.TrimPrefix(procInstr, "!goseq"))
+		}
 	}
 }
 
@@ -538,22 +555,22 @@ yydefault:
 	switch yynt {
 
 	case 6:
-		//line goseq/grammer.y:73
+		//line grammer.y:73
 		{
 			yylex.(*parseState).diagram.AddSequenceItem(yyS[yypt-0].seqItem)
 		}
 	case 7:
-		//line goseq/grammer.y:80
+		//line grammer.y:80
 		{
 			yylex.(*parseState).diagram.Title = yyS[yypt-0].sval
 		}
 	case 8:
-		//line goseq/grammer.y:87
+		//line grammer.y:87
 		{
 			yylex.(*parseState).diagram.GetOrAddActor(yyS[yypt-0].sval)
 		}
 	case 9:
-		//line goseq/grammer.y:91
+		//line grammer.y:91
 		{
 			yylex.(*parseState).diagram.GetOrAddActorWithOptions(yyS[yypt-1].sval, yyS[yypt-0].sval)
 		}
@@ -564,74 +581,74 @@ yydefault:
 	case 12:
 		yyVAL.seqItem = yyS[yypt-0].seqItem
 	case 13:
-		//line goseq/grammer.y:104
+		//line grammer.y:104
 		{
 			d := yylex.(*parseState).diagram
 			yyVAL.seqItem = &Action{d.GetOrAddActor(yyS[yypt-3].sval), d.GetOrAddActor(yyS[yypt-1].sval), yyS[yypt-2].arrow, yyS[yypt-0].sval}
 		}
 	case 14:
-		//line goseq/grammer.y:112
+		//line grammer.y:112
 		{
 			d := yylex.(*parseState).diagram
 			yyVAL.seqItem = &Note{d.GetOrAddActor(yyS[yypt-1].sval), yyS[yypt-2].noteAlign, yyS[yypt-0].sval}
 		}
 	case 15:
-		//line goseq/grammer.y:120
+		//line grammer.y:120
 		{
 			yyVAL.seqItem = &Divider{yyS[yypt-0].sval, yyS[yypt-1].dividerType}
 		}
 	case 16:
-		//line goseq/grammer.y:127
+		//line grammer.y:127
 		{
 			yyVAL.dividerType = DTGap
 		}
 	case 17:
-		//line goseq/grammer.y:131
+		//line grammer.y:131
 		{
 			yyVAL.dividerType = DTLine
 		}
 	case 18:
-		//line goseq/grammer.y:138
+		//line grammer.y:138
 		{
 			yyVAL.noteAlign = LeftNoteAlignment
 		}
 	case 19:
-		//line goseq/grammer.y:142
+		//line grammer.y:142
 		{
 			yyVAL.noteAlign = RightNoteAlignment
 		}
 	case 20:
-		//line goseq/grammer.y:146
+		//line grammer.y:146
 		{
 			yyVAL.noteAlign = OverNoteAlignment
 		}
 	case 21:
-		//line goseq/grammer.y:153
+		//line grammer.y:153
 		{
 			yyVAL.arrow = Arrow{yyS[yypt-1].arrowStem, yyS[yypt-0].arrowHead}
 		}
 	case 22:
-		//line goseq/grammer.y:160
+		//line grammer.y:160
 		{
 			yyVAL.arrowStem = SolidArrowStem
 		}
 	case 23:
-		//line goseq/grammer.y:164
+		//line grammer.y:164
 		{
 			yyVAL.arrowStem = DashedArrowStem
 		}
 	case 24:
-		//line goseq/grammer.y:171
+		//line grammer.y:171
 		{
 			yyVAL.arrowHead = SolidArrowHead
 		}
 	case 25:
-		//line goseq/grammer.y:175
+		//line grammer.y:175
 		{
 			yyVAL.arrowHead = OpenArrowHead
 		}
 	case 26:
-		//line goseq/grammer.y:179
+		//line grammer.y:179
 		{
 			yyVAL.arrowHead = BarbArrowHead
 		}

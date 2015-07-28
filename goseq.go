@@ -1,10 +1,13 @@
 package main
 
 import (
+    "io"
+    "io/ioutil"
     "os"
     "fmt"
     "flag"
     "path/filepath"
+    "strings"
 
     "bitbucket.org/lmika/goseq/goseq"
 )
@@ -18,24 +21,56 @@ func die(msg string) {
     os.Exit(1)
 }
 
-// Processes a file
-func processFile(inFilename string, outFilename string, renderer Renderer) error {
-    var infile *os.File
-    var err error
-
-    if inFilename == "-" {
-        infile = os.Stdin
-    } else {
-        infile, err = os.Open(inFilename)
-        if err != nil {
-            return err
-        }
-        defer infile.Close()
+// Processes a md file
+func processMdFile(inFilename string, outFilename string, renderer Renderer) error {
+    srcFile, err := openSourceFile(inFilename)
+    if err != nil {
+        return err
     }
+    defer srcFile.Close()
 
+    targetFile := ioutil.Discard
+
+    mf := &MarkdownFilter{srcFile, targetFile, func(codeblock string, output io.Writer) error {
+        fmt.Fprint(output, codeblock)
+        err := processSeqDiagram(strings.NewReader(codeblock), "/dev/null", renderer)
+        if err != nil {
+            fmt.Fprintf(os.Stderr, "goseq: %s:embedded block - %s\n", inFilename, err.Error())
+        }
+        return nil
+    }}
+    return mf.Scan()
+}
+
+// Processes a seq file
+func processSeqFile(inFilename string, outFilename string, renderer Renderer) error {
+    srcFile, err := openSourceFile(inFilename)
+    if err != nil {
+        return err
+    }
+    defer srcFile.Close()
+
+    return processSeqDiagram(srcFile, outFilename, renderer)
+}
+
+// Processes a sequence diagram
+func processSeqDiagram(infile io.Reader, outFilename string, renderer Renderer) error {
     diagram, err := goseq.Parse(infile)
     if err != nil {
         return err
+    }
+
+    // If there's a process instruction, use it as the target of the diagram
+    // TODO: be a little smarter with the process instructions
+    if diagram.ProcessInstr != "" {
+        outFilename = diagram.ProcessInstr
+    }
+
+    if renderer == nil {
+        renderer, err = chooseRendererBaseOnOutfile(outFilename)
+        if err != nil {
+            return err
+        }
     }
 
     err = renderer(diagram, outFilename)
@@ -46,7 +81,19 @@ func processFile(inFilename string, outFilename string, renderer Renderer) error
     return nil
 }
 
+// Processes a file.  This switches based on the file extension
+func processFile(inFilename string, outFilename string, renderer Renderer) error {
+    ext := filepath.Ext(inFilename)
+    if ext == ".md" {
+        return processMdFile(inFilename, outFilename, renderer)
+    } else {
+        return processSeqFile(inFilename, outFilename, renderer)
+    }
+}
+
 func main() {    
+    var err error
+
     renderer := SvgRenderer
     outFile := ""
 
@@ -54,13 +101,10 @@ func main() {
 
     // Select a suitable renderer (based on the suffix of the output file, if there is one)
     if *flagOut != "" {
-        ext := filepath.Ext(*flagOut)
-        if ext == ".png" {
-            renderer = PngRenderer
-        } else if ext != ".svg" {
-            die("Unsupported extension: " + ext)
+        renderer, err = chooseRendererBaseOnOutfile(*flagOut)
+        if err != nil {
+            die(err.Error())
         }
-
         outFile = *flagOut
     }
 
