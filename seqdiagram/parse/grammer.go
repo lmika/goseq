@@ -215,6 +215,7 @@ func (ps *parseState) scanComment() {
 	if r == '!' {
 		// This starts a processor instruction
 		buf = new(bytes.Buffer)
+		r = ps.NextRune()
 	}
 
 	for (r != '\n') && (r != scanner.EOF) {
@@ -225,11 +226,7 @@ func (ps *parseState) scanComment() {
 	}
 
 	if buf != nil {
-		procInstr := buf.String()
-		if strings.HasPrefix(procInstr, "!goseq") {
-			//ps.diagram.ProcessInstr = strings.TrimSpace(strings.TrimPrefix(procInstr, "!goseq"))
-			ps.procInstrs = append(ps.procInstrs, strings.TrimSpace(strings.TrimPrefix(procInstr, "!goseq")))
-		}
+		ps.procInstrs = append(ps.procInstrs, strings.TrimSpace(buf.String()))
 	}
 }
 
@@ -257,7 +254,8 @@ func Parse(reader io.Reader, filename string) (*NodeList, error) {
 
 	// Add processing instructions to the start of the node list
 	for i := len(ps.procInstrs) - 1; i >= 0; i-- {
-		ps.nodeList = &NodeList{&ProcessInstructionNode{ps.procInstrs[i]}, ps.nodeList}
+		instrParts := strings.SplitN(ps.procInstrs[i], " ", 2)
+		ps.nodeList = &NodeList{&ProcessInstructionNode{instrParts[0], instrParts[1]}, ps.nodeList}
 	}
 
 	if ps.err != nil {

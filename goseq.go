@@ -62,8 +62,10 @@ func processSeqDiagram(infile io.Reader, inFilename string, outFilename string, 
 
     // If there's a process instruction, use it as the target of the diagram
     // TODO: be a little smarter with the process instructions
-    if diagram.ProcessInstr != "" {
-        outFilename = diagram.ProcessInstr
+    for _, pr := range diagram.ProcessingInstructions {
+        if pr.Prefix == "goseq" {
+            outFilename = pr.Value
+        }
     }
 
     if renderer == nil {

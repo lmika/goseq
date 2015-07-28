@@ -54,7 +54,10 @@ func (tb *treeBuilder) makeError(msg string) error {
 func (tb *treeBuilder) addNode(node parse.Node, d *Diagram) error {
     switch n := node.(type) {
     case *parse.ProcessInstructionNode:
-        d.ProcessInstr = n.Instruction
+        d.ProcessingInstructions = append(d.ProcessingInstructions, &ProcessingInstruction{
+            Prefix: n.Prefix,
+            Value: n.Value,
+        })
         return nil
     case *parse.TitleNode:
         d.Title = n.Title

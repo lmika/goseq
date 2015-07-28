@@ -31,7 +31,8 @@ type Node interface {
 
 // A processing instruction node
 type ProcessInstructionNode struct {
-    Instruction string
+    Prefix string
+    Value string
 }
 
 // A title declaration node

@@ -11,9 +11,7 @@ import (
 
 // Top level diagram definition
 type Diagram struct {
-    // Process instructions.  These are caught by the lexer if the first line begins with
-    // "#!goseq"
-    ProcessInstr    string
+    ProcessingInstructions    []*ProcessingInstruction
     Title           string
     Actors          []*Actor
     Items           []SequenceItem
@@ -74,6 +72,12 @@ func (d *Diagram) WriteSVG(w io.Writer) error {
 
     gb.buildGraphic().DrawSVG(w)
     return nil
+}
+
+// A processing instruction
+type ProcessingInstruction struct {
+    Prefix          string
+    Value           string
 }
 
 // A participant
