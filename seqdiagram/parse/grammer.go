@@ -255,7 +255,8 @@ func Parse(reader io.Reader, filename string) (*NodeList, error) {
 	// Add processing instructions to the start of the node list
 	for i := len(ps.procInstrs) - 1; i >= 0; i-- {
 		instrParts := strings.SplitN(ps.procInstrs[i], " ", 2)
-		ps.nodeList = &NodeList{&ProcessInstructionNode{instrParts[0], instrParts[1]}, ps.nodeList}
+		name, value := strings.TrimSpace(instrParts[0]), strings.TrimSpace(instrParts[1])
+		ps.nodeList = &NodeList{&ProcessInstructionNode{name, value}, ps.nodeList}
 	}
 
 	if ps.err != nil {
