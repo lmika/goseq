@@ -33,7 +33,7 @@ func processMdFile(inFilename string, outFilename string, renderer Renderer) err
 
     mf := &MarkdownFilter{srcFile, targetFile, func(codeblock string, output io.Writer) error {
         fmt.Fprint(output, codeblock)
-        err := processSeqDiagram(strings.NewReader(codeblock), inFilename, "/dev/null", renderer)
+        err := processSeqDiagram(strings.NewReader(codeblock), inFilename, "/dev/null", nil)
         if err != nil {
             fmt.Fprintf(os.Stderr, "goseq: %s:embedded block - %s\n", inFilename, err.Error())
         }
