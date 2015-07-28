@@ -1,0 +1,7 @@
+Client->Server: Is it ready?
+horizontal gap
+Server->Client: No.
+horizontal frame
+Client->Server: Is it ready now?
+horizontal line
+Server->Client: Yes

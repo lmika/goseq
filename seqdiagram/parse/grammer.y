@@ -3,7 +3,7 @@
 // Based on the gramma used for js-sequence-diagram
 
 %{
-package goseq
+package parse
 
 import (
     "io"
@@ -27,19 +27,20 @@ var DualRunes = map[string]int {
 %}
 
 %union {
-    seqItem         SequenceItem
-    arrow           Arrow
-    arrowStem       ArrowStem
-    arrowHead       ArrowHead
+    nodeList        *NodeList
+    node            Node
+    arrow           ArrowType
+    arrowStem       ArrowStemType
+    arrowHead       ArrowHeadType
     noteAlign       NoteAlignment
-    dividerType     DividerType
+    dividerType     GapType
 
     sval            string
 }
 
 %token  K_TITLE K_PARTICIPANT K_NOTE
 %token  K_LEFT  K_RIGHT  K_OVER  K_OF
-%token  K_HORIZONTAL K_GAP K_LINE
+%token  K_HORIZONTAL K_GAP K_LINE K_FRAME
 
 %token  DASH    DOUBLEDASH
 %token  ANGR    DOUBLEANGR      STARANGR
@@ -47,8 +48,9 @@ var DualRunes = map[string]int {
 %token  <sval>  MESSAGE
 %token  <sval>  IDENT
 
-%type   <seqItem>       seqitem
-%type   <seqItem>       action      note    gap
+%type   <nodeList>      top decls
+%type   <node>          decl
+%type   <node>          title actor action note gap
 %type   <arrow>         arrow
 %type   <arrowStem>     arrowStem
 %type   <arrowHead>     arrowHead
@@ -59,126 +61,101 @@ var DualRunes = map[string]int {
 
 top         
     :   decls
+    {
+        yylex.(*parseState).nodeList = $1
+    }
     ;
 
 decls       
     :   /* empty */
+    {
+        $$ = nil
+    }
     |   decl decls
+    {
+        $$ = &NodeList{$1, $2}
+    }
     ;
 
 decl
     :   title
     |   actor
-    |   seqitem
-    {
-        yylex.(*parseState).diagram.AddSequenceItem($1)
-    }
+    |   action
+    |   note
+    |   gap
     ;
 
 title
     :   K_TITLE MESSAGE
     {
-        yylex.(*parseState).diagram.Title = $2
+        $$ = &TitleNode{$2}
     }
     ;
 
 actor
     :   K_PARTICIPANT IDENT
     {
-        yylex.(*parseState).diagram.GetOrAddActor($2)
+        $$ = &ActorNode{$2, false, ""}
     }
     |   K_PARTICIPANT IDENT MESSAGE
     {
-        yylex.(*parseState).diagram.GetOrAddActorWithOptions($2, $3)
+        $$ = &ActorNode{$2, true, $3}
     }
-    ;
-
-seqitem
-    :   action
-    |   note
-    |   gap
     ;
 
 action
     :   IDENT arrow IDENT MESSAGE
     {
-        d := yylex.(*parseState).diagram
-        $$ = &Action{d.GetOrAddActor($1), d.GetOrAddActor($3), $2, $4}
+        $$ = &ActionNode{$1, $3, $2, $4}
     }
     ;
 
 note
     :   K_NOTE noteplace IDENT MESSAGE
     {
-        d := yylex.(*parseState).diagram
-        $$ = &Note{d.GetOrAddActor($3), $2, $4}
+        $$ = &NoteNode{$3, $2, $4}
     }
     ;
 
 gap
-    :   K_HORIZONTAL dividerType MESSAGE
+    :   K_HORIZONTAL dividerType
     {
-        $$ = &Divider{$3, $2}
+        $$ = &GapNode{$2, ""}
+    }
+    |   K_HORIZONTAL dividerType MESSAGE
+    {
+        $$ = &GapNode{$2, $3}
     }
     ;
 
 dividerType
-    :   K_GAP
-    {
-        $$ = DTGap
-    }
-    |   K_LINE
-    {
-        $$ = DTLine
-    }
+    :   K_GAP               { $$ = EMPTY_GAP }
+    |   K_LINE              { $$ = LINE_GAP }
+    |   K_FRAME             { $$ = FRAME_GAP }
     ;
 
 noteplace
-    :   K_LEFT K_OF
-    {
-        $$ = LeftNoteAlignment
-    }
-    |   K_RIGHT K_OF
-    {
-        $$ = RightNoteAlignment
-    }
-    |   K_OVER
-    {
-        $$ = OverNoteAlignment
-    }
+    :   K_LEFT K_OF         { $$ = LEFT_NOTE_ALIGNMENT }
+    |   K_RIGHT K_OF        { $$ = RIGHT_NOTE_ALIGNMENT }
+    |   K_OVER              { $$ = OVER_NOTE_ALIGNMENT }
     ;
 
 arrow
     :   arrowStem   arrowHead
     {
-        $$ = Arrow{$1, $2}
+        $$ = ArrowType{$1, $2}
     }
     ;
 
 arrowStem
-    :   DASH
-    {
-        $$ = SolidArrowStem
-    }
-    |   DOUBLEDASH
-    {
-        $$ = DashedArrowStem
-    }    
+    :   DASH                { $$ = SOLID_ARROW_STEM }
+    |   DOUBLEDASH          { $$ = DASHED_ARROW_STEM }    
     ;
 
 arrowHead
-    :   ANGR
-    {
-        $$ = SolidArrowHead
-    }
-    |   DOUBLEANGR
-    {
-        $$ = OpenArrowHead
-    }
-    |   STARANGR
-    {
-        $$ = BarbArrowHead
-    }
+    :   ANGR                { $$ = SOLID_ARROW_HEAD }
+    |   DOUBLEANGR          { $$ = OPEN_ARROW_HEAD }
+    |   STARANGR            { $$ = BARBED_ARROW_HEAD }
     ;
 %%
 
@@ -187,13 +164,16 @@ type parseState struct {
     S           scanner.Scanner
     err         error
     atEof       bool
-    diagram     *Diagram
+    //diagram     *Diagram
+    procInstrs  []string
+    nodeList    *NodeList
 }
 
-func newParseState(src io.Reader) *parseState {
+func newParseState(src io.Reader, filename string) *parseState {
     ps := &parseState{}
     ps.S.Init(src)
-    ps.diagram = &Diagram{}
+    ps.S.Position.Filename = filename
+//    ps.diagram = &Diagram{}
 
     return ps
 }
@@ -266,6 +246,8 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
         return K_OF
     case "gap":
         return K_GAP
+    case "frame":
+        return K_FRAME
     case "line":
         return K_LINE
     case "horizontal":
@@ -321,7 +303,8 @@ func (ps *parseState) scanComment() {
     if buf != nil {
         procInstr := buf.String()
         if strings.HasPrefix(procInstr, "!goseq") {
-            ps.diagram.ProcessInstr = strings.TrimSpace(strings.TrimPrefix(procInstr, "!goseq"))
+            //ps.diagram.ProcessInstr = strings.TrimSpace(strings.TrimPrefix(procInstr, "!goseq"))
+            ps.procInstrs = append(ps.procInstrs, strings.TrimSpace(strings.TrimPrefix(procInstr, "!goseq")))
         }
     }
 }
@@ -340,18 +323,23 @@ func (ps *parseState) NextRune() rune {
 }
 
 func (ps *parseState) Error(err string) {
-    errMsg := fmt.Sprintf("%s near line %d", err, ps.S.Line)
+    errMsg := fmt.Sprintf("%s:%d: %s", ps.S.Position.Filename, ps.S.Position.Line, err)
     ps.err = errors.New(errMsg)
 }
 
 
-func Parse(reader io.Reader) (*Diagram, error) {
-    ps := newParseState(reader)
+func Parse(reader io.Reader, filename string) (*NodeList, error) {
+    ps := newParseState(reader, filename)
     yyParse(ps)
+
+    // Add processing instructions to the start of the node list
+    for i := len(ps.procInstrs) - 1; i >= 0; i-- {
+        ps.nodeList = &NodeList{&ProcessInstructionNode{ps.procInstrs[i]}, ps.nodeList}
+    }
 
     if ps.err != nil {
         return nil, ps.err
     } else {
-        return ps.diagram, nil
+        return ps.nodeList, nil
     }
 }

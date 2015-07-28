@@ -9,7 +9,7 @@ import (
     "path/filepath"
     "strings"
 
-    "bitbucket.org/lmika/goseq/goseq"
+    "bitbucket.org/lmika/goseq/seqdiagram"
 )
 
 // Name of the output file
@@ -33,7 +33,7 @@ func processMdFile(inFilename string, outFilename string, renderer Renderer) err
 
     mf := &MarkdownFilter{srcFile, targetFile, func(codeblock string, output io.Writer) error {
         fmt.Fprint(output, codeblock)
-        err := processSeqDiagram(strings.NewReader(codeblock), "/dev/null", renderer)
+        err := processSeqDiagram(strings.NewReader(codeblock), inFilename, "/dev/null", renderer)
         if err != nil {
             fmt.Fprintf(os.Stderr, "goseq: %s:embedded block - %s\n", inFilename, err.Error())
         }
@@ -50,12 +50,12 @@ func processSeqFile(inFilename string, outFilename string, renderer Renderer) er
     }
     defer srcFile.Close()
 
-    return processSeqDiagram(srcFile, outFilename, renderer)
+    return processSeqDiagram(srcFile, inFilename, outFilename, renderer)
 }
 
 // Processes a sequence diagram
-func processSeqDiagram(infile io.Reader, outFilename string, renderer Renderer) error {
-    diagram, err := goseq.Parse(infile)
+func processSeqDiagram(infile io.Reader, inFilename string, outFilename string, renderer Renderer) error {
+    diagram, err := seqdiagram.ParseDiagram(infile, inFilename)
     if err != nil {
         return err
     }

@@ -9,10 +9,10 @@ import (
     "bytes"
 
     "github.com/quirkey/magick"
-    "bitbucket.org/lmika/goseq/goseq"
+    "bitbucket.org/lmika/goseq/seqdiagram"
 )
 
-func PngRenderer(diagram *goseq.Diagram, target string) error {
+func PngRenderer(diagram *seqdiagram.Diagram, target string) error {
     if target == "" {
         target = "out.png"
     }

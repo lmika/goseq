@@ -7,9 +7,9 @@ package main
 
 import (
     "errors"
-    "bitbucket.org/lmika/goseq/goseq"
+    "bitbucket.org/lmika/goseq/seqdiagram"
 )
 
-func PngRenderer(diagram *goseq.Diagram, target string) error {
+func PngRenderer(diagram *seqdiagram.Diagram, target string) error {
     return errors.New("PNG renderer not available")
 }

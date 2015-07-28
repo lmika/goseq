@@ -95,7 +95,10 @@ func (tb *TextBox) Render(svg *svg.SVG, x, y int, gravity Gravity) {
         }
 
         textBottom := currY + lineH - (tb.FontSize * 1 / 4 - 1)
-        svg.Text(textLeft, textBottom, line, style)
+
+        if (line != "") {
+            svg.Text(textLeft, textBottom, line, style)
+        }
 
         currY += lineH + LINE_GAP
     }

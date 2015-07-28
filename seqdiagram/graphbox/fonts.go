@@ -77,12 +77,26 @@ func (ttf *TTFFont) Measure(txt string, size float64) (int, int) {
     ctx.SetSrc(img)
     ctx.SetDst(img)
     ctx.SetFont(ttf.font)
-    ctx.SetHinting(freetype.NoHinting)
+    ctx.SetHinting(freetype.FullHinting)
     ctx.SetFontSize(size)
 
     np, _ := ctx.DrawString(txt, raster.Point{0.0, 0.0})
 
-    return int(np.X >> 8), int(size) + int(np.Y >> 8)
+    mx, my := ttf.roundFix32(np.X), int(size) + ttf.roundFix32(np.Y)
+
+    return mx, my
+}
+
+// Round a fix32 to the nearest integer.
+func (ttf *TTFFont) roundFix32(x raster.Fix32) int {
+    full := int(x >> 8)
+    rem := int(x & 0xFF)
+
+    if rem > 0 {
+        return full + 1
+    } else {
+        return full
+    }
 }
 
 // Return the SVG Name
