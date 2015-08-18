@@ -101,3 +101,10 @@ type GapNode struct {
     Type        GapType
     Descr       string
 }
+
+
+// A block node
+type BlockNode struct {
+    Message     string
+    SubNodes    *NodeList
+}

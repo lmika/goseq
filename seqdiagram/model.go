@@ -171,3 +171,12 @@ type Divider struct {
     // The divider type
     Type        DividerType
 }
+
+// A framed block of sequence items
+type Block struct {
+    // The message
+    Message     string
+
+    // Subitems
+    SubItems    []SequenceItem
+}

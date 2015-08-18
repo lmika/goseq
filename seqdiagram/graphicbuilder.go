@@ -13,16 +13,6 @@ const (
     posObjectY         =   1
 )
 
-// This arrow head to arrow head
-/*
-var graphboxArrowHeadMapping = map[ArrowHead]graphbox.ActivityArrowHead {
-    SolidArrowHead: graphbox.SolidArrowHead,
-    OpenArrowHead: graphbox.OpenArrowHead,
-    BarbArrowHead: graphbox.BarbArrowHead,
-    LowerBarbArrowHead: graphbox.LowerBarbArrowHead,
-}
-*/
-
 var graphboxArrowStemMapping = map[ArrowStem]graphbox.ActivityArrowStem {
     SolidArrowStem: graphbox.SolidArrowStem,
     DashedArrowStem: graphbox.DashedArrowStem,
@@ -82,6 +72,9 @@ func (gb *graphicBuilder) buildGraphic() *graphbox.Graphic {
     if len(gb.Diagram.Items) == 0 {
         gb.Graphic.Put(2, 0, &graphbox.Spacer{graphbox.Point{0, 64}})
     } else {
+        row := 2
+        gb.putItemsInSlice(&row, gb.Diagram.Items)
+        /*
         for i, item := range gb.Diagram.Items {
             row := i + 2
             switch itemDetails := item.(type) {
@@ -93,6 +86,7 @@ func (gb *graphicBuilder) buildGraphic() *graphbox.Graphic {
                 gb.putDivider(row, itemDetails)
             }
         }
+        */
     }
 
     // Add a title
@@ -101,6 +95,38 @@ func (gb *graphicBuilder) buildGraphic() *graphbox.Graphic {
     }
 
     return gb.Graphic
+}
+
+// Place items in a slice.  This will update the rows pointer
+func (gb *graphicBuilder) putItemsInSlice(row *int, items []SequenceItem) {
+    for _, item := range items {
+        switch itemDetails := item.(type) {
+        case *Action:
+            gb.putAction(*row, itemDetails)
+        case *Note:
+            gb.putNote(*row, itemDetails)
+        case *Divider:
+            gb.putDivider(*row, itemDetails)
+        case *Block:
+            gb.putBlock(row, itemDetails)
+        }
+
+        *row += 1
+    }
+}
+
+// Calculate rows in slice
+func (gb *graphicBuilder) calcItemsInSlice(items []SequenceItem) int {
+    rows := 0
+    for _, item := range items {
+        switch itemDetails := item.(type) {
+        case *Block:
+            rows += gb.calcItemsInSlice(itemDetails.SubItems) + 2
+        default:
+            rows++
+        }
+    }
+    return rows
 }
 
 // Places a note
@@ -140,6 +166,23 @@ func (gb *graphicBuilder) putDivider(row int, action *Divider) {
     gb.Graphic.Put(row, fromCol, graphbox.NewDivider(toCol, action.Message, style))
 }
 
+// Places a block
+func (gb *graphicBuilder) putBlock(row *int, action *Block) {
+    style := graphbox.BlockStyle{
+        Margin: graphbox.Point{0, 4},
+        Padding: graphbox.Point{0, 4},
+    }
+
+    // Push the items within the block
+    toCol := gb.Graphic.Cols()
+    startRow := *row
+    *row++
+    gb.putItemsInSlice(row, action.SubItems)
+    endRow := *row
+
+    gb.Graphic.Put(startRow, 0, graphbox.NewBlock(endRow, toCol, style))
+}
+
 // Count the number of rows needed in the graphic
 func (gb *graphicBuilder) calcRowsAndCols() (int, int) {
     cols := gb.determineActorInfo()
@@ -148,7 +191,7 @@ func (gb *graphicBuilder) calcRowsAndCols() (int, int) {
     if (len(gb.Diagram.Items) == 0) {
         return posObjectY + 3, cols
     } else {
-        return len(gb.Diagram.Items) + posObjectY + 2, cols
+        return gb.calcItemsInSlice(gb.Diagram.Items) + posObjectY + 2, cols
     }    
 }
 

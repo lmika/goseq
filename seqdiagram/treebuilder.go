@@ -41,59 +41,84 @@ type treeBuilder struct {
 
 func (tb *treeBuilder) buildTree(d *Diagram) error {
     for nodeList := tb.nodeList; nodeList != nil; nodeList = nodeList.Tail {
-        err := tb.addNode(nodeList.Head, d)
+        seqItem, err := tb.toSequenceItem(nodeList.Head, d)
         if err != nil {
             return err
+        } else if seqItem != nil {
+            d.AddSequenceItem(seqItem)
         }
     }
 
     return nil
 }
 
+func (tb *treeBuilder) nodesToSlice(nodeList *parse.NodeList, d *Diagram) ([]SequenceItem, error) {
+    seq := make([]SequenceItem, 0)
+
+    for ; nodeList != nil; nodeList = nodeList.Tail {
+        seqItem, err := tb.toSequenceItem(nodeList.Head, d)
+        if err != nil {
+            return nil, err
+        } else if seqItem != nil {
+            seq = append(seq, seqItem)
+        }
+    }
+
+    return seq, nil
+}
+
 func (tb *treeBuilder) makeError(msg string) error {
     return fmt.Errorf("%s:%s", tb.filename, msg)
 }
 
-func (tb *treeBuilder) addNode(node parse.Node, d *Diagram) error {
+func (tb *treeBuilder) toSequenceItem(node parse.Node, d *Diagram) (SequenceItem, error) {
     switch n := node.(type) {
     case *parse.ProcessInstructionNode:
         d.ProcessingInstructions = append(d.ProcessingInstructions, &ProcessingInstruction{
             Prefix: n.Prefix,
             Value: n.Value,
         })
-        return nil
+        return nil, nil
     case *parse.TitleNode:
         d.Title = n.Title
-        return nil
+        return nil, nil
     case *parse.ActorNode:
         d.GetOrAddActorWithOptions(n.Ident, n.ActorName())
-        return nil
+        return nil, nil
     case *parse.ActionNode:
         return tb.addAction(n, d)
     case *parse.NoteNode:
         return tb.addNote(n, d)
     case *parse.GapNode:
         return tb.addGap(n, d)
+    case *parse.BlockNode:
+        return tb.addBlock(n, d)
     default:
-        return tb.makeError("Unrecognised declaration")
+        return nil, tb.makeError("Unrecognised declaration")
     }
 }
 
-func (tb *treeBuilder) addAction(an *parse.ActionNode, d *Diagram) error {
+func (tb *treeBuilder) addAction(an *parse.ActionNode, d *Diagram) (SequenceItem, error) {
     arrow := Arrow{arrowStemMap[an.Arrow.Stem], arrowHeadMap[an.Arrow.Head]}
     action := &Action{d.GetOrAddActor(an.From), d.GetOrAddActor(an.To), arrow, an.Descr}
-    d.AddSequenceItem(action)
-    return nil
+    return action, nil
 }
 
-func (tb *treeBuilder) addNote(nn *parse.NoteNode, d *Diagram) error {
+func (tb *treeBuilder) addNote(nn *parse.NoteNode, d *Diagram) (SequenceItem, error) {
     note := &Note{d.GetOrAddActor(nn.Actor), noteAlignmentMap[nn.Position], nn.Descr}
-    d.AddSequenceItem(note)
-    return nil
+    return note, nil
 }
 
-func (tb *treeBuilder) addGap(gn *parse.GapNode, d *Diagram) error {
+func (tb *treeBuilder) addGap(gn *parse.GapNode, d *Diagram) (SequenceItem, error) {
     divider := &Divider{gn.Descr, dividerTypeMap[gn.Type]}
-    d.AddSequenceItem(divider)
-    return nil
+    return divider, nil
+}
+
+func (tb *treeBuilder) addBlock(bn *parse.BlockNode, d *Diagram) (SequenceItem, error) {
+    slice, err := tb.nodesToSlice(bn.SubNodes, d)
+    if err != nil {
+        return nil, err
+    }
+
+    return &Block{bn.Message, slice}, nil
 }
