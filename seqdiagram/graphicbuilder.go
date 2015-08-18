@@ -68,25 +68,11 @@ func (gb *graphicBuilder) buildGraphic() *graphbox.Graphic {
 
     gb.addActors()
 
-    // TEMP
     if len(gb.Diagram.Items) == 0 {
         gb.Graphic.Put(2, 0, &graphbox.Spacer{graphbox.Point{0, 64}})
     } else {
         row := 2
         gb.putItemsInSlice(&row, gb.Diagram.Items)
-        /*
-        for i, item := range gb.Diagram.Items {
-            row := i + 2
-            switch itemDetails := item.(type) {
-            case *Action:
-                gb.putAction(row, itemDetails)
-            case *Note:
-                gb.putNote(row, itemDetails)
-            case *Divider:
-                gb.putDivider(row, itemDetails)
-            }
-        }
-        */
     }
 
     // Add a title
@@ -168,26 +154,16 @@ func (gb *graphicBuilder) putDivider(row int, action *Divider) {
 
 // Places a block
 func (gb *graphicBuilder) putBlock(row *int, action *Block) {
-    style := graphbox.BlockStyle{
-        Margin: graphbox.Point{0, 4},
-        Padding: graphbox.Point{0, 4},
-        TextPadding: graphbox.Point{4, 4},
-        MessagePadding: graphbox.Point{4, 4},
-        GapWidth: 4,
-        PrefixExtraWidth: 8,
-
-        Font: standardFont,
-        FontSize: 14,
-    }
+    style := gb.Style.Block
 
     // Push the items within the block
-    toCol := gb.Graphic.Cols()
+    toCol := gb.Graphic.Cols() - 1
     startRow := *row
     *row++
     gb.putItemsInSlice(row, action.SubItems)
     endRow := *row
 
-    gb.Graphic.Put(startRow, 0, graphbox.NewBlock(endRow, toCol, "if", action.Message, style))
+    gb.Graphic.Put(startRow, 1, graphbox.NewBlock(endRow, toCol, "if", action.Message, style))
 }
 
 // Count the number of rows needed in the graphic

@@ -109,6 +109,10 @@ func (r Rect) BlowOut(dims Point) Rect {
     return Rect{r.X - dims.X, r.Y - dims.Y, r.W + dims.X * 2, r.H + dims.Y * 2}
 }
 
+// Increase the rect size
+func (r Rect) AddSize(w, h int) Rect {
+    return Rect{r.X, r.Y, r.W + w, r.H + h}
+}
 
 
 // A point

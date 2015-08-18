@@ -1,5 +1,6 @@
-Client->Server: Do something
-if: the request is the asd asdasd
-    Server->Client: All good
+Client->Proxy: Do something
+if: [proxy is enable]
+    Proxy->Server: Forward request
+    Server->Proxy: The response
 end
-Client->Server: close()
+Proxy->Client: Response

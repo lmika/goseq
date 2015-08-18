@@ -24,6 +24,9 @@ type DiagramStyles struct {
     // Styling of the diagram title
     Title               graphbox.TitleStyle
 
+    // Block styling
+    Block               graphbox.BlockStyle
+
     // Styles of dividers
     Divider             map[DividerType]graphbox.DividerStyle
 }
@@ -79,6 +82,17 @@ var DefaultStyle = &DiagramStyles {
         Font: standardFont,
         FontSize: 20,
         Padding: graphbox.Point{4, 16},
+    },
+    Block: graphbox.BlockStyle{
+        Margin: graphbox.Point{24, 4},
+        TextPadding: graphbox.Point{4, 4},
+        MessagePadding: graphbox.Point{4, 4},
+        GapWidth: 4,
+        PrefixExtraWidth: 4,
+
+        Font: standardFont,
+        FontSize: 14,
+        MidMargin: 4,
     },
     Divider: map[DividerType]graphbox.DividerStyle {
         DTGap: graphbox.DividerStyle {
@@ -165,6 +179,17 @@ var SmallStyle = &DiagramStyles {
         Font: standardFont,
         FontSize: 18,
         Padding: graphbox.Point{2, 8},
+    },
+    Block: graphbox.BlockStyle{
+        Margin: graphbox.Point{18, 4},
+        TextPadding: graphbox.Point{3, 3},
+        MessagePadding: graphbox.Point{3, 3},
+        GapWidth: 3,
+        PrefixExtraWidth: 3,
+
+        Font: standardFont,
+        FontSize: 12,
+        MidMargin: 2,
     },
     Divider: map[DividerType]graphbox.DividerStyle {
         DTGap: graphbox.DividerStyle {
