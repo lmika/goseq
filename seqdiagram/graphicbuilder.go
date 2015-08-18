@@ -171,6 +171,13 @@ func (gb *graphicBuilder) putBlock(row *int, action *Block) {
     style := graphbox.BlockStyle{
         Margin: graphbox.Point{0, 4},
         Padding: graphbox.Point{0, 4},
+        TextPadding: graphbox.Point{4, 4},
+        MessagePadding: graphbox.Point{4, 4},
+        GapWidth: 4,
+        PrefixExtraWidth: 8,
+
+        Font: standardFont,
+        FontSize: 14,
     }
 
     // Push the items within the block
@@ -180,7 +187,7 @@ func (gb *graphicBuilder) putBlock(row *int, action *Block) {
     gb.putItemsInSlice(row, action.SubItems)
     endRow := *row
 
-    gb.Graphic.Put(startRow, 0, graphbox.NewBlock(endRow, toCol, style))
+    gb.Graphic.Put(startRow, 0, graphbox.NewBlock(endRow, toCol, "if", action.Message, style))
 }
 
 // Count the number of rows needed in the graphic

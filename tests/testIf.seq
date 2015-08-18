@@ -1,5 +1,5 @@
 Client->Server: Do something
-if: the request is successful
+if: the request is the asd asdasd
     Server->Client: All good
 end
 Client->Server: close()
