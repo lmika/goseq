@@ -14,12 +14,14 @@ const (
 )
 
 // This arrow head to arrow head
+/*
 var graphboxArrowHeadMapping = map[ArrowHead]graphbox.ActivityArrowHead {
     SolidArrowHead: graphbox.SolidArrowHead,
     OpenArrowHead: graphbox.OpenArrowHead,
     BarbArrowHead: graphbox.BarbArrowHead,
     LowerBarbArrowHead: graphbox.LowerBarbArrowHead,
 }
+*/
 
 var graphboxArrowStemMapping = map[ArrowStem]graphbox.ActivityArrowStem {
     SolidArrowStem: graphbox.SolidArrowStem,
@@ -123,7 +125,7 @@ func (gb *graphicBuilder) putAction(row int, action *Action) {
     toCol := gb.colOfActor(action.To)
     style := gb.Style.ActivityLine
 
-    style.ArrowHead = graphboxArrowHeadMapping[action.Arrow.Head]
+    style.ArrowHead = gb.Style.ArrowHeads[action.Arrow.Head] //graphboxArrowHeadMapping[action.Arrow.Head]
     style.ArrowStem = graphboxArrowStemMapping[action.Arrow.Stem]
 
     gb.Graphic.Put(row, fromCol, graphbox.NewActivityLine(toCol, action.Message, style))

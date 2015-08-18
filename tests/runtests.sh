@@ -7,6 +7,7 @@
 
 RESULT_SUFFIX="out"
 TEST_BIN="./goseq.test.${RESULT_SUFFIX}"
+STYLE="default"
 
 function die()
 {
@@ -19,7 +20,7 @@ function runTest()
     local inFile="$1"
     local outFile="$2"
 
-    $TEST_BIN $inFile > $outFile
+    $TEST_BIN -s $STYLE $inFile > $outFile
     echo "$inFile $outFile"
 }
 

@@ -9,11 +9,11 @@ import (
 // Renders the result of the SVG to a destination (e.g. a file)
 // If the filename is blank, the result is to go to the "default" destination
 // (which is up to the renderer).
-type Renderer func(diagram *seqdiagram.Diagram, target string) error
+type Renderer func(diagram *seqdiagram.Diagram, style *seqdiagram.DiagramStyles, target string) error
 
 
 // The default renderer: write the diagram to SVG
-func SvgRenderer(diagram *seqdiagram.Diagram, target string) error {
+func SvgRenderer(diagram *seqdiagram.Diagram, style *seqdiagram.DiagramStyles, target string) error {
     if target != "" {
         file, err := os.Create(target)
         if err != nil {
@@ -21,9 +21,9 @@ func SvgRenderer(diagram *seqdiagram.Diagram, target string) error {
         }
         defer file.Close()
 
-        return diagram.WriteSVG(file)
+        return diagram.WriteSVGWithStyle(file, style)
     } else {
-        return diagram.WriteSVG(os.Stdout)
+        return diagram.WriteSVGWithStyle(os.Stdout, style)
     }
 }
 

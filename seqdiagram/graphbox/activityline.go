@@ -4,6 +4,7 @@ import (
     "fmt"
 )
 
+/*
 type ActivityArrowHead int
 const (
     SolidArrowHead  ActivityArrowHead   =   iota
@@ -11,6 +12,7 @@ const (
     BarbArrowHead                       =   iota
     LowerBarbArrowHead                  =   iota
 )
+*/
 
 type ActivityArrowStem int
 const (
@@ -26,7 +28,8 @@ type ActivityLineStyle struct {
     FontSize        int
     Margin          Point
     TextGap         int
-    ArrowHead       ActivityArrowHead
+    //ArrowHead       ActivityArrowHead
+    ArrowHead       *ArrowHeadStyle
     ArrowStem       ActivityArrowStem
 }
 
@@ -103,7 +106,7 @@ func (al *ActivityLine) renderMessage(ctx DrawContext, tx, ty int) {
 
 // Draws the arrow head.
 func (al *ActivityLine) drawArrow(ctx DrawContext, x, y int, isRight bool) {
-    headStyle := arrowHeadStyles[al.style.ArrowHead]
+    headStyle := al.style.ArrowHead
 
     var xs, ys = make([]int, len(headStyle.Xs)), make([]int, len(headStyle.Ys))
     if len(xs) != len(ys) {
@@ -120,21 +123,25 @@ func (al *ActivityLine) drawArrow(ctx DrawContext, x, y int, isRight bool) {
         ys[i] = y + oy
     }
 
-    ctx.Canvas.Polyline(xs, ys, headStyle.BaseStyle.ToStyle())
+    ctx.Canvas.Polyline(xs, ys, StyleFromString(headStyle.BaseStyle).ToStyle())
 }
 
 // Style information for arrow heads
-type arrowHeadStyle struct {
+type ArrowHeadStyle struct {
     // Points from the origin
     Xs              []int
     Ys              []int
 
     // Base style for the arrow head
-    BaseStyle       SvgStyle
+    //BaseStyle       SvgStyle
+    BaseStyle       string
 }
 
+//type ArrowHeadStyles map[ActivityArrowHead]*ArrowHeadStyle 
+
 // Styling of the arrow head
-var arrowHeadStyles = map[ActivityArrowHead]*arrowHeadStyle {
+/*
+var ArrowHeadStyles = map[ActivityArrowHead]*ArrowHeadStyle {
     SolidArrowHead: &arrowHeadStyle {
         Xs: []int { -9, 0, -9 },
         Ys: []int { -5, 0, 5 },
@@ -156,3 +163,4 @@ var arrowHeadStyles = map[ActivityArrowHead]*arrowHeadStyle {
         BaseStyle: StyleFromString("stroke:black;fill:black;stroke-width:2px;"),
     },
 }
+*/

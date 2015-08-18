@@ -15,6 +15,9 @@ import (
 // Name of the output file
 var flagOut = flag.String("o", "", "Output file")
 
+// The style to use
+var flagStyle = flag.String("s", "default", "The style to use")
+
 // Die with error
 func die(msg string) {
     fmt.Fprintf(os.Stderr, "goseq: %s\n", msg)
@@ -60,6 +63,11 @@ func processSeqDiagram(infile io.Reader, inFilename string, outFilename string, 
         return err
     }
 
+    style := seqdiagram.DefaultStyle
+    if altStyle, hasStyle := seqdiagram.StyleNames[*flagStyle] ; hasStyle {
+        style = altStyle
+    }
+
     // If there's a process instruction, use it as the target of the diagram
     // TODO: be a little smarter with the process instructions
     for _, pr := range diagram.ProcessingInstructions {
@@ -75,7 +83,7 @@ func processSeqDiagram(infile io.Reader, inFilename string, outFilename string, 
         }
     }
 
-    err = renderer(diagram, outFilename)
+    err = renderer(diagram, style, outFilename)
     if err != nil {
         return err
     }

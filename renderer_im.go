@@ -12,13 +12,13 @@ import (
     "bitbucket.org/lmika/goseq/seqdiagram"
 )
 
-func PngRenderer(diagram *seqdiagram.Diagram, target string) error {
+func PngRenderer(diagram *seqdiagram.Diagram, style *seqdiagram.DiagramStyles, target string) error {
     if target == "" {
         target = "out.png"
     }
 
     svgbufr := new(bytes.Buffer)
-    err := diagram.WriteSVG(svgbufr)
+    err := diagram.WriteSVGWithStyle(svgbufr, style)
     if err != nil {
         return err
     }

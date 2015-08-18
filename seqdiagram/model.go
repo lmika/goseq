@@ -65,7 +65,12 @@ func (d *Diagram) AddSequenceItem(item SequenceItem) {
 
 // Write the diagram as an SVG
 func (d *Diagram) WriteSVG(w io.Writer) error {
-    gb, err := newGraphicBuilder(d, DefaultStyle)
+    return d.WriteSVGWithStyle(w, DefaultStyle)
+}
+
+// Write the diagram as an SVG using a specific style
+func (d *Diagram) WriteSVGWithStyle(w io.Writer, style *DiagramStyles) error {
+    gb, err := newGraphicBuilder(d, style)
     if err != nil {
         return err
     }
