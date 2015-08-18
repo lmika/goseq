@@ -11,12 +11,14 @@ import (
 var arrowStemMap = map[parse.ArrowStemType]ArrowStem {
     parse.SOLID_ARROW_STEM: SolidArrowStem,
     parse.DASHED_ARROW_STEM: DashedArrowStem,
+    parse.THICK_ARROW_STEM: ThickArrowStem,
 }
 
 var arrowHeadMap = map[parse.ArrowHeadType]ArrowHead {
     parse.SOLID_ARROW_HEAD: SolidArrowHead,
     parse.OPEN_ARROW_HEAD: OpenArrowHead,
     parse.BARBED_ARROW_HEAD: BarbArrowHead,
+    parse.LOWER_BARBED_ARROW_HEAD: LowerBarbArrowHead,
 }
 
 var noteAlignmentMap = map[parse.NoteAlignment]NoteAlignment {

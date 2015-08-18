@@ -18,11 +18,13 @@ var graphboxArrowHeadMapping = map[ArrowHead]graphbox.ActivityArrowHead {
     SolidArrowHead: graphbox.SolidArrowHead,
     OpenArrowHead: graphbox.OpenArrowHead,
     BarbArrowHead: graphbox.BarbArrowHead,
+    LowerBarbArrowHead: graphbox.LowerBarbArrowHead,
 }
 
 var graphboxArrowStemMapping = map[ArrowStem]graphbox.ActivityArrowStem {
     SolidArrowStem: graphbox.SolidArrowStem,
     DashedArrowStem: graphbox.DashedArrowStem,
+    ThickArrowStem: graphbox.ThickArrowStem,
 }
 
 // Must load a suitable font.  Returns the font or panics.

@@ -93,6 +93,7 @@ type ArrowStem  int
 const (
     SolidArrowStem  ArrowStem = iota
     DashedArrowStem           = iota
+    ThickArrowStem            = iota
 )
 
 // The supported arrow heads
@@ -101,6 +102,7 @@ const (
     SolidArrowHead  ArrowHead = iota
     OpenArrowHead             = iota
     BarbArrowHead             = iota
+    LowerBarbArrowHead        = iota
 )
 
 

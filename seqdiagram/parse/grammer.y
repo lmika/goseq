@@ -17,10 +17,12 @@ import (
 var DualRunes = map[string]int {
     "--":   DOUBLEDASH,
     "-":    DASH,
+    "=":    EQUAL,
 
     ">>":   DOUBLEANGR,
     ">":    ANGR,
-    "*>":   STARANGR,
+    "/>":   SLASHANGR,
+    "\\>":  BACKSLASHANGR,
 }
 
 
@@ -42,8 +44,8 @@ var DualRunes = map[string]int {
 %token  K_LEFT  K_RIGHT  K_OVER  K_OF
 %token  K_HORIZONTAL K_GAP K_LINE K_FRAME
 
-%token  DASH    DOUBLEDASH
-%token  ANGR    DOUBLEANGR      STARANGR
+%token  DASH    DOUBLEDASH      EQUAL
+%token  ANGR    DOUBLEANGR      BACKSLASHANGR       SLASHANGR
 
 %token  <sval>  MESSAGE
 %token  <sval>  IDENT
@@ -150,12 +152,14 @@ arrow
 arrowStem
     :   DASH                { $$ = SOLID_ARROW_STEM }
     |   DOUBLEDASH          { $$ = DASHED_ARROW_STEM }    
+    |   EQUAL               { $$ = THICK_ARROW_STEM }
     ;
 
 arrowHead
     :   ANGR                { $$ = SOLID_ARROW_HEAD }
     |   DOUBLEANGR          { $$ = OPEN_ARROW_HEAD }
-    |   STARANGR            { $$ = BARBED_ARROW_HEAD }
+    |   BACKSLASHANGR       { $$ = BARBED_ARROW_HEAD }
+    |   SLASHANGR           { $$ = LOWER_BARBED_ARROW_HEAD }
     ;
 %%
 
@@ -192,7 +196,7 @@ func (ps *parseState) Lex(lval *yySymType) int {
             ps.scanComment()
         case ':':
             return ps.scanMessage(lval)
-        case '-', '>', '*':
+        case '-', '>', '*', '=', '/', '\\':
             if res, isTok := ps.handleDoubleRune(tok) ; isTok {
                 return res
             } else {

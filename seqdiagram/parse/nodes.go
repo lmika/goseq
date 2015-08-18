@@ -1,9 +1,12 @@
+//go:generate go tool yacc -o grammer.go grammer.y
+//
 package parse
 
 type ArrowStemType int
 const (
     SOLID_ARROW_STEM ArrowStemType = iota
     DASHED_ARROW_STEM              = iota
+    THICK_ARROW_STEM               = iota
 )
 
 type ArrowHeadType int
@@ -11,6 +14,7 @@ const (
     SOLID_ARROW_HEAD ArrowHeadType = iota
     OPEN_ARROW_HEAD                = iota
     BARBED_ARROW_HEAD              = iota
+    LOWER_BARBED_ARROW_HEAD        = iota
 )
 
 type ArrowType struct {

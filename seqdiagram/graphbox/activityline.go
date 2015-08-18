@@ -9,15 +9,15 @@ const (
     SolidArrowHead  ActivityArrowHead   =   iota
     OpenArrowHead                       =   iota
     BarbArrowHead                       =   iota
+    LowerBarbArrowHead                  =   iota
 )
 
 type ActivityArrowStem int
 const (
     SolidArrowStem  ActivityArrowStem   =   iota
     DashedArrowStem                     =   iota
+    ThickArrowStem                      =   iota
 )
-
-
 
 
 
@@ -78,12 +78,15 @@ func (al *ActivityLine) Draw(ctx DrawContext, point Point) {
 
         textX := fx + (tx - fx) / 2
         textY := ty - al.style.TextGap
-        al.renderMessage(ctx, textX, textY)        
+        al.renderMessage(ctx, textX, textY)
 
-        if al.style.ArrowStem == DashedArrowStem {
-            ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-dasharray:4,2;stroke-width:2px;")
-        } else {
+        switch al.style.ArrowStem {
+        case SolidArrowStem:
             ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-width:2px;")
+        case DashedArrowStem:
+            ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-dasharray:4,2;stroke-width:2px;")
+        case ThickArrowStem:
+            ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-width:4px;")
         }
 
         al.drawArrow(ctx, tx, ty, al.TC > ctx.C)
@@ -145,6 +148,11 @@ var arrowHeadStyles = map[ActivityArrowHead]*arrowHeadStyle {
     BarbArrowHead: &arrowHeadStyle {
         Xs: []int { -11, 0 },
         Ys: []int { -7, 0 },
+        BaseStyle: StyleFromString("stroke:black;fill:black;stroke-width:2px;"),
+    },
+    LowerBarbArrowHead: &arrowHeadStyle {
+        Xs: []int { -11, 0 },
+        Ys: []int { 7, 0 },
         BaseStyle: StyleFromString("stroke:black;fill:black;stroke-width:2px;"),
     },
 }
