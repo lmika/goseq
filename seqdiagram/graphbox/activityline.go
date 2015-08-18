@@ -4,15 +4,6 @@ import (
     "fmt"
 )
 
-/*
-type ActivityArrowHead int
-const (
-    SolidArrowHead  ActivityArrowHead   =   iota
-    OpenArrowHead                       =   iota
-    BarbArrowHead                       =   iota
-    LowerBarbArrowHead                  =   iota
-)
-*/
 
 type ActivityArrowStem int
 const (

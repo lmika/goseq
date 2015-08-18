@@ -91,7 +91,8 @@ type NoteNode struct {
 // Gap node
 type GapType    int
 const (
-    EMPTY_GAP GapType = iota
+    SPACER_GAP GapType = iota
+    EMPTY_GAP       = iota
     LINE_GAP        = iota
     FRAME_GAP       = iota
 )

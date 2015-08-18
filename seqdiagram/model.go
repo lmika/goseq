@@ -157,9 +157,10 @@ type Action struct {
 type DividerType int
 
 const (
-    DTGap   DividerType = iota
+    DTSpacer    DividerType = iota
+    DTGap   
     DTFrame
-    DTLine
+    DTLine    
 )
 
 // Defines a divider, which spans the diagram.

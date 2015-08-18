@@ -105,6 +105,14 @@ var DefaultStyle = &DiagramStyles {
             TextPadding: graphbox.Point{4, 2},
             Shape: graphbox.DSFullLine,
         },
+        DTSpacer: graphbox.DividerStyle {
+            Font: standardFont,
+            FontSize: 14,
+            Padding: graphbox.Point{16, 4},
+            Margin: graphbox.Point{8, 16},
+            TextPadding: graphbox.Point{0, 0},
+            Shape: graphbox.DSSpacerRect,
+        },
     },
 }
 
@@ -182,6 +190,14 @@ var SmallStyle = &DiagramStyles {
             Margin: graphbox.Point{6, 12},
             TextPadding: graphbox.Point{2, 1},
             Shape: graphbox.DSFullLine,
+        },
+        DTSpacer: graphbox.DividerStyle {
+            Font: standardFont,
+            FontSize: 12,
+            Padding: graphbox.Point{12, 6},
+            Margin: graphbox.Point{6, 12},
+            TextPadding: graphbox.Point{2, 1},
+            Shape: graphbox.DSSpacerRect,
         },
     },
 }
