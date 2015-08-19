@@ -115,10 +115,28 @@ func (tb *treeBuilder) addGap(gn *parse.GapNode, d *Diagram) (SequenceItem, erro
 }
 
 func (tb *treeBuilder) addBlock(bn *parse.BlockNode, d *Diagram) (SequenceItem, error) {
-    slice, err := tb.nodesToSlice(bn.SubNodes, d)
+    segs := make([]*BlockSegment, 0)
+    for sn := bn.Segments; sn != nil; sn = sn.Tail {
+        seg, err := tb.buildSegment(sn.Head, d)
+        if err != nil {
+            return nil, err
+        }
+
+        segs = append(segs, seg)
+    }
+
+    return &Block{segs}, nil
+}
+
+func (tb *treeBuilder) buildSegment(sn *parse.BlockSegment, d *Diagram) (*BlockSegment, error) {
+    slice, err := tb.nodesToSlice(sn.SubNodes, d)
     if err != nil {
         return nil, err
     }
 
-    return &Block{bn.Message, slice}, nil
+    return &BlockSegment{
+        Prefix: sn.Prefix,
+        Message: sn.Message,
+        SubItems: slice,
+    }, nil
 }

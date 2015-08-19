@@ -1,0 +1,8 @@
+Client->Proxy: Do something
+if: [proxy is enable]
+    Proxy->Server: Forward request
+    Server->Proxy: The response
+else
+    Proxy->Client: No proxy
+end
+Proxy->Client: Response

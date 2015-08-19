@@ -172,11 +172,44 @@ type Divider struct {
     Type        DividerType
 }
 
-// A framed block of sequence items
+// A framed block of sequence items.  Each block can have one or more segments,
+// which will appear one after the other.
 type Block struct {
-    // The message
-    Message     string
+    Segments    []*BlockSegment
+}
 
-    // Subitems
+// Returns the maximum number of nested blocks within the segments
+func (b *Block) MaxNestDepth() int {
+    nestDepth := 0
+    for _, seg := range b.Segments {
+        nestDepth = maxInt(nestDepth, seg.MaxNestDepth())
+    }
+    return nestDepth + 1
+}
+
+// A segment within a block
+type BlockSegment struct {
+    Prefix      string
+    Message     string
     SubItems    []SequenceItem
+}
+
+// Returns the number of nested blocks 
+func (bs *BlockSegment) MaxNestDepth() int {
+    nestDepth := 0
+    for _, subItem := range bs.SubItems {
+        if block, isBlock := subItem.(*Block) ; isBlock {
+            nestDepth = maxInt(nestDepth, block.MaxNestDepth())
+        }
+    }
+    return nestDepth
+}
+
+
+func maxInt(x int, y int) int {
+    if (x > y) {
+        return x
+    } else {
+        return y
+    }
 }

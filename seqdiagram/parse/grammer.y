@@ -43,7 +43,7 @@ var DualRunes = map[string]int {
 %token  K_TITLE K_PARTICIPANT K_NOTE
 %token  K_LEFT  K_RIGHT  K_OVER  K_OF
 %token  K_HORIZONTAL K_SPACER   K_GAP K_LINE K_FRAME
-%token  K_IF    K_END
+%token  K_IF    K_ELSE   K_END
 
 %token  DASH    DOUBLEDASH      EQUAL
 %token  ANGR    DOUBLEANGR      BACKSLASHANGR       SLASHANGR
@@ -135,7 +135,16 @@ gap
 block
     :   K_IF MESSAGE decls K_END
     {
-        $$ = &BlockNode{$2, $3}
+        ifseg := &BlockSegment{"if", $2, $3}
+
+        $$ = &BlockNode{&BlockSegmentList{ifseg, nil}}
+    }
+    |   K_IF MESSAGE decls K_ELSE decls K_END
+    {
+        ifseg := &BlockSegment{"if", $2, $3}
+        elseseg := &BlockSegment{"else", "", $5}
+
+        $$ = &BlockNode{&BlockSegmentList{ifseg, &BlockSegmentList{elseseg, nil}}}
     }
     ;
 
@@ -270,6 +279,8 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
         return K_HORIZONTAL
     case "if":
         return K_IF
+    case "else":
+        return K_ELSE
     case "end":
         return K_END
     default:

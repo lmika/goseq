@@ -20,6 +20,8 @@ type Block struct {
     TR                  int
     TC                  int
 
+    MarginMup           int
+    IsLast              bool
     Style               BlockStyle
 
     prefixTextBox       *TextBox
@@ -28,7 +30,7 @@ type Block struct {
     messageTextBoxRect  Rect
 }
 
-func NewBlock(toRow int, toCol int, prefix string, text string, style BlockStyle) *Block {
+func NewBlock(toRow int, toCol int, marginMup int, isLast bool, prefix string, text string, style BlockStyle) *Block {
     prefixTextBox := NewTextBox(style.Font, style.FontSize, MiddleTextAlign)
     prefixTextBox.AddText(prefix)
     prefixTextBoxRect := prefixTextBox.BoundingRect()
@@ -37,26 +39,25 @@ func NewBlock(toRow int, toCol int, prefix string, text string, style BlockStyle
     messageTextBox.AddText(text)
     messageTextBoxRect := messageTextBox.BoundingRect()
 
-    return &Block{toRow, toCol, style, prefixTextBox, prefixTextBoxRect, messageTextBox, messageTextBoxRect}
+    return &Block{toRow, toCol, marginMup, isLast, style, prefixTextBox, prefixTextBoxRect, messageTextBox, messageTextBoxRect}
 }
 
 func (block *Block) Constraint(r, c int, applier ConstraintApplier) {
     prefixExtraWidth := block.Style.PrefixExtraWidth + block.Style.TextPadding.X * 2 + block.Style.FontSize / 2
+    horizMargin := block.calcHorizMargin()
 
     minWidth := block.prefixTextBoxRect.W + block.messageTextBoxRect.W + 
             prefixExtraWidth + block.Style.GapWidth + block.Style.TextPadding.X * 2 -
-            block.Style.Margin.X * 2
-
+            horizMargin * 2
     textHeight := maxInt(block.prefixTextBoxRect.H, block.messageTextBoxRect.H)
 
     
-    applier.Apply(TotalSizeConstraint{r, c - 1, r + 1, c, block.Style.Margin.X, 0})
-    applier.Apply(TotalSizeConstraint{r, block.TC, r + 1, block.TC + 1, block.Style.Margin.X, 0})
+    applier.Apply(TotalSizeConstraint{r, c - 1, r + 1, c, horizMargin, 0})
+    applier.Apply(TotalSizeConstraint{r, block.TC, r + 1, block.TC + 1, horizMargin, 0})
     applier.Apply(TotalSizeConstraint{r, c, r + 1, block.TC, minWidth, 0})
 
-    applier.Apply(AddSizeConstraint{r - 1, c, r, block.TC, 0, block.Style.Margin.Y})
-    applier.Apply(AddSizeConstraint{r, c, r + 1, block.TC, 0, textHeight + block.Style.MidMargin})
-    applier.Apply(AddSizeConstraint{block.TR - 1, c, block.TR, block.TC, 0, block.Style.Margin.Y})
+    applier.Apply(AddSizeConstraint{r, c, 0, 0, block.Style.Margin.Y, textHeight + block.Style.MidMargin})
+    applier.Apply(AddSizeConstraint{block.TR, c, 0, 0, block.Style.Margin.Y, 0})
 }
 
 func (block *Block) Draw(ctx DrawContext, point Point) {
@@ -64,18 +65,34 @@ func (block *Block) Draw(ctx DrawContext, point Point) {
     if point, isPoint := ctx.PointAt(block.TR, block.TC) ; isPoint {
         tx, ty := point.X, point.Y
 
-        fx -= block.Style.Margin.X
-        tx += block.Style.Margin.X
+        fx -= block.calcHorizMargin()
+        tx += block.calcHorizMargin()
 
         block.drawText(ctx, fx, fy)
         block.drawFrame(ctx, fx, fy, tx, ty)
     }
 }
 
+// Calculate the horizontal margin based on the configured style margin and depth
+func (block *Block) calcHorizMargin() int {
+    return block.Style.Margin.X * block.MarginMup
+}
+
 func (block *Block) drawFrame(ctx DrawContext, fx, fy, tx, ty int) {
     w := tx - fx
     h := ty - fy
-    ctx.Canvas.Rect(fx, fy, w, h, "stroke:black;stroke-dasharray:4,4;stroke-width:2px;fill:none;")
+
+    lineStyle := "stroke:black;stroke-dasharray:4,4;stroke-width:2px;fill:none;"
+    if block.IsLast {
+        ctx.Canvas.Rect(fx, fy, w, h, lineStyle)
+    } else {
+        ctx.Canvas.Polyline(
+            []int { fx, fx, tx, tx },
+            []int { ty, fy, fy, ty },
+            lineStyle)
+    }
+
+    //ctx.Canvas.Rect(fx, fy, w, h, "stroke:black;stroke-dasharray:4,4;stroke-width:2px;fill:none;")
 }
 
 func (block *Block) drawText(ctx DrawContext, fx, fy int) {

@@ -102,9 +102,18 @@ type GapNode struct {
     Descr       string
 }
 
-
-// A block node
+// A block node.  Each block can have one or more segments
 type BlockNode struct {
+    Segments    *BlockSegmentList
+}
+
+type BlockSegmentList struct {
+    Head        *BlockSegment
+    Tail        *BlockSegmentList
+}
+
+type BlockSegment struct {
+    Prefix      string
     Message     string
     SubNodes    *NodeList
 }

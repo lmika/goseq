@@ -65,6 +65,7 @@ func (gb *graphicBuilder) buildGraphic() *graphbox.Graphic {
     gb.Graphic = graphbox.NewGraphic(rows, cols)
 
     gb.Graphic.Margin = gb.Style.Margin
+    gb.Graphic.ShowGrid = false
 
     gb.addActors()
 
@@ -72,7 +73,7 @@ func (gb *graphicBuilder) buildGraphic() *graphbox.Graphic {
         gb.Graphic.Put(2, 0, &graphbox.Spacer{graphbox.Point{0, 64}})
     } else {
         row := 2
-        gb.putItemsInSlice(&row, gb.Diagram.Items)
+        gb.putItemsInSlice(&row, 0, gb.Diagram.Items)
     }
 
     // Add a title
@@ -84,7 +85,7 @@ func (gb *graphicBuilder) buildGraphic() *graphbox.Graphic {
 }
 
 // Place items in a slice.  This will update the rows pointer
-func (gb *graphicBuilder) putItemsInSlice(row *int, items []SequenceItem) {
+func (gb *graphicBuilder) putItemsInSlice(row *int, depth int, items []SequenceItem) {
     for _, item := range items {
         switch itemDetails := item.(type) {
         case *Action:
@@ -94,7 +95,7 @@ func (gb *graphicBuilder) putItemsInSlice(row *int, items []SequenceItem) {
         case *Divider:
             gb.putDivider(*row, itemDetails)
         case *Block:
-            gb.putBlock(row, itemDetails)
+            gb.putBlock(row, depth, itemDetails)
         }
 
         *row += 1
@@ -107,7 +108,10 @@ func (gb *graphicBuilder) calcItemsInSlice(items []SequenceItem) int {
     for _, item := range items {
         switch itemDetails := item.(type) {
         case *Block:
-            rows += gb.calcItemsInSlice(itemDetails.SubItems) + 2
+            for _, seg := range itemDetails.Segments {
+                rows += gb.calcItemsInSlice(seg.SubItems) + 1
+            }
+            rows += 1
         default:
             rows++
         }
@@ -153,17 +157,26 @@ func (gb *graphicBuilder) putDivider(row int, action *Divider) {
 }
 
 // Places a block
-func (gb *graphicBuilder) putBlock(row *int, action *Block) {
+func (gb *graphicBuilder) putBlock(row *int, depth int, action *Block) {
     style := gb.Style.Block
 
-    // Push the items within the block
-    toCol := gb.Graphic.Cols() - 1
-    startRow := *row
-    *row++
-    gb.putItemsInSlice(row, action.SubItems)
-    endRow := *row
+    var startRow, endRow int
+    startRow = *row
+    nestDepth := action.MaxNestDepth()
 
-    gb.Graphic.Put(startRow, 1, graphbox.NewBlock(endRow, toCol, "if", action.Message, style))
+    for i, seg := range action.Segments {
+        startCol := 1
+        endCol := gb.Graphic.Cols() - 1
+
+        *row++
+        gb.putItemsInSlice(row, depth + 1, seg.SubItems)
+        endRow = *row
+
+        block := graphbox.NewBlock(endRow, endCol, nestDepth, i == len(action.Segments) - 1, seg.Prefix, seg.Message, style)
+        gb.Graphic.Put(startRow, startCol, block)
+
+        startRow = endRow
+    }
 }
 
 // Count the number of rows needed in the graphic

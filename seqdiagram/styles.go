@@ -84,7 +84,7 @@ var DefaultStyle = &DiagramStyles {
         Padding: graphbox.Point{4, 16},
     },
     Block: graphbox.BlockStyle{
-        Margin: graphbox.Point{24, 4},
+        Margin: graphbox.Point{24, 8},
         TextPadding: graphbox.Point{4, 4},
         MessagePadding: graphbox.Point{4, 4},
         GapWidth: 4,

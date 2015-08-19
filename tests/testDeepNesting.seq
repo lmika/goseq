@@ -1,0 +1,11 @@
+if: [client is ready]
+    if: [client has ip address]
+        if: [client has port]
+            if: [client has a TCP stack]
+                if: [client has a message to send]
+                    Client->Server: Send message
+                end
+            end
+        end
+    end
+end
