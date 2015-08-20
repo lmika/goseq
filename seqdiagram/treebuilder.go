@@ -34,6 +34,11 @@ var dividerTypeMap = map[parse.GapType]DividerType {
     parse.LINE_GAP: DTLine,
 }
 
+var segmentTypeMap = map[parse.SegmentType]SegmentType {
+    parse.ALT_SEGMENT: AltSegmentType,
+    parse.ALT_ELSE_SEGMENT: ElseSegmentType,
+}
+
 type treeBuilder struct {
     nodeList        *parse.NodeList
     filename        string
@@ -135,6 +140,7 @@ func (tb *treeBuilder) buildSegment(sn *parse.BlockSegment, d *Diagram) (*BlockS
     }
 
     return &BlockSegment{
+        Type: segmentTypeMap[sn.Type],
         Prefix: sn.Prefix,
         Message: sn.Message,
         SubItems: slice,

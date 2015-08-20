@@ -1,8 +1,8 @@
-if: [client is ready]
-    if: [client has ip address]
-        if: [client has port]
-            if: [client has a TCP stack]
-                if: [client has a message to send]
+alt: [client is ready]
+    alt: [client has ip address]
+        alt: [client has port]
+            alt: [client has a TCP stack]
+                alt: [client has a message to send]
                     Client->Server: Send message
                 end
             end

@@ -187,8 +187,19 @@ func (b *Block) MaxNestDepth() int {
     return nestDepth + 1
 }
 
+// The type of segment
+type SegmentType int
+const (
+    // The alt segment
+    AltSegmentType SegmentType = iota
+
+    // The else segment
+    ElseSegmentType
+)
+
 // A segment within a block
 type BlockSegment struct {
+    Type        SegmentType
     Prefix      string
     Message     string
     SubItems    []SequenceItem

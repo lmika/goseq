@@ -22,6 +22,7 @@ type Block struct {
 
     MarginMup           int
     IsLast              bool
+    ShowPrefix          bool
     Style               BlockStyle
 
     prefixTextBox       *TextBox
@@ -30,7 +31,7 @@ type Block struct {
     messageTextBoxRect  Rect
 }
 
-func NewBlock(toRow int, toCol int, marginMup int, isLast bool, prefix string, text string, style BlockStyle) *Block {
+func NewBlock(toRow int, toCol int, marginMup int, isLast bool, prefix string, showPrefix bool, text string, style BlockStyle) *Block {
     prefixTextBox := NewTextBox(style.Font, style.FontSize, MiddleTextAlign)
     prefixTextBox.AddText(prefix)
     prefixTextBoxRect := prefixTextBox.BoundingRect()
@@ -39,7 +40,7 @@ func NewBlock(toRow int, toCol int, marginMup int, isLast bool, prefix string, t
     messageTextBox.AddText(text)
     messageTextBoxRect := messageTextBox.BoundingRect()
 
-    return &Block{toRow, toCol, marginMup, isLast, style, prefixTextBox, prefixTextBoxRect, messageTextBox, messageTextBoxRect}
+    return &Block{toRow, toCol, marginMup, isLast, showPrefix, style, prefixTextBox, prefixTextBoxRect, messageTextBox, messageTextBoxRect}
 }
 
 func (block *Block) Constraint(r, c int, applier ConstraintApplier) {
@@ -102,12 +103,13 @@ func (block *Block) drawText(ctx DrawContext, fx, fy int) {
     ctx.Canvas.Rect(mtr.X, mtr.Y, mtr.W + block.Style.GapWidth + block.Style.FontSize / 2, mtr.H, "stroke:none;fill:white;")
     block.messageTextBox.Render(ctx.Canvas, mtr.X + block.Style.GapWidth + block.Style.MessagePadding.X, mtr.Y + block.Style.MessagePadding.Y, NorthWestGravity)
 
-    //ctx.Canvas.Rect(ptr.X, ptr.Y, ptr.W, ptr.H, "stroke:black;stroke-width:2px;fill:white;")
-    block.drawPageFrame(ctx, ptr.X, ptr.Y, ptr.X + ptr.W, ptr.Y + ptr.H)
-    block.prefixTextBox.Render(ctx.Canvas, ptr.X + block.Style.TextPadding.X, ptr.Y + block.Style.TextPadding.Y, NorthWestGravity)
+    if block.ShowPrefix {
+        block.drawPrefixFrame(ctx, ptr.X, ptr.Y, ptr.X + ptr.W, ptr.Y + ptr.H)
+        block.prefixTextBox.Render(ctx.Canvas, ptr.X + block.Style.TextPadding.X, ptr.Y + block.Style.TextPadding.Y, NorthWestGravity)
+    }
 }
 
-func (block *Block) drawPageFrame(ctx DrawContext, fx, fy, tx, ty int) {
+func (block *Block) drawPrefixFrame(ctx DrawContext, fx, fy, tx, ty int) {
     fold := block.Style.FontSize / 2
 
     xs := []int { fx, fx, tx - fold, tx, tx }

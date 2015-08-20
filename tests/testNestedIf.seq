@@ -1,11 +1,13 @@
 Client->Proxy: Do something
-if: [proxy is enable]
+alt: [proxy is enable]
     Proxy->Server: Forward request
     Server->Proxy: The response
 
-    if: [response is posative]
+    alt: [response is posative]
         Proxy->Client: Response
-    else
+    elsealt: [response is negative]
+        Proxy->client: Negative
+    else:
         Proxy->Client: Error
     end
 end

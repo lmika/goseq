@@ -1,5 +1,5 @@
 Client->Proxy: Do something
-if: [proxy is enable]
+alt: [proxy is enable]
     Proxy->Server: Forward request
     Server->Proxy: The response
 end

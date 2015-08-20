@@ -17,6 +17,12 @@ const (
     LOWER_BARBED_ARROW_HEAD        = iota
 )
 
+type SegmentType int
+const (
+    ALT_SEGMENT   SegmentType      = iota
+    ALT_ELSE_SEGMENT               = iota
+)
+
 type ArrowType struct {
     Stem        ArrowStemType
     Head        ArrowHeadType
@@ -113,6 +119,7 @@ type BlockSegmentList struct {
 }
 
 type BlockSegment struct {
+    Type        SegmentType
     Prefix      string
     Message     string
     SubNodes    *NodeList

@@ -36,6 +36,7 @@ var DualRunes = map[string]int {
     arrowHead       ArrowHeadType
     noteAlign       NoteAlignment
     dividerType     GapType
+    blockSegList    *BlockSegmentList
 
     sval            string
 }
@@ -43,7 +44,7 @@ var DualRunes = map[string]int {
 %token  K_TITLE K_PARTICIPANT K_NOTE
 %token  K_LEFT  K_RIGHT  K_OVER  K_OF
 %token  K_HORIZONTAL K_SPACER   K_GAP K_LINE K_FRAME
-%token  K_IF    K_ELSE   K_END
+%token  K_ALT   K_ELSEALT   K_ELSE   K_END
 
 %token  DASH    DOUBLEDASH      EQUAL
 %token  ANGR    DOUBLEANGR      BACKSLASHANGR       SLASHANGR
@@ -53,12 +54,13 @@ var DualRunes = map[string]int {
 
 %type   <nodeList>      top decls
 %type   <node>          decl
-%type   <node>          title actor action note gap block
+%type   <node>          title actor action note gap altblock
 %type   <arrow>         arrow
 %type   <arrowStem>     arrowStem
 %type   <arrowHead>     arrowHead
 %type   <noteAlign>     noteplace
 %type   <dividerType>   dividerType
+%type   <blockSegList>  altblocklist
 
 %%
 
@@ -86,7 +88,7 @@ decl
     |   action
     |   note
     |   gap
-    |   block
+    |   altblock
     ;
 
 title
@@ -132,19 +134,25 @@ gap
     }
     ;
 
-block
-    :   K_IF MESSAGE decls K_END
+altblock
+    :   K_ALT MESSAGE decls altblocklist K_END
     {
-        ifseg := &BlockSegment{"if", $2, $3}
-
-        $$ = &BlockNode{&BlockSegmentList{ifseg, nil}}
+        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{ALT_SEGMENT, "", $2, $3}, $4}}
     }
-    |   K_IF MESSAGE decls K_ELSE decls K_END
-    {
-        ifseg := &BlockSegment{"if", $2, $3}
-        elseseg := &BlockSegment{"else", "", $5}
+    ;
 
-        $$ = &BlockNode{&BlockSegmentList{ifseg, &BlockSegmentList{elseseg, nil}}}
+altblocklist
+    :   /* empty */
+    {
+        $$ = nil
+    }
+    |   K_ELSE MESSAGE decls
+    {
+        $$ = &BlockSegmentList{&BlockSegment{ALT_ELSE_SEGMENT, "", $2, $3}, nil}
+    }
+    |   K_ELSEALT MESSAGE decls altblocklist
+    {
+        $$ = &BlockSegmentList{&BlockSegment{ALT_SEGMENT, "", $2, $3}, $4}
     }
     ;
 
@@ -277,8 +285,10 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
         return K_LINE
     case "horizontal":
         return K_HORIZONTAL
-    case "if":
-        return K_IF
+    case "alt":
+        return K_ALT
+    case "elsealt":
+        return K_ELSEALT
     case "else":
         return K_ELSE
     case "end":

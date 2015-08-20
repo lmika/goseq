@@ -172,7 +172,23 @@ func (gb *graphicBuilder) putBlock(row *int, depth int, action *Block) {
         gb.putItemsInSlice(row, depth + 1, seg.SubItems)
         endRow = *row
 
-        block := graphbox.NewBlock(endRow, endCol, nestDepth, i == len(action.Segments) - 1, seg.Prefix, seg.Message, style)
+        segPrefix := ""
+        showPrefix := true
+
+        switch seg.Type {
+        case AltSegmentType:
+            segPrefix = "alt"
+        case ElseSegmentType:
+            segPrefix = "alt"
+            showPrefix = false
+        }
+
+        if seg.Prefix != "" {
+            segPrefix = seg.Prefix
+        }
+
+        block := graphbox.NewBlock(endRow, endCol, nestDepth, i == len(action.Segments) - 1,
+                segPrefix, showPrefix, seg.Message, style)
         gb.Graphic.Put(startRow, startCol, block)
 
         startRow = endRow
