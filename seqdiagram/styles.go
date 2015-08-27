@@ -15,6 +15,8 @@ type DiagramStyles struct {
     // Styling of the note box
     NoteBox             graphbox.NoteBoxStyle
 
+    MultiNoteOverlap    int
+
     // Styling of the activity line
     ActivityLine        graphbox.ActivityLineStyle
 
@@ -50,6 +52,7 @@ var DefaultStyle = &DiagramStyles {
         Padding: graphbox.Point{8, 4},
         Margin: graphbox.Point{8, 8},
     },
+    MultiNoteOverlap: 16,
     ActivityLine: graphbox.ActivityLineStyle{
         Font: standardFont,
         FontSize: 14,
@@ -149,6 +152,7 @@ var SmallStyle = &DiagramStyles {
         Padding: graphbox.Point{6, 3},
         Margin: graphbox.Point{6, 6},
     },
+    MultiNoteOverlap: 8,
     ActivityLine: graphbox.ActivityLineStyle{
         Font: standardFont,
         FontSize: 12,

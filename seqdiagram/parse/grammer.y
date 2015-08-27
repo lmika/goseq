@@ -16,6 +16,7 @@ import (
 
 var DualRunes = map[string]int {
     ".":    DOT,
+    ",":    COMMA,
 
     "--":   DOUBLEDASH,
     "-":    DASH,
@@ -49,7 +50,7 @@ var DualRunes = map[string]int {
 %token  K_HORIZONTAL K_SPACER   K_GAP K_LINE K_FRAME
 %token  K_ALT   K_ELSEALT   K_ELSE   K_END
 
-%token  DASH    DOUBLEDASH      DOT                 EQUAL
+%token  DASH    DOUBLEDASH      DOT                 EQUAL       COMMA
 %token  ANGR    DOUBLEANGR      BACKSLASHANGR       SLASHANGR
 
 %token  <sval>  MESSAGE
@@ -123,7 +124,11 @@ action
 note
     :   K_NOTE noteplace actorref MESSAGE
     {
-        $$ = &NoteNode{$3, $2, $4}
+        $$ = &NoteNode{$3, nil, $2, $4}
+    }
+    |   K_NOTE noteplace actorref COMMA actorref MESSAGE
+    {
+        $$ = &NoteNode{$3, $5, $2, $6}
     }
     ;
 
@@ -242,7 +247,7 @@ func (ps *parseState) Lex(lval *yySymType) int {
             ps.scanComment()
         case ':':
             return ps.scanMessage(lval)
-        case '-', '>', '*', '=', '/', '\\', '.':
+        case '-', '>', '*', '=', '/', '\\', '.', ',':
             if res, isTok := ps.handleDoubleRune(tok) ; isTok {
                 return res
             } else {

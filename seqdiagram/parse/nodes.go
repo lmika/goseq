@@ -100,7 +100,9 @@ const (
 )
 
 type NoteNode struct {
-    Actor       ActorRef
+    Actor1      ActorRef
+    Actor2      ActorRef        // Can be nil
+    
     Position    NoteAlignment
     Descr       string
 }

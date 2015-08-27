@@ -27,6 +27,7 @@ type DividerStyle struct {
     Padding     Point
     Margin      Point
     TextPadding Point
+    Overlap     int
     Shape       DividerShape
 }
 
@@ -58,13 +59,21 @@ func (div *Divider) Constraint(r, c int, applier ConstraintApplier) {
     requiredWidth := div.marginRect.W + div.style.Margin.X * 2
 
     applier.Apply(AddSizeConstraint{r, c, 0, 0, requiredHeight / 2, requiredHeight / 2})
-    applier.Apply(TotalSizeConstraint{r - 1, c, r, div.TC, requiredWidth, 0})    
+
+    if div.style.Overlap > 0 {
+        applier.Apply(SizeConstraint{r, c, div.style.Overlap, 0, 0, 0})
+        applier.Apply(SizeConstraint{r, div.TC, 0, div.style.Overlap, 0, 0})
+        applier.Apply(TotalSizeConstraint{r - 1, c, r, div.TC, requiredWidth - div.style.Overlap * 2, 0})
+    } else {
+        applier.Apply(TotalSizeConstraint{r - 1, c, r, div.TC, requiredWidth, 0})
+    }
 }
 
 func (div *Divider) Draw(ctx DrawContext, point Point) {
     fx, fy := point.X, point.Y
     if point, isPoint := ctx.PointAt(ctx.R, div.TC) ; isPoint {
-        tx, _ := point.X, point.Y
+        fx -= div.style.Overlap
+        tx, _ := point.X + div.style.Overlap, point.Y
         centerX := fx + (tx - fx) / 2
         centerY := fy
 

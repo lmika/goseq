@@ -1,0 +1,8 @@
+note over A,A: This is a note
+note over B,B: That is a note
+note over A,B: This is a note\nover A and B
+note over B,C: This is a note\nover B and C
+note over A,C: This is a note\nover A and C
+note over C,A: This is another note\nover A, B and C
+note left of A,C: This is a note\nleft of A and C
+note right of A,C: This is a note\nright of A and C

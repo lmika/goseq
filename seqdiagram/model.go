@@ -136,7 +136,9 @@ type SequenceItem interface {
 // Defines a note
 type Note struct {
     // The note's alignment and position
-    Actor       *Actor
+    Actor1      *Actor
+    Actor2      *Actor
+    
     Align       NoteAlignment
 
     // The message

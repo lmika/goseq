@@ -121,6 +121,29 @@ func (gb *graphicBuilder) calcItemsInSlice(items []SequenceItem) int {
 
 // Places a note
 func (gb *graphicBuilder) putNote(row int, note *Note) {
+    if (note.Actor2 == nil) || (note.Actor1 == note.Actor2) {
+        gb.putSingleActorNote(row, note.Actor1, note)
+    } else {
+        var leftActor, rightActor *Actor
+        if gb.colOfActor(note.Actor1) < gb.colOfActor(note.Actor2) {
+            leftActor, rightActor = note.Actor1, note.Actor2
+        } else {
+            leftActor, rightActor = note.Actor2, note.Actor1
+        }
+
+        switch note.Align {
+        case OverNoteAlignment:
+            gb.putMultiActorOverNote(row, leftActor, rightActor, note)
+        case LeftNoteAlignment:
+            gb.putSingleActorNote(row, leftActor, note)
+        case RightNoteAlignment:
+            gb.putSingleActorNote(row, rightActor, note)
+        }
+    }
+}
+
+// Places a note over a single actor
+func (gb *graphicBuilder) putSingleActorNote(row int, actor *Actor, note *Note) {
     var pos graphbox.NoteBoxPos
 
     if note.Align == LeftNoteAlignment {
@@ -131,8 +154,27 @@ func (gb *graphicBuilder) putNote(row int, note *Note) {
         pos = graphbox.RightNotePos
     }
 
-    col := gb.colOfActor(note.Actor)
+    col := gb.colOfActor(actor)
     gb.Graphic.Put(row, col, graphbox.NewNoteBox(note.Message, gb.Style.NoteBox, pos))    
+}
+
+// Places a note over a multiple actors.  This actually uses the divider graphics object
+// with the style adopted from the note style
+func (gb *graphicBuilder) putMultiActorOverNote(row int, leftActor *Actor, rightActor *Actor, note *Note) {
+    dividerBox := graphbox.DividerStyle {
+        Font: gb.Style.NoteBox.Font,
+        FontSize: gb.Style.NoteBox.FontSize,
+        Padding: gb.Style.NoteBox.Padding,
+        Margin: gb.Style.NoteBox.Margin,
+        TextPadding: graphbox.Point{0, 0},
+        Shape: graphbox.DSFramedRect,
+        Overlap: gb.Style.MultiNoteOverlap,
+    }
+
+    fromCol := gb.colOfActor(leftActor)
+    toCol := gb.colOfActor(rightActor)
+
+    gb.Graphic.Put(row, fromCol, graphbox.NewDivider(toCol, note.Message, dividerBox))
 }
 
 // Places an action

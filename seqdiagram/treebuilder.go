@@ -120,12 +120,20 @@ func (tb *treeBuilder) addAction(an *parse.ActionNode, d *Diagram) (SequenceItem
 }
 
 func (tb *treeBuilder) addNote(nn *parse.NoteNode, d *Diagram) (SequenceItem, error) {
-    actor, err := tb.getOrAddActor(nn.Actor, d)
+    actor1, err := tb.getOrAddActor(nn.Actor1, d)
     if err != nil {
         return nil, err
     }
 
-    note := &Note{actor, noteAlignmentMap[nn.Position], nn.Descr}
+    var actor2 *Actor = nil
+    if nn.Actor2 != nil {
+        actor2, err = tb.getOrAddActor(nn.Actor2, d)
+        if err != nil {
+            return nil, err
+        }        
+    }
+
+    note := &Note{actor1, actor2, noteAlignmentMap[nn.Position], nn.Descr}
     return note, nil
 }
 
