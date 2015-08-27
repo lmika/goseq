@@ -104,14 +104,46 @@ func (tb *treeBuilder) toSequenceItem(node parse.Node, d *Diagram) (SequenceItem
 }
 
 func (tb *treeBuilder) addAction(an *parse.ActionNode, d *Diagram) (SequenceItem, error) {
+    from, err := tb.getOrAddActor(an.From, d)
+    if err != nil {
+        return nil, err
+    }
+
+    to, err := tb.getOrAddActor(an.To, d)
+    if err != nil {
+        return nil, err
+    }
+
     arrow := Arrow{arrowStemMap[an.Arrow.Stem], arrowHeadMap[an.Arrow.Head]}
-    action := &Action{d.GetOrAddActor(an.From), d.GetOrAddActor(an.To), arrow, an.Descr}
+    action := &Action{from, to, arrow, an.Descr}
     return action, nil
 }
 
 func (tb *treeBuilder) addNote(nn *parse.NoteNode, d *Diagram) (SequenceItem, error) {
-    note := &Note{d.GetOrAddActor(nn.Actor), noteAlignmentMap[nn.Position], nn.Descr}
+    actor, err := tb.getOrAddActor(nn.Actor, d)
+    if err != nil {
+        return nil, err
+    }
+
+    note := &Note{actor, noteAlignmentMap[nn.Position], nn.Descr}
     return note, nil
+}
+
+func (tb *treeBuilder) getOrAddActor(ar parse.ActorRef, d *Diagram) (*Actor, error) {
+    switch a := ar.(type) {
+    case parse.NormalActorRef:
+        return d.GetOrAddActor(string(a)), nil
+    case parse.PseudoActorRef:
+        pn := string(a)
+        switch pn {
+        case "left":
+            return LeftOffsideActor, nil
+        default:
+            return nil, fmt.Errorf("Invalid pseudo actor: ", pn)
+        }
+    default:
+        return nil, fmt.Errorf("Unknown actor reference")
+    }
 }
 
 func (tb *treeBuilder) addGap(gn *parse.GapNode, d *Diagram) (SequenceItem, error) {

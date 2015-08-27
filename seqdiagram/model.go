@@ -92,6 +92,9 @@ type Actor struct {
     rank            int
 }
 
+// Special actors
+var LeftOffsideActor *Actor = &Actor{".left", ".left", -1}
+
 
 // The supported arrow stems
 type ArrowStem  int

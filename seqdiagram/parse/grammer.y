@@ -15,6 +15,8 @@ import (
 )
 
 var DualRunes = map[string]int {
+    ".":    DOT,
+
     "--":   DOUBLEDASH,
     "-":    DASH,
     "=":    EQUAL,
@@ -34,6 +36,7 @@ var DualRunes = map[string]int {
     arrow           ArrowType
     arrowStem       ArrowStemType
     arrowHead       ArrowHeadType
+    actorRef        ActorRef
     noteAlign       NoteAlignment
     dividerType     GapType
     blockSegList    *BlockSegmentList
@@ -46,7 +49,7 @@ var DualRunes = map[string]int {
 %token  K_HORIZONTAL K_SPACER   K_GAP K_LINE K_FRAME
 %token  K_ALT   K_ELSEALT   K_ELSE   K_END
 
-%token  DASH    DOUBLEDASH      EQUAL
+%token  DASH    DOUBLEDASH      DOT                 EQUAL
 %token  ANGR    DOUBLEANGR      BACKSLASHANGR       SLASHANGR
 
 %token  <sval>  MESSAGE
@@ -56,6 +59,7 @@ var DualRunes = map[string]int {
 %type   <node>          decl
 %type   <node>          title actor action note gap altblock
 %type   <arrow>         arrow
+%type   <actorRef>      actorref
 %type   <arrowStem>     arrowStem
 %type   <arrowHead>     arrowHead
 %type   <noteAlign>     noteplace
@@ -110,16 +114,27 @@ actor
     ;
 
 action
-    :   IDENT arrow IDENT MESSAGE
+    :   actorref arrow actorref MESSAGE
     {
         $$ = &ActionNode{$1, $3, $2, $4}
     }
     ;
 
 note
-    :   K_NOTE noteplace IDENT MESSAGE
+    :   K_NOTE noteplace actorref MESSAGE
     {
         $$ = &NoteNode{$3, $2, $4}
+    }
+    ;
+
+actorref
+    :   IDENT
+    {
+        $$ = NormalActorRef($1)
+    }
+    |   DOT K_LEFT
+    {
+        $$ = PseudoActorRef("left")
     }
     ;
 
@@ -223,7 +238,7 @@ func (ps *parseState) Lex(lval *yySymType) int {
             ps.scanComment()
         case ':':
             return ps.scanMessage(lval)
-        case '-', '>', '*', '=', '/', '\\':
+        case '-', '>', '*', '=', '/', '\\', '.':
             if res, isTok := ps.handleDoubleRune(tok) ; isTok {
                 return res
             } else {

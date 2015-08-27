@@ -14,6 +14,8 @@ import (
 )
 
 var DualRunes = map[string]int{
+	".": DOT,
+
 	"--": DOUBLEDASH,
 	"-":  DASH,
 	"=":  EQUAL,
@@ -24,7 +26,7 @@ var DualRunes = map[string]int{
 	"\\>": BACKSLASHANGR,
 }
 
-//line grammer.y:31
+//line grammer.y:33
 type yySymType struct {
 	yys          int
 	nodeList     *NodeList
@@ -32,6 +34,7 @@ type yySymType struct {
 	arrow        ArrowType
 	arrowStem    ArrowStemType
 	arrowHead    ArrowHeadType
+	actorRef     ActorRef
 	noteAlign    NoteAlignment
 	dividerType  GapType
 	blockSegList *BlockSegmentList
@@ -57,13 +60,14 @@ const K_ELSE = 57360
 const K_END = 57361
 const DASH = 57362
 const DOUBLEDASH = 57363
-const EQUAL = 57364
-const ANGR = 57365
-const DOUBLEANGR = 57366
-const BACKSLASHANGR = 57367
-const SLASHANGR = 57368
-const MESSAGE = 57369
-const IDENT = 57370
+const DOT = 57364
+const EQUAL = 57365
+const ANGR = 57366
+const DOUBLEANGR = 57367
+const BACKSLASHANGR = 57368
+const SLASHANGR = 57369
+const MESSAGE = 57370
+const IDENT = 57371
 
 var yyToknames = []string{
 	"K_TITLE",
@@ -84,6 +88,7 @@ var yyToknames = []string{
 	"K_END",
 	"DASH",
 	"DOUBLEDASH",
+	"DOT",
 	"EQUAL",
 	"ANGR",
 	"DOUBLEANGR",
@@ -98,7 +103,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyMaxDepth = 200
 
-//line grammer.y:191
+//line grammer.y:206
 
 // Manages the lexer as well as the current diagram being parsed
 type parseState struct {
@@ -133,7 +138,7 @@ func (ps *parseState) Lex(lval *yySymType) int {
 			ps.scanComment()
 		case ':':
 			return ps.scanMessage(lval)
-		case '-', '>', '*', '=', '/', '\\':
+		case '-', '>', '*', '=', '/', '\\', '.':
 			if res, isTok := ps.handleDoubleRune(tok); isTok {
 				return res
 			} else {
@@ -300,68 +305,69 @@ var yyExca = []int{
 	-2, 0,
 }
 
-const yyNprod = 36
+const yyNprod = 38
 const yyPrivate = 57344
 
 var yyTokenNames []string
 var yyStates []string
 
-const yyLast = 58
+const yyLast = 61
 
 var yyAct = []int{
 
-	2, 48, 41, 35, 16, 10, 11, 13, 37, 38,
-	39, 40, 14, 43, 18, 53, 52, 15, 47, 46,
-	44, 34, 33, 17, 21, 22, 23, 50, 49, 12,
-	51, 25, 26, 27, 45, 29, 30, 31, 32, 42,
-	28, 24, 36, 20, 19, 9, 8, 7, 6, 5,
-	4, 3, 1, 54, 55, 0, 0, 56,
+	2, 51, 17, 20, 18, 10, 11, 13, 46, 16,
+	56, 55, 14, 40, 41, 42, 43, 15, 50, 49,
+	47, 37, 35, 17, 19, 12, 23, 24, 54, 25,
+	16, 53, 52, 27, 28, 29, 48, 31, 32, 33,
+	34, 45, 36, 30, 26, 39, 22, 38, 21, 9,
+	8, 7, 44, 6, 5, 4, 57, 58, 3, 1,
+	59,
 }
 var yyPact = []int{
 
 	1, -1000, -1000, 1, -1000, -1000, -1000, -1000, -1000, -1000,
-	-4, -14, 4, 24, 23, -5, -1000, -1000, -6, -25,
-	-15, -1000, -1000, -1000, -26, 29, 3, -1000, -7, -1000,
-	-1000, -1000, -1000, 1, -1000, -8, -1000, -1000, -1000, -1000,
-	-1000, -9, -1000, -1000, -1000, 10, -1000, -1000, 11, -11,
-	-12, -1000, 1, 1, -1000, 10, -1000,
+	-4, -26, 6, 26, 25, -6, -1000, 35, -1000, -1000,
+	-7, -20, -11, -1000, -1000, -1000, -20, 31, -2, -1000,
+	-8, -1000, -1000, -1000, -1000, 1, -1000, -1000, -9, -1000,
+	-1000, -1000, -1000, -1000, -10, -1000, -1000, -1000, 14, -1000,
+	-1000, 9, -17, -18, -1000, 1, 1, -1000, 14, -1000,
 }
 var yyPgo = []int{
 
-	0, 52, 0, 51, 50, 49, 48, 47, 46, 45,
-	44, 43, 42, 41, 40, 1,
+	0, 59, 0, 58, 55, 54, 53, 51, 50, 49,
+	48, 25, 46, 45, 44, 43, 1,
 }
 var yyR1 = []int{
 
 	0, 1, 2, 2, 3, 3, 3, 3, 3, 3,
-	4, 5, 5, 6, 7, 8, 8, 9, 15, 15,
-	15, 14, 14, 14, 14, 13, 13, 13, 10, 11,
-	11, 11, 12, 12, 12, 12,
+	4, 5, 5, 6, 7, 11, 11, 8, 8, 9,
+	16, 16, 16, 15, 15, 15, 15, 14, 14, 14,
+	10, 12, 12, 12, 13, 13, 13, 13,
 }
 var yyR2 = []int{
 
 	0, 1, 0, 2, 1, 1, 1, 1, 1, 1,
-	2, 2, 3, 4, 4, 2, 3, 5, 0, 3,
-	4, 1, 1, 1, 1, 2, 2, 1, 2, 1,
-	1, 1, 1, 1, 1, 1,
+	2, 2, 3, 4, 4, 1, 2, 2, 3, 5,
+	0, 3, 4, 1, 1, 1, 1, 2, 2, 1,
+	2, 1, 1, 1, 1, 1, 1, 1,
 }
 var yyChk = []int{
 
 	-1000, -1, -2, -3, -4, -5, -6, -7, -8, -9,
-	4, 5, 28, 6, 11, 16, -2, 27, 28, -10,
-	-11, 20, 21, 22, -13, 7, 8, 9, -14, 12,
-	13, 14, 15, 27, 27, 28, -12, 23, 24, 25,
-	26, 28, 10, 10, 27, -2, 27, 27, -15, 18,
-	17, 19, 27, 27, -2, -2, -15,
+	4, 5, -11, 6, 11, 16, 29, 22, -2, 28,
+	29, -10, -12, 20, 21, 23, -14, 7, 8, 9,
+	-15, 12, 13, 14, 15, 28, 7, 28, -11, -13,
+	24, 25, 26, 27, -11, 10, 10, 28, -2, 28,
+	28, -16, 18, 17, 19, 28, 28, -2, -2, -16,
 }
 var yyDef = []int{
 
 	2, -2, 1, 2, 4, 5, 6, 7, 8, 9,
-	0, 0, 0, 0, 0, 0, 3, 10, 11, 0,
-	0, 29, 30, 31, 0, 0, 0, 27, 15, 21,
-	22, 23, 24, 2, 12, 0, 28, 32, 33, 34,
-	35, 0, 25, 26, 16, 18, 13, 14, 0, 0,
-	0, 17, 2, 2, 19, 18, 20,
+	0, 0, 0, 0, 0, 0, 15, 0, 3, 10,
+	11, 0, 0, 31, 32, 33, 0, 0, 0, 29,
+	17, 23, 24, 25, 26, 2, 16, 12, 0, 30,
+	34, 35, 36, 37, 0, 27, 28, 18, 20, 13,
+	14, 0, 0, 0, 19, 2, 2, 21, 20, 22,
 }
 var yyTok1 = []int{
 
@@ -371,7 +377,7 @@ var yyTok2 = []int{
 
 	2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
 	12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
-	22, 23, 24, 25, 26, 27, 28,
+	22, 23, 24, 25, 26, 27, 28, 29,
 }
 var yyTok3 = []int{
 	0,
@@ -603,17 +609,17 @@ yydefault:
 	switch yynt {
 
 	case 1:
-		//line grammer.y:69
+		//line grammer.y:73
 		{
 			yylex.(*parseState).nodeList = yyS[yypt-0].nodeList
 		}
 	case 2:
-		//line grammer.y:76
+		//line grammer.y:80
 		{
 			yyVAL.nodeList = nil
 		}
 	case 3:
-		//line grammer.y:80
+		//line grammer.y:84
 		{
 			yyVAL.nodeList = &NodeList{yyS[yypt-1].node, yyS[yypt-0].nodeList}
 		}
@@ -630,132 +636,142 @@ yydefault:
 	case 9:
 		yyVAL.node = yyS[yypt-0].node
 	case 10:
-		//line grammer.y:96
+		//line grammer.y:100
 		{
 			yyVAL.node = &TitleNode{yyS[yypt-0].sval}
 		}
 	case 11:
-		//line grammer.y:103
+		//line grammer.y:107
 		{
 			yyVAL.node = &ActorNode{yyS[yypt-0].sval, false, ""}
 		}
 	case 12:
-		//line grammer.y:107
+		//line grammer.y:111
 		{
 			yyVAL.node = &ActorNode{yyS[yypt-1].sval, true, yyS[yypt-0].sval}
 		}
 	case 13:
-		//line grammer.y:114
+		//line grammer.y:118
 		{
-			yyVAL.node = &ActionNode{yyS[yypt-3].sval, yyS[yypt-1].sval, yyS[yypt-2].arrow, yyS[yypt-0].sval}
+			yyVAL.node = &ActionNode{yyS[yypt-3].actorRef, yyS[yypt-1].actorRef, yyS[yypt-2].arrow, yyS[yypt-0].sval}
 		}
 	case 14:
-		//line grammer.y:121
+		//line grammer.y:125
 		{
-			yyVAL.node = &NoteNode{yyS[yypt-1].sval, yyS[yypt-2].noteAlign, yyS[yypt-0].sval}
+			yyVAL.node = &NoteNode{yyS[yypt-1].actorRef, yyS[yypt-2].noteAlign, yyS[yypt-0].sval}
 		}
 	case 15:
-		//line grammer.y:128
+		//line grammer.y:132
+		{
+			yyVAL.actorRef = NormalActorRef(yyS[yypt-0].sval)
+		}
+	case 16:
+		//line grammer.y:136
+		{
+			yyVAL.actorRef = PseudoActorRef("left")
+		}
+	case 17:
+		//line grammer.y:143
 		{
 			yyVAL.node = &GapNode{yyS[yypt-0].dividerType, ""}
 		}
-	case 16:
-		//line grammer.y:132
+	case 18:
+		//line grammer.y:147
 		{
 			yyVAL.node = &GapNode{yyS[yypt-1].dividerType, yyS[yypt-0].sval}
 		}
-	case 17:
-		//line grammer.y:139
+	case 19:
+		//line grammer.y:154
 		{
 			yyVAL.node = &BlockNode{&BlockSegmentList{&BlockSegment{ALT_SEGMENT, "", yyS[yypt-3].sval, yyS[yypt-2].nodeList}, yyS[yypt-1].blockSegList}}
 		}
-	case 18:
-		//line grammer.y:146
+	case 20:
+		//line grammer.y:161
 		{
 			yyVAL.blockSegList = nil
 		}
-	case 19:
-		//line grammer.y:150
+	case 21:
+		//line grammer.y:165
 		{
 			yyVAL.blockSegList = &BlockSegmentList{&BlockSegment{ALT_ELSE_SEGMENT, "", yyS[yypt-1].sval, yyS[yypt-0].nodeList}, nil}
 		}
-	case 20:
-		//line grammer.y:154
+	case 22:
+		//line grammer.y:169
 		{
 			yyVAL.blockSegList = &BlockSegmentList{&BlockSegment{ALT_SEGMENT, "", yyS[yypt-2].sval, yyS[yypt-1].nodeList}, yyS[yypt-0].blockSegList}
 		}
-	case 21:
-		//line grammer.y:160
+	case 23:
+		//line grammer.y:175
 		{
 			yyVAL.dividerType = SPACER_GAP
 		}
-	case 22:
-		//line grammer.y:161
+	case 24:
+		//line grammer.y:176
 		{
 			yyVAL.dividerType = EMPTY_GAP
 		}
-	case 23:
-		//line grammer.y:162
+	case 25:
+		//line grammer.y:177
 		{
 			yyVAL.dividerType = LINE_GAP
 		}
-	case 24:
-		//line grammer.y:163
+	case 26:
+		//line grammer.y:178
 		{
 			yyVAL.dividerType = FRAME_GAP
 		}
-	case 25:
-		//line grammer.y:167
+	case 27:
+		//line grammer.y:182
 		{
 			yyVAL.noteAlign = LEFT_NOTE_ALIGNMENT
 		}
-	case 26:
-		//line grammer.y:168
+	case 28:
+		//line grammer.y:183
 		{
 			yyVAL.noteAlign = RIGHT_NOTE_ALIGNMENT
 		}
-	case 27:
-		//line grammer.y:169
+	case 29:
+		//line grammer.y:184
 		{
 			yyVAL.noteAlign = OVER_NOTE_ALIGNMENT
 		}
-	case 28:
-		//line grammer.y:174
+	case 30:
+		//line grammer.y:189
 		{
 			yyVAL.arrow = ArrowType{yyS[yypt-1].arrowStem, yyS[yypt-0].arrowHead}
 		}
-	case 29:
-		//line grammer.y:180
+	case 31:
+		//line grammer.y:195
 		{
 			yyVAL.arrowStem = SOLID_ARROW_STEM
 		}
-	case 30:
-		//line grammer.y:181
+	case 32:
+		//line grammer.y:196
 		{
 			yyVAL.arrowStem = DASHED_ARROW_STEM
 		}
-	case 31:
-		//line grammer.y:182
+	case 33:
+		//line grammer.y:197
 		{
 			yyVAL.arrowStem = THICK_ARROW_STEM
 		}
-	case 32:
-		//line grammer.y:186
+	case 34:
+		//line grammer.y:201
 		{
 			yyVAL.arrowHead = SOLID_ARROW_HEAD
 		}
-	case 33:
-		//line grammer.y:187
+	case 35:
+		//line grammer.y:202
 		{
 			yyVAL.arrowHead = OPEN_ARROW_HEAD
 		}
-	case 34:
-		//line grammer.y:188
+	case 36:
+		//line grammer.y:203
 		{
 			yyVAL.arrowHead = BARBED_ARROW_HEAD
 		}
-	case 35:
-		//line grammer.y:189
+	case 37:
+		//line grammer.y:204
 		{
 			yyVAL.arrowHead = LOWER_BARBED_ARROW_HEAD
 		}

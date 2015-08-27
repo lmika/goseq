@@ -257,5 +257,9 @@ func (gb *graphicBuilder) addActors() {
 
 // Returns the column position of an actor
 func (gb *graphicBuilder) colOfActor(actor *Actor) int {
-    return gb.actorInfos[actor.rank].Col
+    if actor == LeftOffsideActor {
+        return 0
+    } else {
+        return gb.actorInfos[actor.rank].Col
+    }
 }

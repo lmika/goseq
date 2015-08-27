@@ -72,10 +72,21 @@ func (an *ActorNode) ActorName() string {
     }
 }
 
+// A reference to an actor
+type ActorRef interface {
+}
+
+// A reference to a normal actor
+type NormalActorRef string
+
+// A reference to a pseudo actor
+type PseudoActorRef string
+
+
 // An action node
 type ActionNode struct {
-    From        string
-    To          string
+    From        ActorRef
+    To          ActorRef
     Arrow       ArrowType
     Descr       string
 }
@@ -89,7 +100,7 @@ const (
 )
 
 type NoteNode struct {
-    Actor       string
+    Actor       ActorRef
     Position    NoteAlignment
     Descr       string
 }
