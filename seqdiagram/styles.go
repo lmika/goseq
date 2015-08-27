@@ -53,6 +53,8 @@ var DefaultStyle = &DiagramStyles {
     ActivityLine: graphbox.ActivityLineStyle{
         Font: standardFont,
         FontSize: 14,
+        SelfRefWidth: 48,
+        SelfRefHeight: 24,
         Margin: graphbox.Point{16, 8},
         TextGap: 4,
     },
@@ -152,6 +154,8 @@ var SmallStyle = &DiagramStyles {
         FontSize: 12,
         Margin: graphbox.Point{8, 6},
         TextGap: 3,
+        SelfRefWidth: 32,
+        SelfRefHeight: 8,
     },
     ArrowHeads: map[ArrowHead]*graphbox.ArrowHeadStyle {
         SolidArrowHead: &graphbox.ArrowHeadStyle {
@@ -181,9 +185,9 @@ var SmallStyle = &DiagramStyles {
         Padding: graphbox.Point{2, 8},
     },
     Block: graphbox.BlockStyle{
-        Margin: graphbox.Point{18, 4},
-        TextPadding: graphbox.Point{3, 3},
-        MessagePadding: graphbox.Point{3, 3},
+        Margin: graphbox.Point{18, 5},
+        TextPadding: graphbox.Point{3, 2},
+        MessagePadding: graphbox.Point{3, 2},
         GapWidth: 3,
         PrefixExtraWidth: 3,
 

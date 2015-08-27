@@ -139,12 +139,13 @@ func (gb *graphicBuilder) putNote(row int, note *Note) {
 func (gb *graphicBuilder) putAction(row int, action *Action) {
     fromCol := gb.colOfActor(action.From)
     toCol := gb.colOfActor(action.To)
+
     style := gb.Style.ActivityLine
 
     style.ArrowHead = gb.Style.ArrowHeads[action.Arrow.Head] //graphboxArrowHeadMapping[action.Arrow.Head]
     style.ArrowStem = graphboxArrowStemMapping[action.Arrow.Stem]
 
-    gb.Graphic.Put(row, fromCol, graphbox.NewActivityLine(toCol, action.Message, style))
+    gb.Graphic.Put(row, fromCol, graphbox.NewActivityLine(toCol, fromCol == toCol, action.Message, style))
 }
 
 // Places a divider
@@ -166,7 +167,7 @@ func (gb *graphicBuilder) putBlock(row *int, depth int, action *Block) {
 
     for i, seg := range action.Segments {
         startCol := 1
-        endCol := gb.Graphic.Cols() - 1
+        endCol := gb.Graphic.Cols() - 2     // This needs to be the column of the last actor
 
         *row++
         gb.putItemsInSlice(row, depth + 1, seg.SubItems)
@@ -197,7 +198,7 @@ func (gb *graphicBuilder) putBlock(row *int, depth int, action *Block) {
 
 // Count the number of rows needed in the graphic
 func (gb *graphicBuilder) calcRowsAndCols() (int, int) {
-    cols := gb.determineActorInfo()
+    cols := gb.determineActorInfo() + 1
 
     // 1 for the title, object header and object footer
     if (len(gb.Diagram.Items) == 0) {
@@ -217,16 +218,18 @@ func (gb *graphicBuilder) determineActorInfo() int {
         colsRequiredByActor := 1
         actorCol := cols
 
-        if (gb.actorInfos[actor.rank].ExtraLeftCol) {
-            colsRequiredByActor++
-            actorCol++
-        }
-        if (gb.actorInfos[actor.rank].ExtraRightCol) {
-            colsRequiredByActor++
-        }
+        if (actor.rank != -1) {
+            if (gb.actorInfos[actor.rank].ExtraLeftCol) {
+                colsRequiredByActor++
+                actorCol++
+            }
+            if (gb.actorInfos[actor.rank].ExtraRightCol) {
+                colsRequiredByActor++
+            }
 
-        gb.actorInfos[actor.rank].Col = actorCol
-        cols += colsRequiredByActor
+            gb.actorInfos[actor.rank].Col = actorCol
+            cols += colsRequiredByActor
+        }
     }
 
     return cols
@@ -259,6 +262,8 @@ func (gb *graphicBuilder) addActors() {
 func (gb *graphicBuilder) colOfActor(actor *Actor) int {
     if actor == LeftOffsideActor {
         return 0
+    } else if actor == RightOffsideActor {
+        return gb.Graphic.Cols() - 1
     } else {
         return gb.actorInfos[actor.rank].Col
     }

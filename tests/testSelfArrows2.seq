@@ -1,0 +1,6 @@
+Test->Test: Normal arrow
+Test-->Test: Dotted stem
+Test=>Test: Bold stem
+Test->>Test: Open Arrow
+Test-\>Test: Upper barb
+Test-/>Test: Lower barb

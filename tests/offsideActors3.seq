@@ -1,0 +1,6 @@
+left->Client: I want a webpage
+Client->Server: Fetch Webpage
+Server->right: Get from offside
+right->Server: Got it
+Server->Client: I got the webpage
+Client->left: Here it is

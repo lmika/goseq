@@ -138,6 +138,8 @@ func (tb *treeBuilder) getOrAddActor(ar parse.ActorRef, d *Diagram) (*Actor, err
         switch pn {
         case "left":
             return LeftOffsideActor, nil
+        case "right":
+            return RightOffsideActor, nil
         default:
             return nil, fmt.Errorf("Invalid pseudo actor: ", pn)
         }

@@ -132,9 +132,13 @@ actorref
     {
         $$ = NormalActorRef($1)
     }
-    |   DOT K_LEFT
+    |   K_LEFT
     {
         $$ = PseudoActorRef("left")
+    }
+    |   K_RIGHT
+    {
+        $$ = PseudoActorRef("right")
     }
     ;
 

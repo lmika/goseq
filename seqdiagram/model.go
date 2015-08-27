@@ -94,6 +94,7 @@ type Actor struct {
 
 // Special actors
 var LeftOffsideActor *Actor = &Actor{".left", ".left", -1}
+var RightOffsideActor *Actor = &Actor{".right", ".right", -2}
 
 
 // The supported arrow stems

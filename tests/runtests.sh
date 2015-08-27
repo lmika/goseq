@@ -7,7 +7,7 @@
 
 RESULT_SUFFIX="out"
 TEST_BIN="./goseq.test.${RESULT_SUFFIX}"
-STYLE="small"
+STYLE="default"
 
 function die()
 {

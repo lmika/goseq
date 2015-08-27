@@ -19,6 +19,8 @@ type ActivityLineStyle struct {
     FontSize        int
     Margin          Point
     TextGap         int
+    SelfRefWidth    int
+    SelfRefHeight   int
     //ArrowHead       ActivityArrowHead
     ArrowHead       *ArrowHeadStyle
     ArrowStem       ActivityArrowStem
@@ -43,8 +45,13 @@ type ActivityLine struct {
     textBoxRect     Rect
 }
 
-func NewActivityLine(toCol int, text string, style ActivityLineStyle) *ActivityLine {
-    textBox := NewTextBox(style.Font, style.FontSize, MiddleTextAlign)
+func NewActivityLine(toCol int, selfRef bool, text string, style ActivityLineStyle) *ActivityLine {
+    var textBoxAlign TextAlign = MiddleTextAlign
+    if selfRef {
+        textBoxAlign = LeftTextAlign
+    }
+
+    textBox := NewTextBox(style.Font, style.FontSize, textBoxAlign)
     textBox.AddText(text)
 
     brect := textBox.BoundingRect()
@@ -60,39 +67,75 @@ func (al *ActivityLine) Constraint(r, c int, applier ConstraintApplier) {
         lc, rc = al.TC, c
     }
 
-    applier.Apply(AddSizeConstraint{r, c, 0, 0, h, al.style.Margin.Y})
-    applier.Apply(TotalSizeConstraint{r - 1, lc, r, rc, w + al.style.Margin.X * 2, 0})
-}
+    if al.TC == c {
+        // An arrow referring to itself
+        w = maxInt(w, al.style.SelfRefWidth)
+        h += al.style.TextGap / 2
 
-func (al *ActivityLine) Draw(ctx DrawContext, point Point) {
-
-    fx, fy := point.X, point.Y
-    if point, isPoint := ctx.PointAt(ctx.R, al.TC) ; isPoint {
-        tx, ty := point.X, point.Y
-
-        textX := fx + (tx - fx) / 2
-        textY := ty - al.style.TextGap
-        al.renderMessage(ctx, textX, textY)
-
-        switch al.style.ArrowStem {
-        case SolidArrowStem:
-            ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-width:2px;")
-        case DashedArrowStem:
-            ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-dasharray:4,2;stroke-width:2px;")
-        case ThickArrowStem:
-            ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-width:4px;")
-        }
-
-        al.drawArrow(ctx, tx, ty, al.TC > ctx.C)
+        applier.Apply(AddSizeConstraint{r, c, 0, 0, h, al.style.Margin.Y + al.style.SelfRefHeight})
+        applier.Apply(TotalSizeConstraint{r - 1, lc, r, lc + 1, w + al.style.Margin.X * 2, 0})
+    } else {
+        applier.Apply(AddSizeConstraint{r, c, 0, 0, h, al.style.Margin.Y})
+        applier.Apply(TotalSizeConstraint{r - 1, lc, r, rc, w + al.style.Margin.X * 2, 0})
     }
 }
 
-func (al *ActivityLine) renderMessage(ctx DrawContext, tx, ty int) {
+func (al *ActivityLine) Draw(ctx DrawContext, point Point) {
+    fx, fy := point.X, point.Y
+
+    if ctx.C == al.TC {
+        // A self reference arrow
+        if point, isPoint := ctx.PointAt(ctx.R, ctx.C + 1) ; isPoint {
+            // Draw an arrow referencing itself
+            ty := point.Y
+            stemX, stemY := fx + al.style.SelfRefWidth, ty + al.style.SelfRefHeight
+
+            textX := fx + al.style.TextGap * 2
+            textY := ty - al.style.TextGap - al.style.TextGap / 2
+            al.renderMessage(ctx, textX, textY, true)
+
+            al.drawArrowStem(ctx, fx, fy, stemX, ty)
+            al.drawArrowStem(ctx, stemX, fy, stemX, stemY)
+            al.drawArrowStem(ctx, stemX, stemY, fx, stemY)
+            al.drawArrow(ctx, fx, stemY, false)
+        }
+    } else {
+
+        if point, isPoint := ctx.PointAt(ctx.R, al.TC) ; isPoint {
+            tx, ty := point.X, point.Y
+
+            textX := fx + (tx - fx) / 2
+            textY := ty - al.style.TextGap
+            al.renderMessage(ctx, textX, textY, false)
+            al.drawArrowStem(ctx, fx, fy, tx, ty)
+            al.drawArrow(ctx, tx, ty, al.TC > ctx.C)
+        }
+    }
+}
+
+// Draws the arrow stem
+func (al *ActivityLine) drawArrowStem(ctx DrawContext, fx, fy, tx, ty int) {
+    switch al.style.ArrowStem {
+    case SolidArrowStem:
+        ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-width:2px;")
+    case DashedArrowStem:
+        ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-dasharray:4,2;stroke-width:2px;")
+    case ThickArrowStem:
+        ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-width:4px;")
+    }
+}
+
+func (al *ActivityLine) renderMessage(ctx DrawContext, tx, ty int, anchorLeft bool) {
     //rect, textPoint := MeasureFontRect(al.style.Font, al.style.FontSize, al.Text, tx, ty, SouthGravity)
-    rect := al.textBoxRect.PositionAt(tx, ty, SouthGravity)
+    anchor := SouthGravity
+    if anchorLeft {
+        anchor = SouthWestGravity
+    }
+
+    rect := al.textBoxRect.PositionAt(tx, ty, anchor)
 
     ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "fill:white;stroke:white;")
-    al.textBox.Render(ctx.Canvas, tx, ty, SouthGravity)
+    al.textBox.Render(ctx.Canvas, tx, ty, anchor)
 }
 
 // Draws the arrow head.

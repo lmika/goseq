@@ -1,0 +1,4 @@
+Client->Client: Deceide to get\nweb page
+Client->Server: Get web page
+Server->Server: Find webpage on\nfile system
+Server->Client: Here it is
