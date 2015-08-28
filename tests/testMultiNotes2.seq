@@ -1,0 +1,7 @@
+participant A
+participant B
+participant C
+
+note over left,B: From left to B
+note over A,right: From A to right
+note over left,right: From left to right

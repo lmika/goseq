@@ -28,6 +28,10 @@ func (ca ConstraintApplier) Apply(constraint Constraint) {
     constraint.Apply(ca.cc)
 }
 
+func (ca ConstraintApplier) Cols() int {
+    return ca.cc.Cols()
+}
+
 
 
 type Constraint interface {
@@ -35,6 +39,10 @@ type Constraint interface {
 }
 
 type ConstraintChanger interface {
+
+    // Number of columns in constraint changer
+    Cols() int
+
     // Calculate the current size between the two grid points
     GridPointRect(fr, fc, tr, tc int) (int, int)
 

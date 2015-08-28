@@ -36,6 +36,9 @@ type DividerStyle struct {
 type Divider struct {
     TC              int
 
+    leftOverlap     int
+    rightOverlap    int
+
     style           DividerStyle
     hasText         bool
     textBox         *TextBox
@@ -49,7 +52,7 @@ func NewDivider(toCol int, text string, style DividerStyle) *Divider {
     textBoxRect := textBox.BoundingRect()
     marginRect := textBoxRect.BlowOut(style.Padding)
 
-    return &Divider{toCol, style, text != "", textBox, textBoxRect, marginRect}
+    return &Divider{toCol, 0, 0, style, text != "", textBox, textBoxRect, marginRect}
 }
 
 func (div *Divider) Constraint(r, c int, applier ConstraintApplier) {
@@ -61,9 +64,19 @@ func (div *Divider) Constraint(r, c int, applier ConstraintApplier) {
     applier.Apply(AddSizeConstraint{r, c, 0, 0, requiredHeight / 2, requiredHeight / 2})
 
     if div.style.Overlap > 0 {
-        applier.Apply(SizeConstraint{r, c, div.style.Overlap, 0, 0, 0})
-        applier.Apply(SizeConstraint{r, div.TC, 0, div.style.Overlap, 0, 0})
-        applier.Apply(TotalSizeConstraint{r - 1, c, r, div.TC, requiredWidth - div.style.Overlap * 2, 0})
+        div.leftOverlap = div.style.Overlap
+        div.rightOverlap = div.style.Overlap
+
+        if (c == 0) {
+            div.leftOverlap = 0
+        }
+        if (div.TC == applier.Cols() - 1) {
+            div.rightOverlap = 0
+        }
+
+        applier.Apply(SizeConstraint{r, c, div.leftOverlap, 0, 0, 0})
+        applier.Apply(SizeConstraint{r, div.TC, 0, div.rightOverlap, 0, 0})
+        applier.Apply(TotalSizeConstraint{r - 1, c, r, div.TC, requiredWidth - (div.leftOverlap + div.rightOverlap), 0})
     } else {
         applier.Apply(TotalSizeConstraint{r - 1, c, r, div.TC, requiredWidth, 0})
     }
@@ -72,8 +85,9 @@ func (div *Divider) Constraint(r, c int, applier ConstraintApplier) {
 func (div *Divider) Draw(ctx DrawContext, point Point) {
     fx, fy := point.X, point.Y
     if point, isPoint := ctx.PointAt(ctx.R, div.TC) ; isPoint {
-        fx -= div.style.Overlap
-        tx, _ := point.X + div.style.Overlap, point.Y
+        fx -= div.leftOverlap
+        tx, _ := point.X + div.rightOverlap, point.Y
+
         centerX := fx + (tx - fx) / 2
         centerY := fy
 

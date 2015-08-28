@@ -11,9 +11,11 @@ import (
     "image/color"
     "strings"
 
-    "code.google.com/p/freetype-go/freetype"
-    "code.google.com/p/freetype-go/freetype/raster"
-    "code.google.com/p/freetype-go/freetype/truetype"
+    "github.com/golang/freetype"
+    "github.com/golang/freetype/truetype"
+
+    "golang.org/x/exp/shiny/font"
+    "golang.org/x/image/math/fixed"
 )
 
 type Font interface {
@@ -77,20 +79,20 @@ func (ttf *TTFFont) Measure(txt string, size float64) (int, int) {
     ctx.SetSrc(img)
     ctx.SetDst(img)
     ctx.SetFont(ttf.font)
-    ctx.SetHinting(freetype.FullHinting)
+    ctx.SetHinting(font.HintingFull)
     ctx.SetFontSize(size)
 
-    np, _ := ctx.DrawString(txt, raster.Point{0.0, 0.0})
+    np, _ := ctx.DrawString(txt, freetype.Pt(0, 0))
 
     mx, my := ttf.roundFix32(np.X), int(size) + ttf.roundFix32(np.Y)
 
     return mx, my
 }
 
-// Round a fix32 to the nearest integer.
-func (ttf *TTFFont) roundFix32(x raster.Fix32) int {
-    full := int(x >> 8)
-    rem := int(x & 0xFF)
+// Round a 26.6 fixed number to the nearest integer.
+func (ttf *TTFFont) roundFix32(x fixed.Int26_6) int {
+    full := int(x >> 6)
+    rem := int(x & 0xCF)
 
     if rem > 0 {
         return full + 1
