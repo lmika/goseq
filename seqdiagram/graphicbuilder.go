@@ -1,7 +1,7 @@
 package seqdiagram
 
 import (
-    "log"
+//    "log"
     "errors"
 
     "bitbucket.org/lmika/goseq/seqdiagram/graphbox"
@@ -33,8 +33,9 @@ func mustLoadFont() *graphbox.TTFFont {
         font, err := graphbox.NewTTFFont(fontName)
         if err == nil {
             return font
-        } else {
-            log.Printf("Error loading font '%s': %s", fontName, err.Error())
+        //} else {
+        //  TODO: Raise warning
+        //    log.Printf("warn: cannot load font '%s': %s", fontName, err.Error())
         }
     }
 
