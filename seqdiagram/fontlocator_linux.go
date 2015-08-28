@@ -36,22 +36,24 @@ func locateTTFDirectory() string {
 
 // Returns the first font found given the directory containing the true
 // type fonts.
-func locateTTFFont(ttfDir string) string {
+func locateTTFFonts(ttfDir string) []string {
+    fonts := make([]string, 0)
+
     for _, fontName := range ttfFonts {
         path := filepath.Join(ttfDir, fontName)
         if stat, _ := os.Stat(path) ; (stat != nil) {
-            return path
+            fonts = append(fonts, path)
         }
     }
-    return ""
+    return fonts
 }
 
 // Locates an appropriate font on the linux file system
-func LocateFont() string {
+func LocateFonts() []string {
     fontDir := locateTTFDirectory()
     if fontDir != "" {
-        return locateTTFFont(fontDir)
+        return locateTTFFonts(fontDir)
     } else {
-        return ""
+        return nil
     }
 }

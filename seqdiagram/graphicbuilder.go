@@ -1,6 +1,7 @@
 package seqdiagram
 
 import (
+    "log"
     "errors"
 
     "bitbucket.org/lmika/goseq/seqdiagram/graphbox"
@@ -22,18 +23,22 @@ var graphboxArrowStemMapping = map[ArrowStem]graphbox.ActivityArrowStem {
 // Must load a suitable font.  Returns the font or panics.
 func mustLoadFont() *graphbox.TTFFont {
     // Attempts to find a font
-    fontName := LocateFont()
-    if fontName == "" {
+    fontNames := LocateFonts()
+    if (fontNames == nil) || (len(fontNames) == 0) {
         panic(errors.New("Could not locate a suitable font"))
     }
 
-    // Attempts to load the font
-    font, err := graphbox.NewTTFFont(fontName)
-    if err != nil { 
-        panic(err)
+    // Attempts to load one of the fonts
+    for _, fontName := range fontNames {
+        font, err := graphbox.NewTTFFont(fontName)
+        if err == nil {
+            return font
+        } else {
+            log.Printf("Error loading font '%s': %s", fontName, err.Error())
+        }
     }
 
-    return font
+    panic(errors.New("Could not load a suitable font"))
 }
 
 // Information about a particular actor
