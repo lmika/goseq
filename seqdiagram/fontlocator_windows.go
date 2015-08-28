@@ -22,7 +22,7 @@ var ttfFonts = []string {
 
 // Returns the first font found given the directory containing the true
 // type fonts.
-func locateWinTTFFont(ttfDir string) string {
+func locateWinTTFFont(ttfDir string) []string {
     fonts := make([]string, 0)
 
     for _, fontName := range ttfFonts {
