@@ -89,7 +89,7 @@ var DefaultStyle = &DiagramStyles {
         Padding: graphbox.Point{4, 16},
     },
     Block: graphbox.BlockStyle{
-        Margin: graphbox.Point{24, 8},
+        Margin: graphbox.Point{8, 8},
         TextPadding: graphbox.Point{4, 4},
         MessagePadding: graphbox.Point{4, 4},
         GapWidth: 4,
@@ -159,7 +159,7 @@ var SmallStyle = &DiagramStyles {
         Margin: graphbox.Point{8, 6},
         TextGap: 3,
         SelfRefWidth: 32,
-        SelfRefHeight: 8,
+        SelfRefHeight: 12,
     },
     ArrowHeads: map[ArrowHead]*graphbox.ArrowHeadStyle {
         SolidArrowHead: &graphbox.ArrowHeadStyle {
@@ -189,7 +189,7 @@ var SmallStyle = &DiagramStyles {
         Padding: graphbox.Point{2, 8},
     },
     Block: graphbox.BlockStyle{
-        Margin: graphbox.Point{18, 5},
+        Margin: graphbox.Point{5, 5},
         TextPadding: graphbox.Point{3, 2},
         MessagePadding: graphbox.Point{3, 2},
         GapWidth: 3,

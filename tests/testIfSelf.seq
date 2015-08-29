@@ -1,0 +1,7 @@
+Client->Proxy: Do something
+alt: [proxy is enable]
+    Proxy->Server: Forward request
+    Server->Server: Check the cache\nif it's in there
+    Server->Proxy: The response
+end
+Proxy->Client: Response

@@ -180,6 +180,15 @@ func (gb *graphicBuilder) putMultiActorOverNote(row int, leftActor *Actor, right
     fromCol := gb.colOfActor(leftActor)
     toCol := gb.colOfActor(rightActor)
 
+    // TODO: This was just to avoid bad styling of notes which reference 'left' and 'right'
+    // This needs to be fixed using proper styling, instead of this hack.
+    if fromCol == 0 {
+        fromCol = 1
+    }
+    if toCol == gb.Graphic.Cols() - 1 {
+        toCol = gb.Graphic.Cols() - 2
+    }
+
     gb.Graphic.Put(row, fromCol, graphbox.NewDivider(toCol, note.Message, dividerBox))
 }
 
@@ -199,7 +208,7 @@ func (gb *graphicBuilder) putAction(row int, action *Action) {
 // Places a divider
 func (gb *graphicBuilder) putDivider(row int, action *Divider) {
     fromCol := 0
-    toCol := gb.Graphic.Cols()
+    toCol := gb.Graphic.Cols() - 1
     style := gb.Style.Divider[action.Type]
 
     gb.Graphic.Put(row, fromCol, graphbox.NewDivider(toCol, action.Message, style))
@@ -214,8 +223,8 @@ func (gb *graphicBuilder) putBlock(row *int, depth int, action *Block) {
     nestDepth := action.MaxNestDepth()
 
     for i, seg := range action.Segments {
-        startCol := 1
-        endCol := gb.Graphic.Cols() - 2     // This needs to be the column of the last actor
+        startCol := 0
+        endCol := gb.Graphic.Cols() - 1     // This needs to be the column of the last actor
 
         *row++
         gb.putItemsInSlice(row, depth + 1, seg.SubItems)

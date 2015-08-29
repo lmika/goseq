@@ -69,11 +69,11 @@ func (al *ActivityLine) Constraint(r, c int, applier ConstraintApplier) {
 
     if al.TC == c {
         // An arrow referring to itself
-        w = maxInt(w, al.style.SelfRefWidth)
+        w = maxInt(w, al.style.SelfRefWidth) + al.style.TextGap
         h += al.style.TextGap / 2
 
         applier.Apply(AddSizeConstraint{r, c, 0, 0, h, al.style.Margin.Y + al.style.SelfRefHeight})
-        applier.Apply(TotalSizeConstraint{r - 1, lc, r, lc + 1, w + al.style.Margin.X * 2, 0})
+        applier.Apply(TotalSizeConstraint{r - 1, lc, r, lc + 1, w, 0})
     } else {
         applier.Apply(AddSizeConstraint{r, c, 0, 0, h, al.style.Margin.Y})
         applier.Apply(TotalSizeConstraint{r - 1, lc, r, rc, w + al.style.Margin.X * 2, 0})
