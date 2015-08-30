@@ -310,8 +310,22 @@ func (gb *graphicBuilder) addActors() {
         col := gb.colOfActor(actor)
         gb.Graphic.Put(posObjectY, col, &graphbox.LifeLine{bottomRow, col})
 
-        gb.Graphic.Put(posObjectY, col, graphbox.NewActorBox(actor.Label, gb.Style.ActorBox, actorBoxPos | graphbox.TopActorBox))
-        gb.Graphic.Put(bottomRow, col, graphbox.NewActorBox(actor.Label, gb.Style.ActorBox, actorBoxPos | graphbox.BottomActorBox))
+        // TEMP
+        if rank == 0 {
+            style := graphbox.ActorIconBoxStyle {
+                Font: gb.Style.ActorBox.Font,
+                FontSize: gb.Style.ActorBox.FontSize,
+                Padding: gb.Style.ActorBox.Padding,
+                Margin: gb.Style.ActorBox.Margin,
+                IconGap: 4,
+            }
+
+            gb.Graphic.Put(posObjectY, col, graphbox.NewActorIconBox(actor.Label, &graphbox.Icon{}, style, actorBoxPos | graphbox.TopActorBox))
+        } else {
+        // END
+            gb.Graphic.Put(posObjectY, col, graphbox.NewActorBox(actor.Label, gb.Style.ActorBox, actorBoxPos | graphbox.TopActorBox))
+            gb.Graphic.Put(bottomRow, col, graphbox.NewActorBox(actor.Label, gb.Style.ActorBox, actorBoxPos | graphbox.BottomActorBox))
+        }
     }
 }
 

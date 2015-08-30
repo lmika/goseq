@@ -23,6 +23,7 @@ type Block struct {
     MarginMup           int
     IsLast              bool
     ShowPrefix          bool
+    ShowMessage         bool
     Style               BlockStyle
 
     prefixTextBox       *TextBox
@@ -40,7 +41,7 @@ func NewBlock(toRow int, toCol int, marginMup int, isLast bool, prefix string, s
     messageTextBox.AddText(text)
     messageTextBoxRect := messageTextBox.BoundingRect()
 
-    return &Block{toRow, toCol, marginMup, isLast, showPrefix, style, prefixTextBox, prefixTextBoxRect, messageTextBox, messageTextBoxRect}
+    return &Block{toRow, toCol, marginMup, isLast, showPrefix, text != "", style, prefixTextBox, prefixTextBoxRect, messageTextBox, messageTextBoxRect}
 }
 
 func (block *Block) Constraint(r, c int, applier ConstraintApplier) {
@@ -100,8 +101,10 @@ func (block *Block) drawText(ctx DrawContext, fx, fy int) {
     ptr := block.prefixTextBoxRect.BlowOut(block.Style.TextPadding).AddSize(block.Style.PrefixExtraWidth, 0).PositionAt(fx, fy, NorthWestGravity)
     mtr := block.messageTextBoxRect.BlowOut(block.Style.MessagePadding).PositionAt(fx + ptr.W, fy, NorthWestGravity)
 
-    ctx.Canvas.Rect(mtr.X, mtr.Y, mtr.W + block.Style.GapWidth + block.Style.FontSize / 2, mtr.H, "stroke:none;fill:white;")
-    block.messageTextBox.Render(ctx.Canvas, mtr.X + block.Style.GapWidth + block.Style.MessagePadding.X, mtr.Y + block.Style.MessagePadding.Y, NorthWestGravity)
+    if block.ShowMessage {
+        ctx.Canvas.Rect(mtr.X, mtr.Y, mtr.W + block.Style.GapWidth + block.Style.FontSize / 2, mtr.H, "stroke:none;fill:white;")
+        block.messageTextBox.Render(ctx.Canvas, mtr.X + block.Style.GapWidth + block.Style.MessagePadding.X, mtr.Y + block.Style.MessagePadding.Y, NorthWestGravity)
+    }        
 
     if block.ShowPrefix {
         block.drawPrefixFrame(ctx, ptr.X, ptr.Y, ptr.X + ptr.W, ptr.Y + ptr.H)
