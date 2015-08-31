@@ -11,6 +11,7 @@ type DiagramStyles struct {
 
     // Styling of the actor box
     ActorBox            graphbox.ActorBoxStyle
+    ActorIconBox        graphbox.ActorIconBoxStyle
 
     // Styling of the note box
     NoteBox             graphbox.NoteBoxStyle
@@ -45,6 +46,13 @@ var DefaultStyle = &DiagramStyles {
         FontSize: 16,
         Padding: graphbox.Point{16, 8},
         Margin: graphbox.Point{8, 8},
+    },
+    ActorIconBox: graphbox.ActorIconBoxStyle {
+        Font: standardFont,
+        FontSize: 16,
+        Padding: graphbox.Point{16, 8},
+        Margin: graphbox.Point{8, 8},
+        IconGap: 4,
     },
     NoteBox: graphbox.NoteBoxStyle {
         Font: standardFont,
@@ -145,6 +153,13 @@ var SmallStyle = &DiagramStyles {
         FontSize: 14,
         Padding: graphbox.Point{12, 6},
         Margin: graphbox.Point{8, 8},
+    },
+    ActorIconBox: graphbox.ActorIconBoxStyle {
+        Font: standardFont,
+        FontSize: 14,
+        Padding: graphbox.Point{12, 6},
+        Margin: graphbox.Point{8, 8},
+        IconGap: 2,
     },
     NoteBox: graphbox.NoteBoxStyle {
         Font: standardFont,

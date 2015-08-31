@@ -1,14 +1,6 @@
 package graphbox
 
 
-// TEMP
-type Icon struct {
-}
-
-func (icon *Icon) Size() (w int, h int) {
-    return 48, 48
-}
-
 
 // Styling options for the actor rect
 type ActorIconBoxStyle struct {
@@ -24,17 +16,14 @@ type ActorIconBoxStyle struct {
 type ActorIconBox struct {
     //Caption     string
     textBox     *TextBox
-    Icon        *Icon
+    Icon        Icon
     style       ActorIconBoxStyle
     pos         ActorBoxPos
 }
 
-func NewActorIconBox(text string, icon *Icon, style ActorIconBoxStyle, pos ActorBoxPos) *ActorIconBox {
+func NewActorIconBox(text string, icon Icon, style ActorIconBoxStyle, pos ActorBoxPos) *ActorIconBox {
     textBox := NewTextBox(style.Font, style.FontSize, MiddleTextAlign)
     textBox.AddText(text)
-
-    //trect := textBox.BoundingRect()
-    //brect := trect.BlowOut(style.Padding)
 
     return &ActorIconBox{textBox, icon, style, pos}
 }
@@ -68,19 +57,18 @@ func (tr *ActorIconBox) Constraint(r, c int, applier ConstraintApplier) {
 func (tr *ActorIconBox) Draw(ctx DrawContext, point Point) {
     centerX, centerY := point.X, point.Y
 
-    // Draw the icon
     iconW, iconH := tr.Icon.Size()
-    iconX, iconY := centerX - iconW / 2, centerY - iconH / 2
+    iconX, iconY := centerX, centerY
 
     // Draw the text
     brect := tr.textBox.BoundingRect()
-    textY := iconY + iconH + tr.style.IconGap
+    textY := iconY + iconH / 2 + tr.style.IconGap
     rect := brect.PositionAt(centerX, textY, NorthGravity)
 
+    // Draw the icon
     ctx.Canvas.Rect(rect.X, rect.Y - tr.style.IconGap, rect.W, rect.H + tr.style.IconGap, "stroke:white;fill:white;stroke-width:2px;")
     tr.textBox.Render(ctx.Canvas, centerX, textY, NorthGravity)
 
-    // Draw the icon
-    // TEMP
-    ctx.Canvas.Rect(iconX, iconY, iconW, iconH, "stroke:black;fill:white;stroke-width:2px;")
+    ctx.Canvas.Rect(centerX - iconW / 2, centerY - iconH / 2, iconW, iconH, "stroke:white;fill:white;stroke-width:1px;")
+    tr.Icon.Draw(ctx, iconX, iconY)
 }

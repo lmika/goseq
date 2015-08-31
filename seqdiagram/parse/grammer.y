@@ -41,6 +41,8 @@ var DualRunes = map[string]int {
     noteAlign       NoteAlignment
     dividerType     GapType
     blockSegList    *BlockSegmentList
+    attrList        *AttributeList
+    attr            *Attribute
 
     sval            string
 }
@@ -52,6 +54,7 @@ var DualRunes = map[string]int {
 
 %token  DASH    DOUBLEDASH      DOT                 EQUAL       COMMA
 %token  ANGR    DOUBLEANGR      BACKSLASHANGR       SLASHANGR
+%token  SQRL    SQRR
 
 %token  <sval>  MESSAGE
 %token  <sval>  IDENT
@@ -66,6 +69,8 @@ var DualRunes = map[string]int {
 %type   <noteAlign>     noteplace
 %type   <dividerType>   dividerType
 %type   <blockSegList>  altblocklist
+%type   <attrList>      maybeattrs attrs
+%type   <attr>          attr
 
 %%
 
@@ -103,14 +108,47 @@ title
     }
     ;
 
-actor
-    :   K_PARTICIPANT IDENT
+maybeattrs
+    :   /* empty */
     {
-        $$ = &ActorNode{$2, false, ""}
+        $$ = nil
     }
-    |   K_PARTICIPANT IDENT MESSAGE
+    |   SQRL attrs SQRR
     {
-        $$ = &ActorNode{$2, true, $3}
+        $$ = $2;
+    }
+    ;
+
+attrs
+    :   /* empty */
+    {
+        $$ = nil
+    }
+    |   attr
+    {
+        $$ = &AttributeList{$1, nil}
+    }
+    |   attr COMMA attrs
+    {
+        $$ = &AttributeList{$1, $3}
+    }
+    ;
+
+attr
+    :   IDENT EQUAL IDENT
+    {
+        $$ = &Attribute{$1, $3}
+    }
+    ;
+
+actor
+    :   K_PARTICIPANT IDENT maybeattrs
+    {
+        $$ = &ActorNode{$2, false, "", $3}
+    }
+    |   K_PARTICIPANT IDENT maybeattrs MESSAGE
+    {
+        $$ = &ActorNode{$2, true, $4, $3}
     }
     ;
 
@@ -247,6 +285,10 @@ func (ps *parseState) Lex(lval *yySymType) int {
             ps.scanComment()
         case ':':
             return ps.scanMessage(lval)
+        case '[':
+            return SQRL
+        case ']':
+            return SQRR
         case '-', '>', '*', '=', '/', '\\', '.', ',':
             if res, isTok := ps.handleDoubleRune(tok) ; isTok {
                 return res

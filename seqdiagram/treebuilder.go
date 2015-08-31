@@ -88,8 +88,8 @@ func (tb *treeBuilder) toSequenceItem(node parse.Node, d *Diagram) (SequenceItem
         d.Title = n.Title
         return nil, nil
     case *parse.ActorNode:
-        d.GetOrAddActorWithOptions(n.Ident, n.ActorName())
-        return nil, nil
+        err := tb.addActor(n, d) // d.GetOrAddActorWithOptions(n.Ident, n.ActorName())
+        return nil, err
     case *parse.ActionNode:
         return tb.addAction(n, d)
     case *parse.NoteNode:
@@ -101,6 +101,25 @@ func (tb *treeBuilder) toSequenceItem(node parse.Node, d *Diagram) (SequenceItem
     default:
         return nil, tb.makeError("Unrecognised declaration")
     }
+}
+
+func (tb *treeBuilder) addActor(an *parse.ActorNode, d *Diagram) error {
+    actor := d.GetOrAddActorWithOptions(an.Ident, an.ActorName())
+
+    if attrs := an.Attributes ; attrs != nil {
+        attrMap, err := tb.attrsToMap(attrs, d)
+        if err != nil {
+            return err
+        }
+
+        // TODO - Do properly
+        if attrMap["icon"] == "human" {
+            actor.Icon = HumanBuiltinIcon
+        }
+        // END
+    }
+
+    return nil
 }
 
 func (tb *treeBuilder) addAction(an *parse.ActionNode, d *Diagram) (SequenceItem, error) {
@@ -187,4 +206,15 @@ func (tb *treeBuilder) buildSegment(sn *parse.BlockSegment, d *Diagram) (*BlockS
         Message: sn.Message,
         SubItems: slice,
     }, nil
+}
+
+func (tb *treeBuilder) attrsToMap(attrs *parse.AttributeList, d *Diagram) (map[string]string, error) {
+    attrMaps := make(map[string]string)
+
+    for ; attrs != nil ; attrs = attrs.Tail {
+        attr := attrs.Head
+        attrMaps[attr.Name] = attr.Value
+    }
+
+    return attrMaps, nil
 }

@@ -60,6 +60,9 @@ type ActorNode struct {
 
     // Description
     Descr       string
+
+    // Attributes
+    Attributes  *AttributeList
 }
 
 // Returns a suitable actor name.  This can either be the description if HasDescr is true
@@ -136,4 +139,16 @@ type BlockSegment struct {
     Prefix      string
     Message     string
     SubNodes    *NodeList
+}
+
+
+// Attributes
+type Attribute struct {
+    Name        string
+    Value       string
+}
+
+type AttributeList struct {
+    Head        *Attribute
+    Tail        *AttributeList
 }

@@ -6,6 +6,7 @@ package seqdiagram
 import (
     "io"
 
+    "bitbucket.org/lmika/goseq/seqdiagram/graphbox"
     "bitbucket.org/lmika/goseq/seqdiagram/parse"
 )
 
@@ -53,7 +54,7 @@ func (d *Diagram) GetOrAddActorWithOptions(name string, label string) *Actor {
         }
     }
 
-    na := &Actor{name, label, len(d.Actors)}
+    na := &Actor{name, label, nil, len(d.Actors)}
     d.Actors = append(d.Actors, na)
     return na
 }
@@ -89,12 +90,13 @@ type ProcessingInstruction struct {
 type Actor struct {
     Name            string
     Label           string
+    Icon            ActorIcon
     rank            int
 }
 
 // Special actors
-var LeftOffsideActor *Actor = &Actor{".left", ".left", -1}
-var RightOffsideActor *Actor = &Actor{".right", ".right", -2}
+var LeftOffsideActor *Actor = &Actor{".left", ".left", nil, -1}
+var RightOffsideActor *Actor = &Actor{".right", ".right", nil, -2}
 
 
 // The supported arrow stems
@@ -223,6 +225,25 @@ func (bs *BlockSegment) MaxNestDepth() int {
 }
 
 
+// An actor icon
+type ActorIcon interface {
+    // Get the appropriate graphbox icon
+    graphboxIcon() graphbox.Icon
+}
+
+// A build-in actor icon
+type BuiltinActorIcon struct {
+    icon           graphbox.Icon
+}
+
+func (bai *BuiltinActorIcon) graphboxIcon() graphbox.Icon {
+    return bai.icon
+}
+
+// The set of built-in icons
+var HumanBuiltinIcon = &BuiltinActorIcon{graphbox.StickPersonIcon(1)}
+
+
 func maxInt(x int, y int) int {
     if (x > y) {
         return x
@@ -230,3 +251,5 @@ func maxInt(x int, y int) int {
         return y
     }
 }
+
+
