@@ -6,7 +6,6 @@ package seqdiagram
 import (
     "io"
 
-    "bitbucket.org/lmika/goseq/seqdiagram/graphbox"
     "bitbucket.org/lmika/goseq/seqdiagram/parse"
 )
 
@@ -223,33 +222,3 @@ func (bs *BlockSegment) MaxNestDepth() int {
     }
     return nestDepth
 }
-
-
-// An actor icon
-type ActorIcon interface {
-    // Get the appropriate graphbox icon
-    graphboxIcon() graphbox.Icon
-}
-
-// A build-in actor icon
-type BuiltinActorIcon struct {
-    icon           graphbox.Icon
-}
-
-func (bai *BuiltinActorIcon) graphboxIcon() graphbox.Icon {
-    return bai.icon
-}
-
-// The set of built-in icons
-var HumanBuiltinIcon = &BuiltinActorIcon{graphbox.StickPersonIcon(1)}
-
-
-func maxInt(x int, y int) int {
-    if (x > y) {
-        return x
-    } else {
-        return y
-    }
-}
-
-

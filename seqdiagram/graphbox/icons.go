@@ -1,5 +1,10 @@
 package graphbox
 
+import (
+    "bytes"
+    "fmt"
+)
+
 // An icon which can be added to actors
 type Icon interface {
 
@@ -12,6 +17,9 @@ type Icon interface {
 
 
 
+// A stick figure icon
+//
+
 const stickPersonIconHead = 10
 const stickPersonTorsoLength = 16
 const stickPersonLegLength = 18
@@ -20,13 +28,12 @@ const stickPersonSholders = 2
 const stickPersonArmLength = 12
 const stickPersonArmGap = 12
 
-// A stick figure icon
 type StickPersonIcon int
 
 func (spi StickPersonIcon) Size() (width int, height int) {
-    w := maxInt(maxInt(stickPersonIconHead, stickPersonArmGap), stickPersonLegGap) * 2
-    h := stickPersonIconHead * 2 + stickPersonTorsoLength + stickPersonLegLength
-    return w, h
+    width = maxInt(maxInt(stickPersonIconHead, stickPersonArmGap), stickPersonLegGap) * 2
+    height = stickPersonIconHead * 2 + stickPersonTorsoLength + stickPersonLegLength
+    return
 }
 
 func (spi StickPersonIcon) Draw(ctx DrawContext, x int, y int) {
@@ -48,4 +55,48 @@ func (spi StickPersonIcon) Draw(ctx DrawContext, x int, y int) {
     ctx.Canvas.Line(x, torsoY2, x + stickPersonLegGap, legY, style)
     ctx.Canvas.Line(x, torsoY2, x - stickPersonLegGap, legY, style)
     ctx.Canvas.Line(x, torsoY2, x + stickPersonLegGap, legY, style)
+}
+
+
+// A cylinder suggesting a data source
+//
+
+const cylinderSmallRadius = 5
+const cylinderLargeRadius = 18
+const cylinderHeight = 28
+
+type CylinderIcon int
+
+func (ci CylinderIcon) Size() (width int, height int) {
+    width = cylinderLargeRadius * 2
+    height = cylinderHeight + cylinderSmallRadius * 3
+    return
+}
+
+func (ci CylinderIcon) Draw(ctx DrawContext, x int, y int) {
+    style := "stroke:black;fill:white;stroke-width:2px;"
+
+    leftX, rightX := x - cylinderLargeRadius, x + cylinderLargeRadius
+    upperEllipseY := y - cylinderHeight / 2
+    lowerEllipseY := y + cylinderHeight / 2
+
+    ci.drawCurve(ctx, leftX, upperEllipseY, rightX, upperEllipseY, cylinderSmallRadius, style)
+    ci.drawCurve(ctx, leftX, upperEllipseY, rightX, upperEllipseY, -cylinderSmallRadius, style)
+    
+    ctx.Canvas.Line(leftX, upperEllipseY, leftX, lowerEllipseY, style)
+    ctx.Canvas.Line(rightX, upperEllipseY, rightX, lowerEllipseY, style)
+
+    ci.drawCurve(ctx, leftX, lowerEllipseY, rightX, lowerEllipseY, -cylinderSmallRadius, style)
+
+
+    //ctx.Canvas.Path("M", ...)
+}
+
+func (ci CylinderIcon) drawCurve(ctx DrawContext, fx, fy, tx, ty, mag int, style string) {
+    pathCmds := new(bytes.Buffer)
+
+    fmt.Fprint(pathCmds, "M", fx, fy, " ")
+    fmt.Fprint(pathCmds, "C", fx, fy - mag * 2, ",", tx, ty - mag * 2, ",", tx, ty)
+
+    ctx.Canvas.Path(pathCmds.String(), style)
 }

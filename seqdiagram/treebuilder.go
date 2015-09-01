@@ -112,11 +112,14 @@ func (tb *treeBuilder) addActor(an *parse.ActorNode, d *Diagram) error {
             return err
         }
 
-        // TODO - Do properly
-        if attrMap["icon"] == "human" {
-            actor.Icon = HumanBuiltinIcon
+        // Configure the attributes
+        if iconName, hasIconName := attrMap.Get("icon") ; hasIconName {
+            if icon, err := LookupActorIcon(iconName); err == nil {
+                actor.Icon = icon
+            } else {
+                return fmt.Errorf("error loading icon '%s': %s", iconName, err.Error())
+            }
         }
-        // END
     }
 
     return nil
@@ -208,7 +211,7 @@ func (tb *treeBuilder) buildSegment(sn *parse.BlockSegment, d *Diagram) (*BlockS
     }, nil
 }
 
-func (tb *treeBuilder) attrsToMap(attrs *parse.AttributeList, d *Diagram) (map[string]string, error) {
+func (tb *treeBuilder) attrsToMap(attrs *parse.AttributeList, d *Diagram) (AttributeSet, error) {
     attrMaps := make(map[string]string)
 
     for ; attrs != nil ; attrs = attrs.Tail {
@@ -216,5 +219,15 @@ func (tb *treeBuilder) attrsToMap(attrs *parse.AttributeList, d *Diagram) (map[s
         attrMaps[attr.Name] = attr.Value
     }
 
-    return attrMaps, nil
+    return AttributeSet(attrMaps), nil
+}
+
+
+// An attribute set
+type AttributeSet map[string]string
+
+// Get an attribute value and if the attribute is 
+func (as AttributeSet) Get(name string) (value string, hasValue bool) {
+    value, hasValue = as[name]
+    return
 }
