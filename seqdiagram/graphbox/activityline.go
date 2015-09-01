@@ -94,9 +94,14 @@ func (al *ActivityLine) Draw(ctx DrawContext, point Point) {
             textY := ty - al.style.TextGap - al.style.TextGap / 2
             al.renderMessage(ctx, textX, textY, true)
 
+            al.drawArrowStemPath(ctx, 
+                    []int { fx, stemX, stemX, fx }, 
+                    []int { fy, fy, stemY, stemY})
+            /*
             al.drawArrowStem(ctx, fx, fy, stemX, ty)
             al.drawArrowStem(ctx, stemX, fy, stemX, stemY)
             al.drawArrowStem(ctx, stemX, stemY, fx, stemY)
+            */
             al.drawArrow(ctx, fx, stemY, false)
         }
     } else {
@@ -124,6 +129,19 @@ func (al *ActivityLine) drawArrowStem(ctx DrawContext, fx, fy, tx, ty int) {
         ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-width:4px;")
     }
 }
+
+// Draws the arrow stem path
+func (al *ActivityLine) drawArrowStemPath(ctx DrawContext, xs, ys []int) {
+    switch al.style.ArrowStem {
+    case SolidArrowStem:
+        ctx.Canvas.Polyline(xs, ys, "fill:none;stroke:black;stroke-width:2px;")
+    case DashedArrowStem:
+        ctx.Canvas.Polyline(xs, ys, "fill:none;stroke:black;stroke-dasharray:4,2;stroke-width:2px;")
+    case ThickArrowStem:
+        ctx.Canvas.Polyline(xs, ys, "fill:none;stroke:black;stroke-width:4px;")
+    }
+}
+
 
 func (al *ActivityLine) renderMessage(ctx DrawContext, tx, ty int, anchorLeft bool) {
     //rect, textPoint := MeasureFontRect(al.style.Font, al.style.FontSize, al.Text, tx, ty, SouthGravity)
