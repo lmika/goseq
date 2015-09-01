@@ -22,3 +22,7 @@ To allow automatic generation of PNG files, ImageMagick is required.  To disable
 Supported flags:
 
 * `-o filename`: Specify output filename (either .svg or, if supported, .png)
+
+## Licence
+
+Released under the MIT Licence.
