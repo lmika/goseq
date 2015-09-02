@@ -1,0 +1,8 @@
+Client->Proxy: Find me a server
+
+loop: [every server known by the proxy]
+    Proxy->Server: Are you available
+    Server->Proxy: Maybe
+end
+
+Proxy->Client: Here is a server

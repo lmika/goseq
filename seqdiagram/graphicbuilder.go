@@ -239,6 +239,8 @@ func (gb *graphicBuilder) putBlock(row *int, depth int, action *Block) {
         case ElseSegmentType:
             segPrefix = "alt"
             showPrefix = false
+        case LoopSegmentType:
+            segPrefix = "loop"
         }
 
         if seg.Prefix != "" {

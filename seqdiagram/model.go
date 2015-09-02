@@ -202,6 +202,9 @@ const (
 
     // The else segment
     ElseSegmentType
+
+    // The loop segment
+    LoopSegmentType
 )
 
 // A segment within a block

@@ -37,6 +37,7 @@ var dividerTypeMap = map[parse.GapType]DividerType {
 var segmentTypeMap = map[parse.SegmentType]SegmentType {
     parse.ALT_SEGMENT: AltSegmentType,
     parse.ALT_ELSE_SEGMENT: ElseSegmentType,
+    parse.LOOP_SEGMENT: LoopSegmentType,
 }
 
 type treeBuilder struct {
