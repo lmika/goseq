@@ -4,6 +4,7 @@ package seqdiagram
 
 import (
     "fmt"
+    "strings"
 
     "bitbucket.org/lmika/goseq/seqdiagram/parse"
 )
@@ -121,6 +122,12 @@ func (tb *treeBuilder) addActor(an *parse.ActorNode, d *Diagram) error {
                 return fmt.Errorf("error loading icon '%s': %s", iconName, err.Error())
             }
         }
+
+        headerAttr, _ := attrMap.Get("header")
+        footerAttr, _ := attrMap.Get("footer")
+        
+        actor.InHeader = (headerAttr != "none")
+        actor.InFooter = (footerAttr != "none")
     }
 
     return nil
@@ -231,4 +238,18 @@ type AttributeSet map[string]string
 func (as AttributeSet) Get(name string) (value string, hasValue bool) {
     value, hasValue = as[name]
     return
+}
+
+// Gets a boolean value.  If the value is undefined, returns the default.
+func (as AttributeSet) GetBool(name string, def bool) bool {
+    if value, hasValue := as.Get(name) ; hasValue {
+        value = strings.ToLower(value)
+        if (value == "true") || (value == "yes") || (value == "on") || (value == "1") {
+            return true
+        } else {
+            return false
+        }
+    } else {
+        return def
+    }
 }

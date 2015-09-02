@@ -144,6 +144,113 @@ var DefaultStyle = &DiagramStyles {
 }
 
 
+// The Tight style.  Same horizontal dimensions as the normal
+// style but slightly smaller vertical margins
+var TightStyle = &DiagramStyles {
+    Margin: graphbox.Point{8, 8},
+    ActorBox: graphbox.ActorBoxStyle {
+        Font: standardFont,
+        FontSize: 16,
+        Padding: graphbox.Point{16, 4},
+        Margin: graphbox.Point{8, 4},
+    },
+    ActorIconBox: graphbox.ActorIconBoxStyle {
+        Font: standardFont,
+        FontSize: 16,
+        Padding: graphbox.Point{16, 8},
+        Margin: graphbox.Point{8, 4},
+        IconGap: 4,
+    },
+    NoteBox: graphbox.NoteBoxStyle {
+        Font: standardFont,
+        FontSize: 14,
+        Padding: graphbox.Point{8, 4},
+        Margin: graphbox.Point{8, 4},
+    },
+    MultiNoteOverlap: 16,
+    ActivityLine: graphbox.ActivityLineStyle{
+        Font: standardFont,
+        FontSize: 14,
+        SelfRefWidth: 48,
+        SelfRefHeight: 12,
+        Margin: graphbox.Point{16, 4},
+        TextGap: 4,
+    },
+    ArrowHeads: map[ArrowHead]*graphbox.ArrowHeadStyle {
+        SolidArrowHead: &graphbox.ArrowHeadStyle {
+            Xs: []int { -9, 0, -9 },
+            Ys: []int { -5, 0, 5 },
+            BaseStyle: "stroke:black;fill:black;stroke-width:2px;",
+        },
+        OpenArrowHead: &graphbox.ArrowHeadStyle {
+            Xs: []int { -9, 0, -9 },
+            Ys: []int { -5, 0, 5 },
+            BaseStyle: "stroke:black;fill:none;stroke-width:2px;",
+        },
+        BarbArrowHead: &graphbox.ArrowHeadStyle {
+            Xs: []int { -11, 0 },
+            Ys: []int { -7, 0 },
+            BaseStyle: "stroke:black;fill:black;stroke-width:2px;",
+        },
+        LowerBarbArrowHead: &graphbox.ArrowHeadStyle {
+            Xs: []int { -11, 0 },
+            Ys: []int { 7, 0 },
+            BaseStyle: "stroke:black;fill:black;stroke-width:2px;",
+        },
+    },
+    Title: graphbox.TitleStyle {
+        Font: standardFont,
+        FontSize: 20,
+        Padding: graphbox.Point{4, 8},
+    },
+    Block: graphbox.BlockStyle{
+        Margin: graphbox.Point{8, 8},
+        TextPadding: graphbox.Point{4, 4},
+        MessagePadding: graphbox.Point{4, 4},
+        GapWidth: 4,
+        PrefixExtraWidth: 4,
+
+        Font: standardFont,
+        FontSize: 14,
+        MidMargin: 4,
+    },
+    Divider: map[DividerType]graphbox.DividerStyle {
+        DTGap: graphbox.DividerStyle {
+            Font: standardFont,
+            FontSize: 14,
+            Padding: graphbox.Point{16, 8},
+            Margin: graphbox.Point{8, 8},
+            TextPadding: graphbox.Point{0, 0},
+            Shape: graphbox.DSFullRect,
+        },
+        DTFrame: graphbox.DividerStyle {
+            Font: standardFont,
+            FontSize: 14,
+            Padding: graphbox.Point{16, 8},
+            Margin: graphbox.Point{8, 8},
+            TextPadding: graphbox.Point{0, 0},
+            Shape: graphbox.DSFramedRect,
+        },
+        DTLine: graphbox.DividerStyle {
+            Font: standardFont,
+            FontSize: 14,
+            Padding: graphbox.Point{16, 4},
+            Margin: graphbox.Point{8, 16},
+            TextPadding: graphbox.Point{4, 2},
+            Shape: graphbox.DSFullLine,
+        },
+        DTSpacer: graphbox.DividerStyle {
+            Font: standardFont,
+            FontSize: 14,
+            Padding: graphbox.Point{16, 4},
+            Margin: graphbox.Point{8, 16},
+            TextPadding: graphbox.Point{0, 0},
+            Shape: graphbox.DSSpacerRect,
+        },
+    },
+}
+
+
 // The small style.  This has narrower margins and font sizes and
 // is used to produce smaller diagrams.
 var SmallStyle = &DiagramStyles {
@@ -252,5 +359,6 @@ var SmallStyle = &DiagramStyles {
 
 var StyleNames = map[string]*DiagramStyles {
     "default": DefaultStyle,
+    "tight": TightStyle,
     "small": SmallStyle,
 }

@@ -313,10 +313,21 @@ func (gb *graphicBuilder) addActors() {
         gb.Graphic.Put(posObjectY, col, &graphbox.LifeLine{bottomRow, col})
 
         if actor.Icon != nil {
-            gb.Graphic.Put(posObjectY, col, graphbox.NewActorIconBox(actor.Label, actor.Icon.graphboxIcon(), gb.Style.ActorIconBox, actorBoxPos | graphbox.TopActorBox))
+            if actor.InHeader {
+                gb.Graphic.Put(posObjectY, col, graphbox.NewActorIconBox(actor.Label, actor.Icon.graphboxIcon(), gb.Style.ActorIconBox, actorBoxPos | graphbox.TopActorBox))
+            }
         } else {
-            gb.Graphic.Put(posObjectY, col, graphbox.NewActorBox(actor.Label, gb.Style.ActorBox, actorBoxPos | graphbox.TopActorBox))
-            gb.Graphic.Put(bottomRow, col, graphbox.NewActorBox(actor.Label, gb.Style.ActorBox, actorBoxPos | graphbox.BottomActorBox))
+            if actor.InHeader {
+                gb.Graphic.Put(posObjectY, col, graphbox.NewActorBox(actor.Label, gb.Style.ActorBox, actorBoxPos | graphbox.TopActorBox))
+                if actor.InFooter {
+                    gb.Graphic.Put(bottomRow, col, graphbox.NewActorBox(actor.Label, gb.Style.ActorBox, actorBoxPos | graphbox.BottomActorBox))
+                }
+            } else {
+                if actor.InFooter {
+                    // Use the TopActorBox as that performs the layout
+                    gb.Graphic.Put(bottomRow, col, graphbox.NewActorBox(actor.Label, gb.Style.ActorBox, actorBoxPos | graphbox.TopActorBox))
+                }
+            }
         }
     }
 }

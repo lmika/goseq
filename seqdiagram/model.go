@@ -53,7 +53,13 @@ func (d *Diagram) GetOrAddActorWithOptions(name string, label string) *Actor {
         }
     }
 
-    na := &Actor{name, label, nil, len(d.Actors)}
+    na := &Actor{
+        Name: name,
+        Label: label, 
+        InHeader: true,
+        InFooter: true,
+        rank: len(d.Actors),
+    }
     d.Actors = append(d.Actors, na)
     return na
 }
@@ -89,13 +95,17 @@ type ProcessingInstruction struct {
 type Actor struct {
     Name            string
     Label           string
+    
     Icon            ActorIcon
+    InHeader        bool
+    InFooter        bool
+
     rank            int
 }
 
 // Special actors
-var LeftOffsideActor *Actor = &Actor{".left", ".left", nil, -1}
-var RightOffsideActor *Actor = &Actor{".right", ".right", nil, -2}
+var LeftOffsideActor *Actor = &Actor{ rank: -1}
+var RightOffsideActor *Actor = &Actor{ rank: -2}
 
 
 // The supported arrow stems
