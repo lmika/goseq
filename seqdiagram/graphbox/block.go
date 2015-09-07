@@ -81,20 +81,25 @@ func (block *Block) calcHorizMargin() int {
 }
 
 func (block *Block) drawFrame(ctx DrawContext, fx, fy, tx, ty int) {
-    w := tx - fx
-    h := ty - fy
+    //w := tx - fx
+    //h := ty - fy
+
+    xs := []int { fx, fx, tx, tx }
+    ys := []int { ty, fy, fy, ty }
 
     lineStyle := "stroke:black;stroke-dasharray:4,4;stroke-width:2px;fill:none;"
     if block.IsLast {
-        ctx.Canvas.Rect(fx, fy, w, h, lineStyle)
+        //ctx.Canvas.Rect(fx, fy, w, h, lineStyle)
+        ctx.Canvas.Polygon(xs, ys, lineStyle)
     } else {
+        ctx.Canvas.Polyline(xs, ys, lineStyle)
+        /*
         ctx.Canvas.Polyline(
             []int { fx, fx, tx, tx },
             []int { ty, fy, fy, ty },
             lineStyle)
+        */
     }
-
-    //ctx.Canvas.Rect(fx, fy, w, h, "stroke:black;stroke-dasharray:4,4;stroke-width:2px;fill:none;")
 }
 
 func (block *Block) drawText(ctx DrawContext, fx, fy int) {
