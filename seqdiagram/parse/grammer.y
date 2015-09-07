@@ -50,7 +50,7 @@ var DualRunes = map[string]int {
 %token  K_TITLE K_PARTICIPANT K_NOTE
 %token  K_LEFT  K_RIGHT  K_OVER  K_OF
 %token  K_HORIZONTAL K_SPACER   K_GAP K_LINE K_FRAME
-%token  K_ALT   K_ELSEALT   K_ELSE   K_END  K_LOOP
+%token  K_ALT   K_ELSEALT   K_ELSE   K_END  K_LOOP K_OPT
 
 %token  DASH    DOUBLEDASH      DOT                 EQUAL       COMMA
 %token  ANGR    DOUBLEANGR      BACKSLASHANGR       SLASHANGR
@@ -61,7 +61,7 @@ var DualRunes = map[string]int {
 
 %type   <nodeList>      top decls
 %type   <node>          decl
-%type   <node>          title actor action note gap altblock loopblock
+%type   <node>          title actor action note gap altblock optblock loopblock
 %type   <arrow>         arrow
 %type   <actorRef>      actorref
 %type   <arrowStem>     arrowStem
@@ -99,6 +99,7 @@ decl
     |   note
     |   gap
     |   altblock
+    |   optblock
     |   loopblock
     ;
 
@@ -216,6 +217,13 @@ altblocklist
     |   K_ELSEALT MESSAGE decls altblocklist
     {
         $$ = &BlockSegmentList{&BlockSegment{ALT_SEGMENT, "", $2, $3}, $4}
+    }
+    ;
+
+optblock
+    :   K_OPT MESSAGE decls K_END
+    {
+        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{OPT_SEGMENT, "", $2, $3}, nil}}
     }
     ;
 
@@ -369,6 +377,8 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
         return K_END
     case "loop":
         return K_LOOP
+    case "opt":
+        return K_OPT
     default:
         lval.sval = tokVal
         return IDENT

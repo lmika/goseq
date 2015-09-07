@@ -213,6 +213,9 @@ const (
     // The else segment
     ElseSegmentType
 
+    // The opt segment
+    OptSegmentType
+
     // The loop segment
     LoopSegmentType
 )
