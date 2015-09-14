@@ -1,4 +1,7 @@
-participant C [footer=none]
-participant B [header=none]
-participant A [footer=none, header=none]
+participant C (footer=none)
+participant B (header=none)
+participant A (
+    footer=none, 
+    header=none
+)
 Note right of A: There are no bottom actors

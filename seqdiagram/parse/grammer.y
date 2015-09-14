@@ -54,7 +54,7 @@ var DualRunes = map[string]int {
 
 %token  DASH    DOUBLEDASH      DOT                 EQUAL       COMMA
 %token  ANGR    DOUBLEANGR      BACKSLASHANGR       SLASHANGR
-%token  SQRL    SQRR
+%token  PARL    PARR
 
 %token  <sval>  MESSAGE
 %token  <sval>  IDENT
@@ -115,7 +115,7 @@ maybeattrs
     {
         $$ = nil
     }
-    |   SQRL attrs SQRR
+    |   PARL attrs PARR
     {
         $$ = $2;
     }
@@ -301,10 +301,10 @@ func (ps *parseState) Lex(lval *yySymType) int {
             ps.scanComment()
         case ':':
             return ps.scanMessage(lval)
-        case '[':
-            return SQRL
-        case ']':
-            return SQRR
+        case '(':
+            return PARL
+        case ')':
+            return PARR
         case '-', '>', '*', '=', '/', '\\', '.', ',':
             if res, isTok := ps.handleDoubleRune(tok) ; isTok {
                 return res

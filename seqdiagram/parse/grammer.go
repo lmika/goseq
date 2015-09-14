@@ -1,9 +1,9 @@
-//line grammer.y:5
+//line grammer.y:6
 package parse
 
 import __yyfmt__ "fmt"
 
-//line grammer.y:7
+//line grammer.y:6
 import (
 	"bytes"
 	"errors"
@@ -72,8 +72,8 @@ const ANGR = 57369
 const DOUBLEANGR = 57370
 const BACKSLASHANGR = 57371
 const SLASHANGR = 57372
-const SQRL = 57373
-const SQRR = 57374
+const PARL = 57373
+const PARR = 57374
 const MESSAGE = 57375
 const IDENT = 57376
 
@@ -108,8 +108,8 @@ var yyToknames = [...]string{
 	"DOUBLEANGR",
 	"BACKSLASHANGR",
 	"SLASHANGR",
-	"SQRL",
-	"SQRR",
+	"PARL",
+	"PARR",
 	"MESSAGE",
 	"IDENT",
 }
@@ -154,10 +154,10 @@ func (ps *parseState) Lex(lval *yySymType) int {
 			ps.scanComment()
 		case ':':
 			return ps.scanMessage(lval)
-		case '[':
-			return SQRL
-		case ']':
-			return SQRR
+		case '(':
+			return PARL
+		case ')':
+			return PARR
 		case '-', '>', '*', '=', '/', '\\', '.', ',':
 			if res, isTok := ps.handleDoubleRune(tok); isTok {
 				return res
