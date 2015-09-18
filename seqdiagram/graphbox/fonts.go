@@ -60,12 +60,17 @@ func NewTTFFont(path string) (*TTFFont, error) {
         return nil, err
     }
 
-    ttfFont, err := freetype.ParseFont(buffer.Bytes())
+    return NewTTFFontFromByteSlice(buffer.Bytes(), strings.TrimSuffix(filepath.Base(path), ".ttf"))
+}
+
+// Loads a TTF font from a byte slice
+func NewTTFFontFromByteSlice(bytes []byte, fontName string) (*TTFFont, error) {
+    ttfFont, err := freetype.ParseFont(bytes)
     if err != nil {
         return nil, err
     }
 
-    return &TTFFont{ttfFont, strings.TrimSuffix(filepath.Base(path), ".ttf")}, nil
+    return &TTFFont{ttfFont, fontName}, nil
 }
 
 // Measures the size of a font
