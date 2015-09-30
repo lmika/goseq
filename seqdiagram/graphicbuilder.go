@@ -23,6 +23,7 @@ var graphboxArrowStemMapping = map[ArrowStem]graphbox.ActivityArrowStem {
 // Must load a suitable font.  Returns the font or panics.
 func mustLoadFont() *graphbox.TTFFont {
     // Attempts to find a font
+    /*
     fontNames := LocateFonts()
     if (fontNames == nil) || (len(fontNames) == 0) {
         panic(errors.New("Could not locate a suitable font"))
@@ -40,6 +41,13 @@ func mustLoadFont() *graphbox.TTFFont {
     }
 
     panic(errors.New("Could not load a suitable font"))
+    */
+    font, err := loadInternalFont(dejaVuSansFont)
+    if err != nil {
+        panic(errors.New("Could not load internal font: " + dejaVuSansFont))
+    }
+
+    return font
 }
 
 // Information about a particular actor

@@ -63,6 +63,13 @@ func NewTTFFont(path string) (*TTFFont, error) {
     return NewTTFFontFromByteSlice(buffer.Bytes(), strings.TrimSuffix(filepath.Base(path), ".ttf"))
 }
 
+// Returns a new TTFFont from a reader and name
+/*
+func NewTTFFontFromBuffer(fontBuffer *bytes.Buffer, name string) (*TTFFont, error) {
+    return NewTTFFontFromByteSlice(fontBuffer.Bytes(), name)
+}
+*/
+
 // Loads a TTF font from a byte slice
 func NewTTFFontFromByteSlice(bytes []byte, fontName string) (*TTFFont, error) {
     ttfFont, err := freetype.ParseFont(bytes)

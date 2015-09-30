@@ -5,6 +5,7 @@ package graphbox
 
 import (
     "io"
+    "fmt"
 
     "github.com/ajstarks/svgo"
 )
@@ -176,6 +177,11 @@ func (g *Graphic) DrawSVG(w io.Writer) {
     canvas.Start(sizeW, sizeH)
     defer canvas.End()
 
+    // Add styles
+    canvas.Def()
+    g.addStyles(canvas)    
+    canvas.DefEnd()
+
     for _, item := range g.items {
         g.drawItem(canvas, item)
     }
@@ -188,6 +194,22 @@ func (g *Graphic) DrawSVG(w io.Writer) {
             }
         }
     }
+}
+
+// Add the style definitions, including font faces
+func (g *Graphic) addStyles(canvas *svg.SVG) {
+    fmt.Fprintln(canvas.Writer, "<style>")
+
+    // !!TEMP!!
+    fmt.Fprintln(canvas.Writer, "@font-face {")
+    fmt.Fprintln(canvas.Writer, "  font-family: 'DejaVuSans';")
+    fmt.Fprintln(canvas.Writer, "  src: url('https://fontlibrary.org/assets/fonts/dejavu-sans/f5ec8426554a3a67ebcdd39f9c3fee83/49c0f03ec2fa354df7002bcb6331e106/DejaVuSansBook.ttf') format('truetype');")
+    fmt.Fprintln(canvas.Writer, "  font-weight: normal;")
+    fmt.Fprintln(canvas.Writer, "  font-style: normal;")
+    fmt.Fprintln(canvas.Writer, "}")
+    // !!END TEMP!!
+
+    fmt.Fprintln(canvas.Writer, "</style>")
 }
 
 // Draws the item
