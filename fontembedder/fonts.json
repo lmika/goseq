@@ -1,0 +1,10 @@
+{
+    "preferred": "DejaVuSans",
+    "fonts": {
+        "DejaVuSans": {
+            "srcs": {
+                "regular": "https://fontlibrary.org/assets/fonts/dejavu-sans/f5ec8426554a3a67ebcdd39f9c3fee83/49c0f03ec2fa354df7002bcb6331e106/DejaVuSansBook.ttf"
+            }
+        }
+    }
+}
