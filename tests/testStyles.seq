@@ -1,0 +1,29 @@
+style actor (color = blue)
+
+participant a: Alpha
+participant b: Bravo
+
+style actor (icon = human)
+
+participant c: Charlie
+
+style actor (color = red)
+style actor (lifeline = none)
+
+participant d: Delta
+
+style actor (textcolor = black)
+
+participant e: Echo
+
+style actor (lifeline = dashed, icon = none)
+
+participant f: Foxtrot
+participant g: Golf
+
+a->b: Goto B
+b->c: Goto C
+c->d: Goto D
+d->e: Goto E
+e->f: Goto F
+f->g: Goto G

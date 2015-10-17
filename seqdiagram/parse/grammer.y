@@ -47,7 +47,7 @@ var DualRunes = map[string]int {
     sval            string
 }
 
-%token  K_TITLE K_PARTICIPANT K_NOTE
+%token  K_TITLE K_PARTICIPANT K_NOTE K_STYLE
 %token  K_LEFT  K_RIGHT  K_OVER  K_OF
 %token  K_HORIZONTAL K_SPACER   K_GAP K_LINE K_FRAME
 %token  K_ALT   K_ELSEALT   K_ELSE   K_END  K_LOOP K_OPT
@@ -61,7 +61,7 @@ var DualRunes = map[string]int {
 
 %type   <nodeList>      top decls
 %type   <node>          decl
-%type   <node>          title actor action note gap altblock optblock loopblock
+%type   <node>          title style actor action note gap altblock optblock loopblock
 %type   <arrow>         arrow
 %type   <actorRef>      actorref
 %type   <arrowStem>     arrowStem
@@ -69,7 +69,7 @@ var DualRunes = map[string]int {
 %type   <noteAlign>     noteplace
 %type   <dividerType>   dividerType
 %type   <blockSegList>  altblocklist
-%type   <attrList>      maybeattrs attrs
+%type   <attrList>      maybeattrs attrs attrset
 %type   <attr>          attr
 
 %%
@@ -94,6 +94,7 @@ decls
 
 decl
     :   title
+    |   style
     |   actor
     |   action
     |   note
@@ -110,12 +111,26 @@ title
     }
     ;
 
+style
+    :   K_STYLE IDENT attrset
+    {
+        $$ = &StyleNode{$2, $3}
+    }
+    ;
+
 maybeattrs
     :   /* empty */
     {
         $$ = nil
     }
-    |   PARL attrs PARR
+    |   attrset
+    {
+        $$ = $1;
+    }
+    ;
+
+attrset
+    :   PARL attrs PARR
     {
         $$ = $2;
     }
@@ -365,6 +380,8 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
         return K_FRAME
     case "line":
         return K_LINE
+    case "style":
+        return K_STYLE
     case "horizontal":
         return K_HORIZONTAL
     case "alt":

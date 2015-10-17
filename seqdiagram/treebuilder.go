@@ -45,9 +45,21 @@ var segmentTypeMap = map[parse.SegmentType]SegmentType{
 type treeBuilder struct {
 	nodeList *parse.NodeList
 	filename string
+
+	// List of style definitions
+	styleDefs map[string]*AttributeSet
+}
+
+func newTreeBuilder(nl *parse.NodeList, filename string) *treeBuilder {
+	return &treeBuilder{
+		nodeList:  nl,
+		filename:  filename,
+		styleDefs: make(map[string]*AttributeSet),
+	}
 }
 
 func (tb *treeBuilder) buildTree(d *Diagram) error {
+
 	for nodeList := tb.nodeList; nodeList != nil; nodeList = nodeList.Tail {
 		seqItem, err := tb.toSequenceItem(nodeList.Head, d)
 		if err != nil {
@@ -101,6 +113,13 @@ func (tb *treeBuilder) toSequenceItem(node parse.Node, d *Diagram) (SequenceItem
 		return tb.addGap(n, d)
 	case *parse.BlockNode:
 		return tb.addBlock(n, d)
+	case *parse.StyleNode:
+		if attrs, err := tb.attrsToMap(n.Attributes, tb.styleDefs[n.Name]); err == nil {
+			tb.styleDefs[n.Name] = attrs
+			return nil, nil
+		} else {
+			return nil, err
+		}
 	default:
 		return nil, tb.makeError("Unrecognised declaration")
 	}
@@ -108,14 +127,15 @@ func (tb *treeBuilder) toSequenceItem(node parse.Node, d *Diagram) (SequenceItem
 
 func (tb *treeBuilder) addActor(an *parse.ActorNode, d *Diagram) error {
 	actor := d.GetOrAddActorWithOptions(an.Ident, an.ActorName())
+	parentStyle := tb.styleDefs["actor"]
 
-	attrMap, err := tb.attrsToMap(an.Attributes, d)
+	attrMap, err := tb.attrsToMap(an.Attributes, parentStyle)
 	if err != nil {
 		return err
 	}
 
 	// Configure the attributes
-	if iconName, hasIconName := attrMap.Get("icon"); hasIconName {
+	if iconName, hasIconName := attrMap.Get("icon"); hasIconName && (iconName != "none") {
 		if icon, err := LookupActorIcon(iconName); err == nil {
 			actor.Icon = icon
 		} else {
@@ -218,7 +238,7 @@ func (tb *treeBuilder) buildSegment(sn *parse.BlockSegment, d *Diagram) (*BlockS
 	}, nil
 }
 
-func (tb *treeBuilder) attrsToMap(attrs *parse.AttributeList, d *Diagram) (AttributeSet, error) {
+func (tb *treeBuilder) attrsToMap(attrs *parse.AttributeList, parent *AttributeSet) (*AttributeSet, error) {
 	attrMaps := make(map[string]string)
 
 	for ; attrs != nil; attrs = attrs.Tail {
@@ -226,20 +246,28 @@ func (tb *treeBuilder) attrsToMap(attrs *parse.AttributeList, d *Diagram) (Attri
 		attrMaps[attr.Name] = attr.Value
 	}
 
-	return AttributeSet(attrMaps), nil
+	return &AttributeSet{parent, attrMaps}, nil
 }
 
 // An attribute set
-type AttributeSet map[string]string
+type AttributeSet struct {
+	Parent *AttributeSet
+	Attrs  map[string]string
+}
 
 // Get an attribute value and if the attribute is defined
-func (as AttributeSet) Get(name string) (value string, hasValue bool) {
-	value, hasValue = as[name]
-	return
+func (as *AttributeSet) Get(name string) (value string, hasValue bool) {
+	if value, hasValue = as.Attrs[name]; hasValue {
+		return value, true
+	} else if as.Parent != nil {
+		return as.Parent.Get(name)
+	} else {
+		return "", false
+	}
 }
 
 // Get an attribute value or a default if it is not defined
-func (as AttributeSet) GetDef(name string, def string) string {
+func (as *AttributeSet) GetDef(name string, def string) string {
 	if value, hasValue := as.Get(name); hasValue {
 		return value
 	} else {
@@ -248,7 +276,7 @@ func (as AttributeSet) GetDef(name string, def string) string {
 }
 
 // Gets a boolean value.  If the value is undefined, returns the default.
-func (as AttributeSet) GetBool(name string, def bool) bool {
+func (as *AttributeSet) GetBool(name string, def bool) bool {
 	if value, hasValue := as.Get(name); hasValue {
 		value = strings.ToLower(value)
 		if (value == "true") || (value == "yes") || (value == "on") || (value == "1") {

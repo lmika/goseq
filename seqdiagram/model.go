@@ -31,7 +31,7 @@ func ParseDiagram(r io.Reader, filename string) (*Diagram, error) {
 	}
 
 	d := NewDiagram()
-	tb := &treeBuilder{nl, filename}
+	tb := newTreeBuilder(nl, filename)
 	err = tb.buildTree(d)
 	if err != nil {
 		return nil, err

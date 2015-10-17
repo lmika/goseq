@@ -1,0 +1,16 @@
+style actor (
+    color = red,
+    lifeline = none
+)
+
+participant User (icon=human)
+participant Andrew
+participant China
+participant DB (icon=cylinder)
+
+User->Andrew: Please say hello
+Andrew->China: Says Hello
+China->DB: What is Hello?
+DB->China: "Hello"
+China-->Andrew: How are you?
+Andrew->>China: I am good thanks!
