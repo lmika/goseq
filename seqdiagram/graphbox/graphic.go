@@ -11,6 +11,13 @@ import (
 )
 
 
+// // Options for the SVG images
+// type SvgOptions struct {
+//     // If true, the viewport attribute for the SVG diagram will be set and the
+//     // width and height will be converted to percentages.
+//     Embedded            bool
+// }
+
 // A graphbox diagram.  This diagram is made up of uniform points.
 // Each item on the diagram has the option of describing a constraint such
 // as the amount of spacing around the point it requires.
@@ -23,6 +30,10 @@ type Graphic struct {
 
     // Show the grid
     ShowGrid    bool
+
+    // If true, generate a 'viewport' attribute with the image size and 
+    // use percentages for the original image size
+    Viewport    bool
 }
 
 func NewGraphic(rows, cols int) *Graphic {
@@ -174,7 +185,12 @@ func (g *Graphic) DrawSVG(w io.Writer) {
     sizeW, sizeH := g.remeasure()
 
     canvas := svg.New(w)
-    canvas.Start(sizeW, sizeH)
+
+    if (g.Viewport) {
+        canvas.StartviewUnit(100, 100, "%", 0, 0, sizeW, sizeH)
+    } else {
+        canvas.Start(sizeW, sizeH)
+    }
     defer canvas.End()
 
     // Add styles

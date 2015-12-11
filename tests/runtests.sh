@@ -3,12 +3,15 @@
 #   Run the test producing a webpage that can be viewed by the
 #   user.
 #
+#   Usage:
+#
+#       ./runtests.sh [GOSEQ_OPTIONS]
+#
 
 
 RESULT_SUFFIX="out"
 TEST_BIN="./goseq.test.${RESULT_SUFFIX}"
-STYLE="default"
-#STYLE="small"
+GOSEQ_OPTS="$@"
 
 function die()
 {
@@ -21,7 +24,7 @@ function runTest()
     local inFile="$1"
     local outFile="$2"
 
-    $TEST_BIN -s $STYLE $inFile > $outFile
+    $TEST_BIN $GOSEQ_OPTS $inFile > $outFile
     echo "$inFile $outFile"
 }
 

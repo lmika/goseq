@@ -10,6 +10,6 @@ import (
     "bitbucket.org/lmika/goseq/seqdiagram"
 )
 
-func PngRenderer(diagram *seqdiagram.Diagram, style *seqdiagram.DiagramStyles, target string) error {
+func PngRenderer(diagram *seqdiagram.Diagram, opts *seqdiagram.ImageOptions, target string) error {
     return errors.New("PNG renderer not available")
 }

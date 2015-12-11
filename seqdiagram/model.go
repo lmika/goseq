@@ -9,6 +9,7 @@ import (
 	"bitbucket.org/lmika/goseq/seqdiagram/parse"
 )
 
+
 // Top level diagram definition
 type Diagram struct {
 	ProcessingInstructions []*ProcessingInstruction
@@ -74,19 +75,44 @@ func (d *Diagram) AddSequenceItem(item SequenceItem) {
 
 // Write the diagram as an SVG
 func (d *Diagram) WriteSVG(w io.Writer) error {
-	return d.WriteSVGWithStyle(w, DefaultStyle)
+	return d.WriteSVGWithOptions(w, DefaultOptions)
 }
 
 // Write the diagram as an SVG using a specific style
-func (d *Diagram) WriteSVGWithStyle(w io.Writer, style *DiagramStyles) error {
-	gb, err := newGraphicBuilder(d, style)
+func (d *Diagram) WriteSVGWithOptions(w io.Writer, options *ImageOptions) error {
+	gb, err := newGraphicBuilder(d, options.Style)
 	if err != nil {
 		return err
 	}
 
-	gb.buildGraphic().DrawSVG(w)
+	// Generate the SVG file
+	graphics := gb.buildGraphic()
+	graphics.Viewport = options.Embedded
+	graphics.DrawSVG(w)
+
 	return nil
 }
+
+
+// Options for SVG image generation
+type ImageOptions struct {
+	// The diagram style
+	Style		*DiagramStyles
+
+	// If true, generate attributes to make the SVG suitable for embedding
+	// in other documents (e.g. HTML).
+	Embedded	bool
+}
+
+
+
+// The default options
+var DefaultOptions = &ImageOptions {
+	Style: DefaultStyle,
+	Embedded: false,
+}
+
+
 
 // A processing instruction
 type ProcessingInstruction struct {

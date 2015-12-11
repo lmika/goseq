@@ -18,10 +18,29 @@ var flagOut = flag.String("o", "", "Output file")
 // The style to use
 var flagStyle = flag.String("s", "default", "The style to use")
 
+// Generate an embedded SVG file
+var flagEmbedded = flag.Bool("e", false, "Generate an embedded SVG file")
+
+
+
 // Die with error
 func die(msg string) {
     fmt.Fprintf(os.Stderr, "goseq: %s\n", msg)
     os.Exit(1)
+}
+
+// Construct and build image options based on the current configuration
+func buildImageOptions() *seqdiagram.ImageOptions {
+    // Work out the style
+    style := seqdiagram.DefaultStyle
+    if altStyle, hasStyle := seqdiagram.StyleNames[*flagStyle] ; hasStyle {
+        style = altStyle
+    }
+
+    return &seqdiagram.ImageOptions {
+        Style: style,
+        Embedded: *flagEmbedded,
+    }
 }
 
 // Processes a md file
@@ -63,10 +82,8 @@ func processSeqDiagram(infile io.Reader, inFilename string, outFilename string, 
         return err
     }
 
-    style := seqdiagram.DefaultStyle
-    if altStyle, hasStyle := seqdiagram.StyleNames[*flagStyle] ; hasStyle {
-        style = altStyle
-    }
+    // Image options
+    imageOptions := buildImageOptions()
 
     // If there's a process instruction, use it as the target of the diagram
     // TODO: be a little smarter with the process instructions
@@ -83,7 +100,7 @@ func processSeqDiagram(infile io.Reader, inFilename string, outFilename string, 
         }
     }
 
-    err = renderer(diagram, style, outFilename)
+    err = renderer(diagram, imageOptions, outFilename)
     if err != nil {
         return err
     }
