@@ -1,15 +1,17 @@
 package main
 
 import (
-    "io"
-    "io/ioutil"
-    "os"
-    "fmt"
-    "flag"
-    "path/filepath"
-    "strings"
+	"flag"
+	"fmt"
+	"io"
+	"io/ioutil"
+	"log"
+	"os"
+	"path/filepath"
+	"strings"
 
-    "bitbucket.org/lmika/goseq/seqdiagram"
+	"bitbucket.org/lmika/goseq/seqdiagram"
+	"github.com/howeyc/fsnotify"
 )
 
 // Name of the output file
@@ -21,132 +23,159 @@ var flagStyle = flag.String("s", "default", "The style to use")
 // Generate an embedded SVG file
 var flagEmbedded = flag.Bool("e", false, "Generate an embedded SVG file")
 
-
+// Setup a watcher to regenerate the file when changed
+var flagWatch = flag.Bool("w", false, "Watch for changes")
 
 // Die with error
 func die(msg string) {
-    fmt.Fprintf(os.Stderr, "goseq: %s\n", msg)
-    os.Exit(1)
+	fmt.Fprintf(os.Stderr, "goseq: %s\n", msg)
+	os.Exit(1)
 }
 
 // Construct and build image options based on the current configuration
 func buildImageOptions() *seqdiagram.ImageOptions {
-    // Work out the style
-    style := seqdiagram.DefaultStyle
-    if altStyle, hasStyle := seqdiagram.StyleNames[*flagStyle] ; hasStyle {
-        style = altStyle
-    }
+	// Work out the style
+	style := seqdiagram.DefaultStyle
+	if altStyle, hasStyle := seqdiagram.StyleNames[*flagStyle]; hasStyle {
+		style = altStyle
+	}
 
-    return &seqdiagram.ImageOptions {
-        Style: style,
-        Embedded: *flagEmbedded,
-    }
+	return &seqdiagram.ImageOptions{
+		Style:    style,
+		Embedded: *flagEmbedded,
+	}
 }
 
 // Processes a md file
 func processMdFile(inFilename string, outFilename string, renderer Renderer) error {
-    srcFile, err := openSourceFile(inFilename)
-    if err != nil {
-        return err
-    }
-    defer srcFile.Close()
+	srcFile, err := openSourceFile(inFilename)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
 
-    targetFile := ioutil.Discard
+	targetFile := ioutil.Discard
 
-    mf := &MarkdownFilter{srcFile, targetFile, func(codeblock string, output io.Writer) error {
-        fmt.Fprint(output, codeblock)
-        err := processSeqDiagram(strings.NewReader(codeblock), inFilename, "/dev/null", nil)
-        if err != nil {
-            fmt.Fprintf(os.Stderr, "goseq: %s:embedded block - %s\n", inFilename, err.Error())
-        }
-        return nil
-    }}
-    return mf.Scan()
+	mf := &MarkdownFilter{srcFile, targetFile, func(codeblock string, output io.Writer) error {
+		fmt.Fprint(output, codeblock)
+		err := processSeqDiagram(strings.NewReader(codeblock), inFilename, "/dev/null", nil)
+		if err != nil {
+			fmt.Fprintf(os.Stderr, "goseq: %s:embedded block - %s\n", inFilename, err.Error())
+		}
+		return nil
+	}}
+	return mf.Scan()
 }
 
 // Processes a seq file
 func processSeqFile(inFilename string, outFilename string, renderer Renderer) error {
-    srcFile, err := openSourceFile(inFilename)
-    if err != nil {
-        return err
-    }
-    defer srcFile.Close()
+	srcFile, err := openSourceFile(inFilename)
+	if err != nil {
+		return err
+	}
+	defer srcFile.Close()
 
-    return processSeqDiagram(srcFile, inFilename, outFilename, renderer)
+	return processSeqDiagram(srcFile, inFilename, outFilename, renderer)
 }
 
 // Processes a sequence diagram
 func processSeqDiagram(infile io.Reader, inFilename string, outFilename string, renderer Renderer) error {
-    diagram, err := seqdiagram.ParseDiagram(infile, inFilename)
-    if err != nil {
-        return err
-    }
+	diagram, err := seqdiagram.ParseDiagram(infile, inFilename)
+	if err != nil {
+		return err
+	}
 
-    // Image options
-    imageOptions := buildImageOptions()
+	// Image options
+	imageOptions := buildImageOptions()
 
-    // If there's a process instruction, use it as the target of the diagram
-    // TODO: be a little smarter with the process instructions
-    for _, pr := range diagram.ProcessingInstructions {
-        if pr.Prefix == "goseq" {
-            outFilename = pr.Value
-        }
-    }
+	// If there's a process instruction, use it as the target of the diagram
+	// TODO: be a little smarter with the process instructions
+	for _, pr := range diagram.ProcessingInstructions {
+		if pr.Prefix == "goseq" {
+			outFilename = pr.Value
+		}
+	}
 
-    if renderer == nil {
-        renderer, err = chooseRendererBaseOnOutfile(outFilename)
-        if err != nil {
-            return err
-        }
-    }
+	if renderer == nil {
+		renderer, err = chooseRendererBaseOnOutfile(outFilename)
+		if err != nil {
+			return err
+		}
+	}
 
-    err = renderer(diagram, imageOptions, outFilename)
-    if err != nil {
-        return err
-    }
+	err = renderer(diagram, imageOptions, outFilename)
+	if err != nil {
+		return err
+	}
 
-    return nil
+	return nil
 }
 
 // Processes a file.  This switches based on the file extension
 func processFile(inFilename string, outFilename string, renderer Renderer) error {
-    ext := filepath.Ext(inFilename)
-    if ext == ".md" {
-        return processMdFile(inFilename, outFilename, renderer)
-    } else {
-        return processSeqFile(inFilename, outFilename, renderer)
-    }
+	ext := filepath.Ext(inFilename)
+	if ext == ".md" {
+		return processMdFile(inFilename, outFilename, renderer)
+	} else {
+		return processSeqFile(inFilename, outFilename, renderer)
+	}
 }
 
-func main() {    
-    var err error
+// Setup a watch process which will regenerate the files
+func watchAndProcess(inFiles []string, outFile string, renderer Renderer) error {
+	watcher, err := fsnotify.NewWatcher()
+	if err != nil {
+		return err
+	}
 
-    renderer := SvgRenderer
-    outFile := ""
+	for _, inFile := range inFiles {
+		watcher.Watch(inFile)
+	}
 
-    flag.Parse()
+	for {
+		select {
+		case event := <-watcher.Event:
+			if event.IsModify() {
+				log.Println("Generating ", event.Name, "->", outFile)
+				processFile(event.Name, outFile, renderer)
+			}
+		}
+	}
+}
 
-    // Select a suitable renderer (based on the suffix of the output file, if there is one)
-    if *flagOut != "" {
-        renderer, err = chooseRendererBaseOnOutfile(*flagOut)
-        if err != nil {
-            die(err.Error())
-        }
-        outFile = *flagOut
-    }
+func main() {
+	var err error
 
-    // Process each file (or stdin)
-    if flag.NArg() == 0 {
-        err := processFile("-", outFile, renderer)
-        if err != nil {
-            die("stdin - " + err.Error())
-        }
-    } else {
-        for _, inFile := range flag.Args() {
-            err := processFile(inFile, outFile, renderer)
-            if err != nil {
-                die(inFile + " - " + err.Error())
-            }
-        }
-    }
+	renderer := SvgRenderer
+	outFile := ""
+
+	flag.Parse()
+
+	// Select a suitable renderer (based on the suffix of the output file, if there is one)
+	if *flagOut != "" {
+		renderer, err = chooseRendererBaseOnOutfile(*flagOut)
+		if err != nil {
+			die(err.Error())
+		}
+		outFile = *flagOut
+	}
+
+	// Process each file (or stdin)
+	if flag.NArg() == 0 {
+		err := processFile("-", outFile, renderer)
+		if err != nil {
+			die("stdin - " + err.Error())
+		}
+	} else {
+		if *flagWatch {
+			watchAndProcess(flag.Args(), outFile, renderer)
+		} else {
+			for _, inFile := range flag.Args() {
+				err := processFile(inFile, outFile, renderer)
+				if err != nil {
+					die(inFile + " - " + err.Error())
+				}
+			}
+		}
+	}
 }
