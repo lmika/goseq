@@ -136,8 +136,11 @@ func watchAndProcess(inFiles []string, outFile string, renderer Renderer) error 
 		select {
 		case event := <-watcher.Event:
 			if event.IsModify() {
-				log.Println("Generating ", event.Name, "->", outFile)
-				processFile(event.Name, outFile, renderer)
+				if err := processFile(event.Name, outFile, renderer); err == nil {
+					log.Println("Generating", event.Name, "->", outFile)
+				} else {
+					log.Println(event.Name, "-", err.Error())
+				}
 			}
 		}
 	}
