@@ -56,7 +56,7 @@ Sequence diagrams can also include things like blocks, notes and participant ico
 
 ![example2](docs/example2.png)
 
-For more on the the types of diagrams supported, please see
+For details and examples, please see
 [the Language Guide](https://github.com/lmika/goseq/wiki/LanguageGuide).
 
 ## Licence
