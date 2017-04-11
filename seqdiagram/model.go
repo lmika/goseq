@@ -6,7 +6,7 @@ package seqdiagram
 import (
 	"io"
 
-	"bitbucket.org/lmika/goseq/seqdiagram/parse"
+	"github.com/lmika/goseq/seqdiagram/parse"
 )
 
 

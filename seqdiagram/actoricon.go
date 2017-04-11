@@ -3,7 +3,7 @@ package seqdiagram
 import (
     "errors"
 
-    "bitbucket.org/lmika/goseq/seqdiagram/graphbox"
+    "github.com/lmika/goseq/seqdiagram/graphbox"
 )
 
 // An actor icon

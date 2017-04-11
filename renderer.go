@@ -1,9 +1,9 @@
 package main
 
 import (
-    "os"
+	"os"
 
-    "bitbucket.org/lmika/goseq/seqdiagram"
+	"github.com/lmika/goseq/seqdiagram"
 )
 
 // Renders the result of the SVG to a destination (e.g. a file)
@@ -11,18 +11,17 @@ import (
 // (which is up to the renderer).
 type Renderer func(diagram *seqdiagram.Diagram, opts *seqdiagram.ImageOptions, target string) error
 
-
 // The default renderer: write the diagram to SVG
 func SvgRenderer(diagram *seqdiagram.Diagram, opts *seqdiagram.ImageOptions, target string) error {
-    if target != "" {
-        file, err := os.Create(target)
-        if err != nil {
-            return err
-        }
-        defer file.Close()
+	if target != "" {
+		file, err := os.Create(target)
+		if err != nil {
+			return err
+		}
+		defer file.Close()
 
-        return diagram.WriteSVGWithOptions(file, opts)
-    } else {
-        return diagram.WriteSVGWithOptions(os.Stdout, opts)
-    }
+		return diagram.WriteSVGWithOptions(file, opts)
+	} else {
+		return diagram.WriteSVGWithOptions(os.Stdout, opts)
+	}
 }

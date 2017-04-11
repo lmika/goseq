@@ -9,11 +9,11 @@ Inspired by [js-sequence-diagram](http://bramp.github.io/js-sequence-diagrams/) 
 
 To install it:
 
-    go get bitbucket.org/lmika/goseq
+    go get github.org/lmika/goseq
 
-To allow automatic generation of PNG files, ImageMagick is required.  To disable this feature, add the `noim` tag:
+To allow automatic generation of PNG files, build with the `im` tag (ImageMagick is required):
 
-    go get -tags noim bitbucket.org/lmika/goseq
+    go get -tags im bitbucket.org/lmika/goseq
 
 ## Usage
 

@@ -10,8 +10,8 @@ import (
 	"path/filepath"
 	"strings"
 
-	"bitbucket.org/lmika/goseq/seqdiagram"
 	"github.com/howeyc/fsnotify"
+	"github.com/lmika/goseq/seqdiagram"
 )
 
 // Name of the output file
