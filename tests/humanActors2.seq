@@ -1,7 +1,7 @@
-participant User (icon=human, lifeline=none, color=red)
-participant Andrew (color=green)
-participant China (color=gold, textcolor=black)
-participant DB (icon=cylinder, lifeline=none, color=blue)
+participant User (icon="human", lifeline="none", color="red")
+participant Andrew (color="green")
+participant China (color="gold", textcolor="black")
+participant DB (icon="cylinder", lifeline="none", color="blue")
 
 User->Andrew: Please say hello
 Andrew->China: Says Hello

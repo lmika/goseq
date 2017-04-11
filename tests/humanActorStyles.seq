@@ -1,12 +1,12 @@
-style actor (
-    color = red,
-    lifeline = none
+style participant (
+    color = "red",
+    lifeline = "none"
 )
 
-participant User (icon=human)
+participant User (icon="human")
 participant Andrew
 participant China
-participant DB (icon=cylinder)
+participant DB (icon="cylinder")
 
 User->Andrew: Please say hello
 Andrew->China: Says Hello

@@ -1,22 +1,22 @@
-style participant (color = blue)
+style participant (color = "blue")
 
 participant a: Alpha
 participant b: Bravo
 
-style participant (icon = human)
+style participant (icon = "human")
 
 participant c: Charlie
 
-style participant (color = red)
-style participant (lifeline = none)
+style participant (color = "red")
+style participant (lifeline = "none")
 
 participant d: Delta
 
-style participant (textcolor = black)
+style participant (textcolor = "black")
 
 participant e: Echo
 
-style participant (lifeline = dashed, icon = none)
+style participant (lifeline = "dashed", icon = "none")
 
 participant f: Foxtrot
 participant g: Golf

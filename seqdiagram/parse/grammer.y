@@ -11,6 +11,7 @@ import (
     "errors"
     "strings"
     "fmt"
+    "strconv"
     "text/scanner"
 )
 
@@ -56,7 +57,7 @@ var DualRunes = map[string]int {
 %token  ANGR    DOUBLEANGR      BACKSLASHANGR       SLASHANGR
 %token  PARL    PARR
 
-%token  <sval>  MESSAGE
+%token  <sval>  STRING MESSAGE
 %token  <sval>  IDENT
 
 %type   <nodeList>      top decls
@@ -158,7 +159,7 @@ attrs
     ;
 
 attr
-    :   IDENT EQUAL IDENT
+    :   IDENT EQUAL STRING
     {
         $$ = &Attribute{$1, $3}
     }
@@ -331,6 +332,14 @@ func (ps *parseState) Lex(lval *yySymType) int {
                 return res
             } else {
                 ps.Error("Invalid token: " + scanner.TokenString(tok))
+            }
+        case scanner.String:
+            tokVal := ps.S.TokenText()
+            if res, err := strconv.Unquote(tokVal) ; err == nil {
+                lval.sval = res
+                return STRING
+            } else {
+                ps.Error("Invalid string: " + scanner.TokenString(tok) + ": " + err.Error())
             }
         case scanner.Ident:
             return ps.scanKeywordOrIdent(lval)

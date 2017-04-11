@@ -9,6 +9,7 @@ import (
 	"errors"
 	"fmt"
 	"io"
+	"strconv"
 	"strings"
 	"text/scanner"
 )
@@ -27,7 +28,7 @@ var DualRunes = map[string]int{
 	"\\>": BACKSLASHANGR,
 }
 
-//line grammer.y:34
+//line grammer.y:35
 type yySymType struct {
 	yys          int
 	nodeList     *NodeList
@@ -75,8 +76,9 @@ const BACKSLASHANGR = 57372
 const SLASHANGR = 57373
 const PARL = 57374
 const PARR = 57375
-const MESSAGE = 57376
-const IDENT = 57377
+const STRING = 57376
+const MESSAGE = 57377
+const IDENT = 57378
 
 var yyToknames = [...]string{
 	"$end",
@@ -112,6 +114,7 @@ var yyToknames = [...]string{
 	"SLASHANGR",
 	"PARL",
 	"PARR",
+	"STRING",
 	"MESSAGE",
 	"IDENT",
 }
@@ -121,7 +124,7 @@ const yyEofCode = 1
 const yyErrCode = 2
 const yyInitialStackSize = 16
 
-//line grammer.y:290
+//line grammer.y:291
 
 // Manages the lexer as well as the current diagram being parsed
 type parseState struct {
@@ -165,6 +168,14 @@ func (ps *parseState) Lex(lval *yySymType) int {
 				return res
 			} else {
 				ps.Error("Invalid token: " + scanner.TokenString(tok))
+			}
+		case scanner.String:
+			tokVal := ps.S.TokenText()
+			if res, err := strconv.Unquote(tokVal); err == nil {
+				lval.sval = res
+				return STRING
+			} else {
+				ps.Error("Invalid string: " + scanner.TokenString(tok) + ": " + err.Error())
 			}
 		case scanner.Ident:
 			return ps.scanKeywordOrIdent(lval)
@@ -343,13 +354,13 @@ const yyLast = 92
 
 var yyAct = [...]int{
 
-	72, 2, 65, 16, 28, 25, 13, 15, 17, 14,
-	23, 24, 23, 24, 18, 85, 67, 30, 71, 19,
-	86, 83, 82, 21, 20, 70, 69, 68, 61, 54,
-	55, 56, 57, 77, 29, 52, 48, 22, 49, 22,
-	58, 47, 46, 45, 26, 78, 79, 62, 63, 64,
-	33, 34, 81, 35, 74, 73, 60, 76, 75, 41,
-	42, 43, 44, 37, 38, 39, 27, 51, 59, 66,
+	72, 2, 65, 16, 67, 25, 13, 15, 17, 14,
+	23, 24, 71, 28, 18, 23, 24, 30, 86, 19,
+	70, 83, 82, 21, 20, 69, 68, 61, 47, 46,
+	45, 26, 85, 77, 48, 52, 49, 78, 22, 79,
+	58, 74, 73, 22, 29, 81, 76, 62, 63, 64,
+	54, 55, 56, 57, 33, 34, 75, 35, 41, 42,
+	43, 44, 37, 38, 39, 51, 60, 59, 27, 66,
 	50, 40, 36, 53, 32, 80, 31, 12, 11, 10,
 	9, 84, 8, 7, 87, 88, 6, 5, 4, 89,
 	3, 1,
@@ -357,20 +368,20 @@ var yyAct = [...]int{
 var yyPact = [...]int{
 
 	2, -1000, -1000, 2, -1000, -1000, -1000, -1000, -1000, -1000,
-	-1000, -1000, -1000, 10, -1, -18, 27, 55, 46, 9,
-	8, 7, -1000, -1000, -1000, -1000, -1000, 6, -1000, -1000,
-	6, 4, 1, -1000, -1000, -1000, 4, 57, 45, -1000,
-	-6, -1000, -1000, -1000, -1000, 2, 2, 2, -1000, -19,
-	-7, -1000, -8, -1000, -1000, -1000, -1000, -1000, -9, -1000,
-	-1000, -1000, 36, 38, 37, 0, 18, 20, -1000, -1000,
-	-1000, 4, 32, -12, -13, -1000, -1000, -1000, -19, -20,
-	-14, -1000, 2, 2, -1000, -1000, -1000, -1000, 36, -1000,
+	-1000, -1000, -1000, -4, 8, -19, 31, 54, 45, -5,
+	-6, -7, -1000, -1000, -1000, -1000, -1000, 4, -1000, -1000,
+	4, 7, 22, -1000, -1000, -1000, 7, 56, 55, -1000,
+	-8, -1000, -1000, -1000, -1000, 2, 2, 2, -1000, -32,
+	-9, -1000, -10, -1000, -1000, -1000, -1000, -1000, -15, -1000,
+	-1000, -1000, 23, 36, 26, 0, 10, 13, -1000, -1000,
+	-1000, 7, 25, -13, -14, -1000, -1000, -1000, -32, -2,
+	-17, -1000, 2, 2, -1000, -1000, -1000, -1000, 23, -1000,
 }
 var yyPgo = [...]int{
 
 	0, 91, 1, 90, 88, 87, 86, 83, 82, 80,
 	79, 78, 77, 76, 3, 74, 73, 72, 71, 0,
-	70, 2, 36, 69, 66,
+	70, 2, 34, 69, 68,
 }
 var yyR1 = [...]int{
 
@@ -394,13 +405,13 @@ var yyChk = [...]int{
 
 	-1000, -1, -2, -3, -4, -5, -6, -7, -8, -9,
 	-10, -11, -12, 4, 7, 5, -14, 6, 12, 17,
-	22, 21, 35, 8, 9, -2, 34, -24, 5, 35,
-	35, -13, -15, 23, 24, 26, -17, 8, 9, 10,
-	-18, 13, 14, 15, 16, 34, 34, 34, -22, 32,
+	22, 21, 36, 8, 9, -2, 35, -24, 5, 36,
+	36, -13, -15, 23, 24, 26, -17, 8, 9, 10,
+	-18, 13, 14, 15, 16, 35, 35, 35, -22, 32,
 	-20, -22, -14, -16, 28, 29, 30, 31, -14, 11,
-	11, 34, -2, -2, -2, -21, -23, 35, 34, 34,
-	34, 27, -19, 19, 18, 20, 20, 33, 27, 26,
-	-14, 20, 34, 34, -21, 35, 34, -2, -2, -19,
+	11, 35, -2, -2, -2, -21, -23, 36, 35, 35,
+	35, 27, -19, 19, 18, 20, 20, 33, 27, 26,
+	-14, 20, 35, 35, -21, 34, 35, -2, -2, -19,
 }
 var yyDef = [...]int{
 
@@ -423,7 +434,7 @@ var yyTok2 = [...]int{
 	2, 3, 4, 5, 6, 7, 8, 9, 10, 11,
 	12, 13, 14, 15, 16, 17, 18, 19, 20, 21,
 	22, 23, 24, 25, 26, 27, 28, 29, 30, 31,
-	32, 33, 34, 35,
+	32, 33, 34, 35, 36,
 }
 var yyTok3 = [...]int{
 	0,
@@ -768,271 +779,271 @@ yydefault:
 
 	case 1:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:80
+		//line grammer.y:81
 		{
 			yylex.(*parseState).nodeList = yyDollar[1].nodeList
 		}
 	case 2:
 		yyDollar = yyS[yypt-0 : yypt+1]
-		//line grammer.y:87
+		//line grammer.y:88
 		{
 			yyVAL.nodeList = nil
 		}
 	case 3:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line grammer.y:91
+		//line grammer.y:92
 		{
 			yyVAL.nodeList = &NodeList{yyDollar[1].node, yyDollar[2].nodeList}
 		}
 	case 13:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line grammer.y:110
+		//line grammer.y:111
 		{
 			yyVAL.node = &TitleNode{yyDollar[2].sval}
 		}
 	case 14:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line grammer.y:117
+		//line grammer.y:118
 		{
 			yyVAL.node = &StyleNode{yyDollar[2].sval, yyDollar[3].attrList}
 		}
 	case 15:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:123
+		//line grammer.y:124
 		{
 			yyVAL.sval = "participant"
 		}
 	case 16:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:124
+		//line grammer.y:125
 		{
 			yyVAL.sval = yyDollar[1].sval
 		}
 	case 17:
 		yyDollar = yyS[yypt-0 : yypt+1]
-		//line grammer.y:129
+		//line grammer.y:130
 		{
 			yyVAL.attrList = nil
 		}
 	case 18:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:133
+		//line grammer.y:134
 		{
 			yyVAL.attrList = yyDollar[1].attrList
 		}
 	case 19:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line grammer.y:140
+		//line grammer.y:141
 		{
 			yyVAL.attrList = yyDollar[2].attrList
 		}
 	case 20:
 		yyDollar = yyS[yypt-0 : yypt+1]
-		//line grammer.y:147
+		//line grammer.y:148
 		{
 			yyVAL.attrList = nil
 		}
 	case 21:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:151
+		//line grammer.y:152
 		{
 			yyVAL.attrList = &AttributeList{yyDollar[1].attr, nil}
 		}
 	case 22:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line grammer.y:155
+		//line grammer.y:156
 		{
 			yyVAL.attrList = &AttributeList{yyDollar[1].attr, yyDollar[3].attrList}
 		}
 	case 23:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line grammer.y:162
+		//line grammer.y:163
 		{
 			yyVAL.attr = &Attribute{yyDollar[1].sval, yyDollar[3].sval}
 		}
 	case 24:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line grammer.y:169
+		//line grammer.y:170
 		{
 			yyVAL.node = &ActorNode{yyDollar[2].sval, false, "", yyDollar[3].attrList}
 		}
 	case 25:
 		yyDollar = yyS[yypt-4 : yypt+1]
-		//line grammer.y:173
+		//line grammer.y:174
 		{
 			yyVAL.node = &ActorNode{yyDollar[2].sval, true, yyDollar[4].sval, yyDollar[3].attrList}
 		}
 	case 26:
 		yyDollar = yyS[yypt-4 : yypt+1]
-		//line grammer.y:180
+		//line grammer.y:181
 		{
 			yyVAL.node = &ActionNode{yyDollar[1].actorRef, yyDollar[3].actorRef, yyDollar[2].arrow, yyDollar[4].sval}
 		}
 	case 27:
 		yyDollar = yyS[yypt-4 : yypt+1]
-		//line grammer.y:187
+		//line grammer.y:188
 		{
 			yyVAL.node = &NoteNode{yyDollar[3].actorRef, nil, yyDollar[2].noteAlign, yyDollar[4].sval}
 		}
 	case 28:
 		yyDollar = yyS[yypt-6 : yypt+1]
-		//line grammer.y:191
+		//line grammer.y:192
 		{
 			yyVAL.node = &NoteNode{yyDollar[3].actorRef, yyDollar[5].actorRef, yyDollar[2].noteAlign, yyDollar[6].sval}
 		}
 	case 29:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:198
+		//line grammer.y:199
 		{
 			yyVAL.actorRef = NormalActorRef(yyDollar[1].sval)
 		}
 	case 30:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:202
+		//line grammer.y:203
 		{
 			yyVAL.actorRef = PseudoActorRef("left")
 		}
 	case 31:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:206
+		//line grammer.y:207
 		{
 			yyVAL.actorRef = PseudoActorRef("right")
 		}
 	case 32:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line grammer.y:213
+		//line grammer.y:214
 		{
 			yyVAL.node = &GapNode{yyDollar[2].dividerType, ""}
 		}
 	case 33:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line grammer.y:217
+		//line grammer.y:218
 		{
 			yyVAL.node = &GapNode{yyDollar[2].dividerType, yyDollar[3].sval}
 		}
 	case 34:
 		yyDollar = yyS[yypt-5 : yypt+1]
-		//line grammer.y:224
+		//line grammer.y:225
 		{
 			yyVAL.node = &BlockNode{&BlockSegmentList{&BlockSegment{ALT_SEGMENT, "", yyDollar[2].sval, yyDollar[3].nodeList}, yyDollar[4].blockSegList}}
 		}
 	case 35:
 		yyDollar = yyS[yypt-0 : yypt+1]
-		//line grammer.y:231
+		//line grammer.y:232
 		{
 			yyVAL.blockSegList = nil
 		}
 	case 36:
 		yyDollar = yyS[yypt-3 : yypt+1]
-		//line grammer.y:235
+		//line grammer.y:236
 		{
 			yyVAL.blockSegList = &BlockSegmentList{&BlockSegment{ALT_ELSE_SEGMENT, "", yyDollar[2].sval, yyDollar[3].nodeList}, nil}
 		}
 	case 37:
 		yyDollar = yyS[yypt-4 : yypt+1]
-		//line grammer.y:239
+		//line grammer.y:240
 		{
 			yyVAL.blockSegList = &BlockSegmentList{&BlockSegment{ALT_SEGMENT, "", yyDollar[2].sval, yyDollar[3].nodeList}, yyDollar[4].blockSegList}
 		}
 	case 38:
 		yyDollar = yyS[yypt-4 : yypt+1]
-		//line grammer.y:246
+		//line grammer.y:247
 		{
 			yyVAL.node = &BlockNode{&BlockSegmentList{&BlockSegment{OPT_SEGMENT, "", yyDollar[2].sval, yyDollar[3].nodeList}, nil}}
 		}
 	case 39:
 		yyDollar = yyS[yypt-4 : yypt+1]
-		//line grammer.y:253
+		//line grammer.y:254
 		{
 			yyVAL.node = &BlockNode{&BlockSegmentList{&BlockSegment{LOOP_SEGMENT, "", yyDollar[2].sval, yyDollar[3].nodeList}, nil}}
 		}
 	case 40:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:259
+		//line grammer.y:260
 		{
 			yyVAL.dividerType = SPACER_GAP
 		}
 	case 41:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:260
+		//line grammer.y:261
 		{
 			yyVAL.dividerType = EMPTY_GAP
 		}
 	case 42:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:261
+		//line grammer.y:262
 		{
 			yyVAL.dividerType = LINE_GAP
 		}
 	case 43:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:262
+		//line grammer.y:263
 		{
 			yyVAL.dividerType = FRAME_GAP
 		}
 	case 44:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line grammer.y:266
+		//line grammer.y:267
 		{
 			yyVAL.noteAlign = LEFT_NOTE_ALIGNMENT
 		}
 	case 45:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line grammer.y:267
+		//line grammer.y:268
 		{
 			yyVAL.noteAlign = RIGHT_NOTE_ALIGNMENT
 		}
 	case 46:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:268
+		//line grammer.y:269
 		{
 			yyVAL.noteAlign = OVER_NOTE_ALIGNMENT
 		}
 	case 47:
 		yyDollar = yyS[yypt-2 : yypt+1]
-		//line grammer.y:273
+		//line grammer.y:274
 		{
 			yyVAL.arrow = ArrowType{yyDollar[1].arrowStem, yyDollar[2].arrowHead}
 		}
 	case 48:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:279
+		//line grammer.y:280
 		{
 			yyVAL.arrowStem = SOLID_ARROW_STEM
 		}
 	case 49:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:280
+		//line grammer.y:281
 		{
 			yyVAL.arrowStem = DASHED_ARROW_STEM
 		}
 	case 50:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:281
+		//line grammer.y:282
 		{
 			yyVAL.arrowStem = THICK_ARROW_STEM
 		}
 	case 51:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:285
+		//line grammer.y:286
 		{
 			yyVAL.arrowHead = SOLID_ARROW_HEAD
 		}
 	case 52:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:286
+		//line grammer.y:287
 		{
 			yyVAL.arrowHead = OPEN_ARROW_HEAD
 		}
 	case 53:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:287
+		//line grammer.y:288
 		{
 			yyVAL.arrowHead = BARBED_ARROW_HEAD
 		}
 	case 54:
 		yyDollar = yyS[yypt-1 : yypt+1]
-		//line grammer.y:288
+		//line grammer.y:289
 		{
 			yyVAL.arrowHead = LOWER_BARBED_ARROW_HEAD
 		}
