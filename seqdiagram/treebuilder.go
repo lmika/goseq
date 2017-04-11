@@ -42,6 +42,9 @@ var segmentTypeMap = map[parse.SegmentType]SegmentType{
 	parse.LOOP_SEGMENT:     LoopSegmentType,
 }
 
+// styleIdentifierParticipant is the style identifier for participants
+const styleIdentifierParticipant = "participant"
+
 type treeBuilder struct {
 	nodeList *parse.NodeList
 	filename string
@@ -127,7 +130,7 @@ func (tb *treeBuilder) toSequenceItem(node parse.Node, d *Diagram) (SequenceItem
 
 func (tb *treeBuilder) addActor(an *parse.ActorNode, d *Diagram) error {
 	actor := d.GetOrAddActorWithOptions(an.Ident, an.ActorName())
-	parentStyle := tb.styleDefs["actor"]
+	parentStyle := tb.styleDefs[styleIdentifierParticipant]
 
 	attrMap, err := tb.attrsToMap(an.Attributes, parentStyle)
 	if err != nil {

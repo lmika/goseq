@@ -71,6 +71,7 @@ var DualRunes = map[string]int {
 %type   <blockSegList>  altblocklist
 %type   <attrList>      maybeattrs attrs attrset
 %type   <attr>          attr
+%type   <sval>          styleidentifier
 
 %%
 
@@ -112,10 +113,15 @@ title
     ;
 
 style
-    :   K_STYLE IDENT attrset
+    :   K_STYLE styleidentifier attrset
     {
         $$ = &StyleNode{$2, $3}
     }
+    ;
+
+styleidentifier
+    :   K_PARTICIPANT   { $$ = "participant"; }
+    |   IDENT           { $$ = $1; }
     ;
 
 maybeattrs
