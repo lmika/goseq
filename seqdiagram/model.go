@@ -9,7 +9,6 @@ import (
 	"github.com/lmika/goseq/seqdiagram/parse"
 )
 
-
 // Top level diagram definition
 type Diagram struct {
 	ProcessingInstructions []*ProcessingInstruction
@@ -93,26 +92,21 @@ func (d *Diagram) WriteSVGWithOptions(w io.Writer, options *ImageOptions) error 
 	return nil
 }
 
-
 // Options for SVG image generation
 type ImageOptions struct {
 	// The diagram style
-	Style		*DiagramStyles
+	Style *DiagramStyles
 
 	// If true, generate attributes to make the SVG suitable for embedding
 	// in other documents (e.g. HTML).
-	Embedded	bool
+	Embedded bool
 }
-
-
 
 // The default options
-var DefaultOptions = &ImageOptions {
-	Style: DefaultStyle,
+var DefaultOptions = &ImageOptions{
+	Style:    DefaultStyle,
 	Embedded: false,
 }
-
-
 
 // A processing instruction
 type ProcessingInstruction struct {
