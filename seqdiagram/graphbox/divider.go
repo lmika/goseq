@@ -1,26 +1,26 @@
 package graphbox
 
-// Divider shape
+// DividerShape determines which shape to use for the divider
 type DividerShape int
 
 const (
-	// A rectangle which will span the entire graphic from end to end.
+	// DSFullRect is a rectangle which will span the entire graphic from end to end.
 	// The text will be centered in front of it.
 	DSFullRect DividerShape = iota
 
-	// Like FullRect but using a framed rectangle
+	// DSFramedRect is like FullRect but using a framed rectangle
 	DSFramedRect
 
-	// Like FullRect but "transparent".  If there is any text, it will be
+	// DSSpacerRect is like FullRect but "transparent".  If there is any text, it will be
 	// blocked out.
 	DSSpacerRect
 
-	// A line which will span the entire grapic.  The text will be
+	// DSFullLine is a line which will span the entire grapic.  The text will be
 	// centered in front of it.
 	DSFullLine
 )
 
-// Divider style
+// DividerStyle defines the style of the divider
 type DividerStyle struct {
 	Font        Font
 	FontSize    int
@@ -31,7 +31,7 @@ type DividerStyle struct {
 	Shape       DividerShape
 }
 
-// A divider.  This spans the entire diagram.
+// Divider is a divider graphics object.  This spans the entire diagram.
 type Divider struct {
 	TC int
 
@@ -45,6 +45,7 @@ type Divider struct {
 	marginRect  Rect
 }
 
+// NewDivider creates a new divider
 func NewDivider(toCol int, text string, style DividerStyle) *Divider {
 	textBox := NewTextBox(style.Font, style.FontSize, MiddleTextAlign)
 	textBox.AddText(text)
@@ -54,6 +55,7 @@ func NewDivider(toCol int, text string, style DividerStyle) *Divider {
 	return &Divider{toCol, 0, 0, style, text != "", textBox, textBoxRect, marginRect}
 }
 
+// Constraint returns the constraints of the graphics object
 func (div *Divider) Constraint(r, c int, applier ConstraintApplier) {
 	// There must be enought horizontal space to accomodate the text
 	// and vertical space to display the divider
@@ -81,6 +83,7 @@ func (div *Divider) Constraint(r, c int, applier ConstraintApplier) {
 	}
 }
 
+// Draw draws the graphics object
 func (div *Divider) Draw(ctx DrawContext, point Point) {
 	fx, fy := point.X, point.Y
 	if point, isPoint := ctx.PointAt(ctx.R, div.TC); isPoint {

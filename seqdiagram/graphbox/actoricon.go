@@ -1,6 +1,6 @@
 package graphbox
 
-// Styling options for the actor rect
+// ActorIconBoxStyle defines styling options for an actor icon
 type ActorIconBoxStyle struct {
 	Font      Font
 	FontSize  int
@@ -11,7 +11,7 @@ type ActorIconBoxStyle struct {
 	TextColor string
 }
 
-// The actor icon box
+// ActorIconBox represents an actor icon
 type ActorIconBox struct {
 	//Caption     string
 	textBox *TextBox
@@ -20,6 +20,7 @@ type ActorIconBox struct {
 	pos     ActorBoxPos
 }
 
+// NewActorIconBox constructs a new actor icon
 func NewActorIconBox(text string, icon Icon, style ActorIconBoxStyle, pos ActorBoxPos) *ActorIconBox {
 	textBox := NewTextBox(style.Font, style.FontSize, MiddleTextAlign)
 	textBox.Color = style.TextColor

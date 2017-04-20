@@ -1,19 +1,22 @@
 package graphbox
 
+// ActorBoxPos is used to manage the flags representing the actor boxes position
 type ActorBoxPos int
 
+// These flags are for the vertical position
 const (
 	TopActorBox    ActorBoxPos = iota
 	BottomActorBox             = iota
 )
 
+// These flags are for the horizontal position
 const (
 	LeftActorBox   ActorBoxPos = (iota << 8)
 	MiddleActorBox             = (iota << 8)
 	RightActorBox              = (iota << 8)
 )
 
-// Styling options for the actor rect
+// ActorBoxStyle defines styling options for the actor boxes
 type ActorBoxStyle struct {
 	Font      Font
 	FontSize  int
@@ -23,7 +26,7 @@ type ActorBoxStyle struct {
 	TextColor string
 }
 
-// Draws an object instance
+// ActorBox represents an a actor
 type ActorBox struct {
 	frameRect Rect
 	style     ActorBoxStyle
@@ -31,6 +34,7 @@ type ActorBox struct {
 	pos       ActorBoxPos
 }
 
+// NewActorBox returns a new actor
 func NewActorBox(text string, style ActorBoxStyle, pos ActorBoxPos) *ActorBox {
 	var textAlign TextAlign = MiddleTextAlign
 

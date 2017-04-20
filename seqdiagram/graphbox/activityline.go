@@ -4,14 +4,21 @@ import (
 	"fmt"
 )
 
+// ActivityArrowStem is the type of arrow stem to use for activity arrows
 type ActivityArrowStem int
 
 const (
-	SolidArrowStem  ActivityArrowStem = iota
-	DashedArrowStem                   = iota
-	ThickArrowStem                    = iota
+	// SolidArrowStem draws a solid arrow stem
+	SolidArrowStem ActivityArrowStem = iota
+
+	// DashedArrowStem draws a dashed arrow stem
+	DashedArrowStem = iota
+
+	// ThickArrowStem draws a thick arrow stem
+	ThickArrowStem = iota
 )
 
+// ActivityLineStyle defines the style to use for an activity line
 type ActivityLineStyle struct {
 	Font          Font
 	FontSize      int
@@ -34,7 +41,7 @@ func (as ActivityLineStyle) textStyle() string {
 	return s.ToStyle()
 }
 
-// An activity arrow
+// ActivityLine is an activity line graphical object
 type ActivityLine struct {
 	TC          int
 	style       ActivityLineStyle
@@ -42,6 +49,7 @@ type ActivityLine struct {
 	textBoxRect Rect
 }
 
+// NewActivityLine constructs a new ActivityLine
 func NewActivityLine(toCol int, selfRef bool, text string, style ActivityLineStyle) *ActivityLine {
 	var textBoxAlign TextAlign = MiddleTextAlign
 	if selfRef {
@@ -55,6 +63,7 @@ func NewActivityLine(toCol int, selfRef bool, text string, style ActivityLineSty
 	return &ActivityLine{toCol, style, textBox, brect}
 }
 
+// Constraint returns the constraints of the graphics object
 func (al *ActivityLine) Constraint(r, c int, applier ConstraintApplier) {
 	h := al.textBoxRect.H + al.style.Margin.Y + al.style.TextGap
 	w := al.textBoxRect.W
@@ -77,6 +86,7 @@ func (al *ActivityLine) Constraint(r, c int, applier ConstraintApplier) {
 	}
 }
 
+// Draw draws the graphics object
 func (al *ActivityLine) Draw(ctx DrawContext, point Point) {
 	fx, fy := point.X, point.Y
 
@@ -94,11 +104,6 @@ func (al *ActivityLine) Draw(ctx DrawContext, point Point) {
 			al.drawArrowStemPath(ctx,
 				[]int{fx, stemX, stemX, fx},
 				[]int{fy, fy, stemY, stemY})
-			/*
-			   al.drawArrowStem(ctx, fx, fy, stemX, ty)
-			   al.drawArrowStem(ctx, stemX, fy, stemX, stemY)
-			   al.drawArrowStem(ctx, stemX, stemY, fx, stemY)
-			*/
 			al.drawArrow(ctx, fx, stemY, false)
 		}
 	} else {
@@ -174,41 +179,12 @@ func (al *ActivityLine) drawArrow(ctx DrawContext, x, y int, isRight bool) {
 	ctx.Canvas.Polyline(xs, ys, StyleFromString(headStyle.BaseStyle).ToStyle())
 }
 
-// Style information for arrow heads
+// ArrowHeadStyle defines style information for the arrow heads
 type ArrowHeadStyle struct {
 	// Points from the origin
 	Xs []int
 	Ys []int
 
 	// Base style for the arrow head
-	//BaseStyle       SvgStyle
 	BaseStyle string
 }
-
-//type ArrowHeadStyles map[ActivityArrowHead]*ArrowHeadStyle
-
-// Styling of the arrow head
-/*
-var ArrowHeadStyles = map[ActivityArrowHead]*ArrowHeadStyle {
-    SolidArrowHead: &arrowHeadStyle {
-        Xs: []int { -9, 0, -9 },
-        Ys: []int { -5, 0, 5 },
-        BaseStyle: StyleFromString("stroke:black;fill:black;stroke-width:2px;"),
-    },
-    OpenArrowHead: &arrowHeadStyle {
-        Xs: []int { -9, 0, -9 },
-        Ys: []int { -5, 0, 5 },
-        BaseStyle: StyleFromString("stroke:black;fill:none;stroke-width:2px;"),
-    },
-    BarbArrowHead: &arrowHeadStyle {
-        Xs: []int { -11, 0 },
-        Ys: []int { -7, 0 },
-        BaseStyle: StyleFromString("stroke:black;fill:black;stroke-width:2px;"),
-    },
-    LowerBarbArrowHead: &arrowHeadStyle {
-        Xs: []int { -11, 0 },
-        Ys: []int { 7, 0 },
-        BaseStyle: StyleFromString("stroke:black;fill:black;stroke-width:2px;"),
-    },
-}
-*/
