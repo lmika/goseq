@@ -57,7 +57,7 @@ func NewDivider(toCol int, text string, style DividerStyle) *Divider {
 
 // Constraint returns the constraints of the graphics object
 func (div *Divider) Constraint(r, c int, applier ConstraintApplier) {
-	// There must be enought horizontal space to accomodate the text
+	// There must be enought horizontal space to accommodate the text
 	// and vertical space to display the divider
 	requiredHeight := div.marginRect.H + div.style.Margin.Y*2
 	requiredWidth := div.marginRect.W + div.style.Margin.X*2
