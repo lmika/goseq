@@ -36,10 +36,12 @@ var dividerTypeMap = map[parse.GapType]DividerType{
 }
 
 var segmentTypeMap = map[parse.SegmentType]SegmentType{
-	parse.ALT_SEGMENT:      AltSegmentType,
-	parse.ALT_ELSE_SEGMENT: ElseSegmentType,
-	parse.OPT_SEGMENT:      OptSegmentType,
-	parse.LOOP_SEGMENT:     LoopSegmentType,
+	parse.ALT_SEGMENT:               AltSegmentType,
+	parse.ALT_ELSE_SEGMENT:          ElseSegmentType,
+	parse.OPT_SEGMENT:               OptSegmentType,
+	parse.LOOP_SEGMENT:              LoopSegmentType,
+	parse.CONCURRENT_SEGMENT:        ConcurrentSegmentType,
+	parse.CONCURRENT_WHILST_SEGMENT: ConcurrentWhilstSegmentType,
 }
 
 // styleIdentifierParticipant is the style identifier for participants

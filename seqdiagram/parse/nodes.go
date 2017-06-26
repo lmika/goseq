@@ -1,4 +1,4 @@
-//go:generate go tool yacc -o grammer.go grammer.y
+//go:generate goyacc -o grammer.go grammer.y
 //
 package parse
 
@@ -22,10 +22,12 @@ const (
 type SegmentType int
 
 const (
-	ALT_SEGMENT      SegmentType = iota
-	ALT_ELSE_SEGMENT             = iota
-	OPT_SEGMENT                  = iota
-	LOOP_SEGMENT                 = iota
+	ALT_SEGMENT               SegmentType = iota
+	ALT_ELSE_SEGMENT                      = iota
+	OPT_SEGMENT                           = iota
+	LOOP_SEGMENT                          = iota
+	CONCURRENT_SEGMENT                    = iota
+	CONCURRENT_WHILST_SEGMENT             = iota
 )
 
 type ArrowType struct {

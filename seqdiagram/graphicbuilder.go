@@ -98,8 +98,19 @@ func (gb *graphicBuilder) calcItemsInSlice(items []SequenceItem) int {
 	for _, item := range items {
 		switch itemDetails := item.(type) {
 		case *Block:
-			for _, seg := range itemDetails.Segments {
-				rows += gb.calcItemsInSlice(seg.SubItems) + 1
+			if itemDetails.Concurrent() {
+				maxRows := 0
+				for _, seg := range itemDetails.Segments {
+					rowsInSeg := gb.calcItemsInSlice(seg.SubItems) + 1
+					if rowsInSeg > maxRows {
+						maxRows = rowsInSeg
+					}
+				}
+				rows += maxRows
+			} else {
+				for _, seg := range itemDetails.Segments {
+					rows += gb.calcItemsInSlice(seg.SubItems) + 1
+				}
 			}
 			rows += 1
 		default:
@@ -200,6 +211,27 @@ func (gb *graphicBuilder) putDivider(row int, action *Divider) {
 
 // Places a block
 func (gb *graphicBuilder) putBlock(row *int, depth int, action *Block) {
+	if action.Concurrent() {
+		gb.putBlockSegmentsConcurrently(row, depth, action)
+	} else {
+		gb.putBlockSegmentsSequentially(row, depth, action)
+	}
+}
+
+func (gb *graphicBuilder) putBlockSegmentsConcurrently(row *int, depth int, action *Block) {
+	startRow := *row
+
+	for _, seg := range action.Segments {
+		thisRow := startRow
+		gb.putItemsInSlice(&thisRow, depth+1, seg.SubItems)
+		if thisRow > *row {
+			*row = thisRow
+		}
+	}
+	*row++
+}
+
+func (gb *graphicBuilder) putBlockSegmentsSequentially(row *int, depth int, action *Block) {
 	style := gb.Style.Block
 
 	var startRow, endRow int

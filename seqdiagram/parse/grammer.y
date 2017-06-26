@@ -52,6 +52,7 @@ var DualRunes = map[string]int {
 %token  K_LEFT  K_RIGHT  K_OVER  K_OF
 %token  K_HORIZONTAL K_SPACER   K_GAP K_LINE K_FRAME
 %token  K_ALT   K_ELSEALT   K_ELSE   K_END  K_LOOP K_OPT
+%token  K_CONCURRENT K_WHILST
 
 %token  DASH    DOUBLEDASH      DOT                 EQUAL       COMMA
 %token  ANGR    DOUBLEANGR      BACKSLASHANGR       SLASHANGR
@@ -62,14 +63,14 @@ var DualRunes = map[string]int {
 
 %type   <nodeList>      top decls
 %type   <node>          decl
-%type   <node>          title style actor action note gap altblock optblock loopblock
+%type   <node>          title style actor action note gap altblock parallelblock optblock loopblock
 %type   <arrow>         arrow
 %type   <actorRef>      actorref
 %type   <arrowStem>     arrowStem
 %type   <arrowHead>     arrowHead
 %type   <noteAlign>     noteplace
 %type   <dividerType>   dividerType
-%type   <blockSegList>  altblocklist
+%type   <blockSegList>  altblocklist parallelblocklist
 %type   <attrList>      maybeattrs attrs attrset
 %type   <attr>          attr
 %type   <sval>          styleidentifier
@@ -104,6 +105,7 @@ decl
     |   altblock
     |   optblock
     |   loopblock
+    |   parallelblock
     ;
 
 title
@@ -253,6 +255,24 @@ loopblock
     :   K_LOOP MESSAGE decls K_END
     {
         $$ = &BlockNode{&BlockSegmentList{&BlockSegment{LOOP_SEGMENT, "", $2, $3}, nil}}
+    }
+    ;
+
+parallelblock
+    :   K_CONCURRENT MESSAGE decls parallelblocklist K_END
+    {
+        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{CONCURRENT_SEGMENT, "", "", $3}, $4}}
+    }
+    ;
+
+parallelblocklist
+    :   /* empty */
+    {
+        $$ = nil
+    }
+    |   K_WHILST MESSAGE decls altblocklist
+    {
+        $$ = &BlockSegmentList{&BlockSegment{CONCURRENT_WHILST_SEGMENT, "", "", $3}, $4}
     }
     ;
 
@@ -411,6 +431,10 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
         return K_LOOP
     case "opt":
         return K_OPT
+    case "concurrent":
+        return K_CONCURRENT
+    case "whilst":
+        return K_WHILST
     default:
         lval.sval = tokVal
         return IDENT
