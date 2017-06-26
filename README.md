@@ -33,7 +33,7 @@ sequence of actions you want to represent:
     Database->Server: The result
     Server->Client: The response
 
-![example](docs/example.png)
+![example](docs/example.jpg)
 
 Sequence diagrams can also include things like blocks, notes and participant icons:
 
@@ -54,7 +54,7 @@ Sequence diagrams can also include things like blocks, notes and participant ico
         Server->Client: The response
     end
 
-![example2](docs/example2.png)
+![example2](docs/example2.jpg)
 
 For details and examples, please see
 [the Language Guide](https://github.com/lmika/goseq/wiki/LanguageGuide).

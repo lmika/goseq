@@ -1,17 +1,17 @@
 package main
 
 import (
-    "strings"
-    "bytes"
-    "testing"
-    "io"
+	"bytes"
+	"io"
+	"strings"
+	"testing"
 
-    "github.com/seanpont/assert"
+	"github.com/seanpont/assert"
 )
 
 func TestFilter1(t *testing.T) {
-    assert := assert.Assert(t)
-    md := `
+	assert := assert.Assert(t)
+	md := `
 This is normal markdown
 
     #!goseq
@@ -19,23 +19,22 @@ This is normal markdown
 
 This is normal markdown again`
 
-    expMd := `
+	expMd := `
 This is normal markdown
 
 This is normal markdown again
 `
 
-    blocks, actual := runFilter(md)
+	blocks, actual := runFilter(md)
 
-    assert.Equal("[" + actual + "]", "[" + expMd + "]")
-    assert.Equal(len(blocks), 1)
-    assert.Equal(blocks[0], "    #!goseq\n    This is some seq diagram\n\n")
+	assert.Equal("["+actual+"]", "["+expMd+"]")
+	assert.Equal(len(blocks), 1)
+	assert.Equal(blocks[0], "    #!goseq\n    This is some seq diagram\n\n")
 }
 
-
 func TestFilter2(t *testing.T) {
-    assert := assert.Assert(t)
-    md := `
+	assert := assert.Assert(t)
+	md := `
 This is normal markdown
 
     This is a standard code block that does nothing.
@@ -54,7 +53,7 @@ asdasdasdasdasdasdasd
     Seq diagram again
 `
 
-    expMd := `
+	expMd := `
 This is normal markdown
 
     This is a standard code block that does nothing.
@@ -66,23 +65,22 @@ asdasdasdasdasdasdasd
 
 `
 
-    blocks, actual := runFilter(md)
+	blocks, actual := runFilter(md)
 
-    assert.Equal("[" + actual + "]", "[" + expMd + "]")
-    assert.Equal(len(blocks), 2)
-    assert.Equal(blocks[0], "    #!goseq\n    This is some seq diagram\n    \n    More sequence diagram\n\n")
-    assert.Equal(blocks[1], "    #!goseq\n    Seq diagram again\n")
+	assert.Equal("["+actual+"]", "["+expMd+"]")
+	assert.Equal(len(blocks), 2)
+	assert.Equal(blocks[0], "    #!goseq\n    This is some seq diagram\n    \n    More sequence diagram\n\n")
+	assert.Equal(blocks[1], "    #!goseq\n    Seq diagram again\n")
 }
 
-
 func runFilter(input string) (blocks []string, output string) {
-    bufout := new(bytes.Buffer)
-    mf := &MarkdownFilter{strings.NewReader(input), bufout, func(codeblock string, output io.Writer) error {
-        blocks = append(blocks, codeblock)
-        return nil
-    }}
-    mf.Scan()
+	bufout := new(bytes.Buffer)
+	mf := &MarkdownFilter{strings.NewReader(input), bufout, func(codeblock string, output io.Writer) error {
+		blocks = append(blocks, codeblock)
+		return nil
+	}}
+	mf.Scan()
 
-    output = bufout.String()
-    return
+	output = bufout.String()
+	return
 }
