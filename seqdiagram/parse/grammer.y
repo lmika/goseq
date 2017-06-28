@@ -50,6 +50,7 @@ var DualRunes = map[string]int {
 
 %token  K_TITLE K_PARTICIPANT K_NOTE K_STYLE
 %token  K_LEFT  K_RIGHT  K_OVER  K_OF
+%token  K_NEW
 %token  K_HORIZONTAL K_SPACER   K_GAP K_LINE K_FRAME
 %token  K_ALT   K_ELSEALT   K_ELSE   K_END  K_LOOP K_OPT
 %token  K_CONCURRENT K_WHILST
@@ -181,7 +182,11 @@ actor
 action
     :   actorref arrow actorref MESSAGE
     {
-        $$ = &ActionNode{$1, $3, $2, $4}
+        $$ = &ActionNode{$1, $3, $2, $4, CallActionOperation}
+    }
+    |   actorref arrow K_NEW actorref MESSAGE
+    {
+        $$ = &ActionNode{$1, $4, $2, $5, CreateActionOperation}
     }
     ;
 
@@ -397,6 +402,8 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
         return K_TITLE
     case "participant":
         return K_PARTICIPANT
+    case "new":
+        return K_NEW
     case "note":
         return K_NOTE
     case "left":

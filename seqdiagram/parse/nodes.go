@@ -99,11 +99,25 @@ type PseudoActorRef string
 
 // An action node
 type ActionNode struct {
-	From  ActorRef
-	To    ActorRef
-	Arrow ArrowType
-	Descr string
+	From      ActorRef
+	To        ActorRef
+	Arrow     ArrowType
+	Descr     string
+	Operation ActionOperation
 }
+
+// ActionOperation indicates the type of operation this action performs.
+type ActionOperation int
+
+const (
+	// CallActionOperation is for a normal action type that sends a
+	// message from one participant to another
+	CallActionOperation ActionOperation = iota
+
+	// CreateActionOperation is for an action that creates an instance
+	// target participant.
+	CreateActionOperation
+)
 
 // Note node
 type NoteAlignment int

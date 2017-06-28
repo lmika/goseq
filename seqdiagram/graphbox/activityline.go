@@ -47,10 +47,11 @@ type ActivityLine struct {
 	style       ActivityLineStyle
 	textBox     *TextBox
 	textBoxRect Rect
+	tailOffsetX int
 }
 
 // NewActivityLine constructs a new ActivityLine
-func NewActivityLine(toCol int, selfRef bool, text string, style ActivityLineStyle) *ActivityLine {
+func NewActivityLine(toCol int, selfRef bool, text string, tailOffsetX int, style ActivityLineStyle) *ActivityLine {
 	var textBoxAlign TextAlign = MiddleTextAlign
 	if selfRef {
 		textBoxAlign = LeftTextAlign
@@ -60,7 +61,7 @@ func NewActivityLine(toCol int, selfRef bool, text string, style ActivityLineSty
 	textBox.AddText(text)
 
 	brect := textBox.BoundingRect()
-	return &ActivityLine{toCol, style, textBox, brect}
+	return &ActivityLine{toCol, style, textBox, brect, tailOffsetX}
 }
 
 // Constraint returns the constraints of the graphics object
@@ -82,7 +83,7 @@ func (al *ActivityLine) Constraint(r, c int, applier ConstraintApplier) {
 		applier.Apply(TotalSizeConstraint{r - 1, lc, r, lc + 1, w, 0})
 	} else {
 		applier.Apply(AddSizeConstraint{r, c, 0, 0, h, al.style.Margin.Y})
-		applier.Apply(TotalSizeConstraint{r - 1, lc, r, rc, w + al.style.Margin.X*2, 0})
+		applier.Apply(TotalSizeConstraint{r - 1, lc, r, rc, w + al.style.Margin.X*2 - al.tailOffsetX, 0})
 	}
 }
 
@@ -109,7 +110,7 @@ func (al *ActivityLine) Draw(ctx DrawContext, point Point) {
 	} else {
 
 		if point, isPoint := ctx.PointAt(ctx.R, al.TC); isPoint {
-			tx, ty := point.X, point.Y
+			tx, ty := point.X+al.tailOffsetX, point.Y
 
 			textX := fx + (tx-fx)/2
 			textY := ty - al.style.TextGap

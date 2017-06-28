@@ -196,6 +196,9 @@ type Action struct {
 
 	// The message
 	Message string
+
+	// CreatesActor indicates that this creates the life-line of an actor
+	CreatesActor bool
 }
 
 type DividerType int

@@ -88,3 +88,8 @@ func (r *ActorBox) Draw(ctx DrawContext, point Point) {
 	ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, s.ToStyle())
 	r.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
 }
+
+// Width returns the calculated width of the actor box.
+func (r *ActorBox) Width() int {
+	return r.frameRect.W
+}

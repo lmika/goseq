@@ -28,6 +28,12 @@ func mustLoadFont() *graphbox.TTFFont {
 	return font
 }
 
+// The actor's lifeline segment
+type lifelineSegment struct {
+	StartRow int
+	EndRow   int
+}
+
 // Information about a particular actor
 type actorInfo struct {
 	// Extra cols needed on the left or right
@@ -36,7 +42,12 @@ type actorInfo struct {
 
 	// Actor column
 	Col int
+
+	// Lifeline segments
+	lifelineSegments []*lifelineSegment
 }
+
+
 
 type graphicBuilder struct {
 	Diagram *Diagram
@@ -197,7 +208,12 @@ func (gb *graphicBuilder) putAction(row int, action *Action) {
 	style.ArrowHead = gb.Style.ArrowHeads[action.Arrow.Head] //graphboxArrowHeadMapping[action.Arrow.Head]
 	style.ArrowStem = graphboxArrowStemMapping[action.Arrow.Stem]
 
-	gb.Graphic.Put(row, fromCol, graphbox.NewActivityLine(toCol, fromCol == toCol, action.Message, style))
+	if action.CreatesActor {
+		actorBox := gb.placeActor(action.To, row)
+		gb.Graphic.Put(row, fromCol, graphbox.NewActivityLine(toCol, fromCol == toCol, action.Message, -actorBox.Width()/2-2, style))
+	} else {
+		gb.Graphic.Put(row, fromCol, graphbox.NewActivityLine(toCol, fromCol == toCol, action.Message, 0, style))
+	}
 }
 
 // Places a divider
@@ -354,7 +370,7 @@ func (gb *graphicBuilder) addActors() {
 			actorStyle.TextColor = actor.TextColor
 
 			if actor.InHeader {
-				gb.Graphic.Put(posObjectY, col, graphbox.NewActorBox(actor.Label, actorStyle, actorBoxPos|graphbox.TopActorBox))
+				gb.placeActor(actor, posObjectY)
 				if actor.InFooter {
 					gb.Graphic.Put(bottomRow, col, graphbox.NewActorBox(actor.Label, actorStyle, actorBoxPos|graphbox.BottomActorBox))
 				}
@@ -366,6 +382,30 @@ func (gb *graphicBuilder) addActors() {
 			}
 		}
 	}
+}
+
+// Places an actor at a particular position
+func (gb *graphicBuilder) placeActor(actor *Actor, y int) *graphbox.ActorBox {
+	var actorBoxPos graphbox.ActorBoxPos
+
+	if actor.rank == 0 {
+		actorBoxPos = graphbox.LeftActorBox
+	} else if actor.rank == len(gb.Diagram.Actors)-1 {
+		actorBoxPos = graphbox.RightActorBox
+	} else {
+		actorBoxPos = graphbox.MiddleActorBox
+	}
+
+	actorStyle := gb.Style.ActorBox
+	actorStyle.Color = actor.Color
+	actorStyle.TextColor = actor.TextColor
+
+	col := gb.colOfActor(actor)
+
+	actorBox := graphbox.NewActorBox(actor.Label, actorStyle, actorBoxPos|graphbox.TopActorBox)
+	gb.Graphic.Put(y, col, actorBox)
+
+	return actorBox
 }
 
 // Returns the column position of an actor

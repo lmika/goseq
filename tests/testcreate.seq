@@ -1,0 +1,5 @@
+user->client: Create connection
+client->new socket: Create
+client->socket: Send data
+socket->client: Data
+client->user: Data

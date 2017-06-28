@@ -168,8 +168,15 @@ func (tb *treeBuilder) addAction(an *parse.ActionNode, d *Diagram) (SequenceItem
 		return nil, err
 	}
 
+	createsActor := false
+	if an.Operation == parse.CreateActionOperation {
+		// This creates the participant
+		to.InHeader = false
+		createsActor = true
+	}
+
 	arrow := Arrow{arrowStemMap[an.Arrow.Stem], arrowHeadMap[an.Arrow.Head]}
-	action := &Action{from, to, arrow, an.Descr}
+	action := &Action{from, to, arrow, an.Descr, createsActor}
 	return action, nil
 }
 
