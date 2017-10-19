@@ -255,6 +255,11 @@ func (gb *graphicBuilder) putBlockSegmentsSequentially(row *int, depth int, acti
 		case ElseSegmentType:
 			segPrefix = "alt"
 			showPrefix = false
+		case ParSegmentType:
+			segPrefix = "par"
+		case ParElseSegmentType:
+			segPrefix = "par"
+			showPrefix = false
 		case OptSegmentType:
 			segPrefix = "opt"
 		case LoopSegmentType:

@@ -38,6 +38,8 @@ var dividerTypeMap = map[parse.GapType]DividerType{
 var segmentTypeMap = map[parse.SegmentType]SegmentType{
 	parse.ALT_SEGMENT:               AltSegmentType,
 	parse.ALT_ELSE_SEGMENT:          ElseSegmentType,
+	parse.PAR_SEGMENT:               ParSegmentType,
+	parse.PAR_ELSE_SEGMENT:          ParElseSegmentType,
 	parse.OPT_SEGMENT:               OptSegmentType,
 	parse.LOOP_SEGMENT:              LoopSegmentType,
 	parse.CONCURRENT_SEGMENT:        ConcurrentSegmentType,
