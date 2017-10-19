@@ -24,6 +24,8 @@ type SegmentType int
 const (
 	ALT_SEGMENT               SegmentType = iota
 	ALT_ELSE_SEGMENT                      = iota
+	PAR_SEGMENT                           = iota
+	PAR_ELSE_SEGMENT                      = iota
 	OPT_SEGMENT                           = iota
 	LOOP_SEGMENT                          = iota
 	CONCURRENT_SEGMENT                    = iota

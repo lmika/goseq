@@ -246,6 +246,12 @@ const (
 	// The else segment
 	ElseSegmentType
 
+	// ParSegmentType is for the "par" blocks
+	ParSegmentType
+
+	// ParElseSegmentType is for the "parelse" blocks
+	ParElseSegmentType
+
 	// The opt segment
 	OptSegmentType
 

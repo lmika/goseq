@@ -52,6 +52,7 @@ var DualRunes = map[string]int {
 %token  K_LEFT  K_RIGHT  K_OVER  K_OF
 %token  K_HORIZONTAL K_SPACER   K_GAP K_LINE K_FRAME
 %token  K_ALT   K_ELSEALT   K_ELSE   K_END  K_LOOP K_OPT
+%token  K_PAR K_ELSEPAR
 %token  K_CONCURRENT K_WHILST
 
 %token  DASH    DOUBLEDASH      DOT                 EQUAL       COMMA
@@ -63,28 +64,28 @@ var DualRunes = map[string]int {
 
 %type   <nodeList>      top decls
 %type   <node>          decl
-%type   <node>          title style actor action note gap altblock parallelblock optblock loopblock
+%type   <node>          title style actor action note gap altblock parblock parallelblock optblock loopblock
 %type   <arrow>         arrow
 %type   <actorRef>      actorref
 %type   <arrowStem>     arrowStem
 %type   <arrowHead>     arrowHead
 %type   <noteAlign>     noteplace
 %type   <dividerType>   dividerType
-%type   <blockSegList>  altblocklist parallelblocklist
+%type   <blockSegList>  altblocklist parblocklist parallelblocklist
 %type   <attrList>      maybeattrs attrs attrset
 %type   <attr>          attr
 %type   <sval>          styleidentifier
 
 %%
 
-top         
+top
     :   decls
     {
         yylex.(*parseState).nodeList = $1
     }
     ;
 
-decls       
+decls
     :   /* empty */
     {
         $$ = nil
@@ -103,6 +104,7 @@ decl
     |   note
     |   gap
     |   altblock
+    |   parblock
     |   optblock
     |   loopblock
     |   parallelblock
@@ -244,6 +246,28 @@ altblocklist
     }
     ;
 
+parblock
+    :   K_PAR MESSAGE decls parblocklist K_END
+    {
+        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{PAR_SEGMENT, "", $2, $3}, $4}}
+    }
+    ;
+
+parblocklist
+    :   /* empty */
+    {
+        $$ = nil
+    }
+    |   K_ELSE MESSAGE decls
+    {
+        $$ = &BlockSegmentList{&BlockSegment{PAR_ELSE_SEGMENT, "", $2, $3}, nil}
+    }
+    |   K_ELSEPAR MESSAGE decls parblocklist
+    {
+        $$ = &BlockSegmentList{&BlockSegment{PAR_SEGMENT, "", $2, $3}, $4}
+    }
+    ;
+
 optblock
     :   K_OPT MESSAGE decls K_END
     {
@@ -298,7 +322,7 @@ arrow
 
 arrowStem
     :   DASH                { $$ = SOLID_ARROW_STEM }
-    |   DOUBLEDASH          { $$ = DASHED_ARROW_STEM }    
+    |   DOUBLEDASH          { $$ = DASHED_ARROW_STEM }
     |   EQUAL               { $$ = THICK_ARROW_STEM }
     ;
 
@@ -423,6 +447,10 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
         return K_ALT
     case "elsealt":
         return K_ELSEALT
+    case "par":
+        return K_PAR
+    case "elsepar":
+        return K_ELSEPAR
     case "else":
         return K_ELSE
     case "end":
