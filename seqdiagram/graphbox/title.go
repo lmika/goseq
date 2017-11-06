@@ -1,5 +1,9 @@
 package graphbox
 
+import (
+	"github.com/lmika/goseq/seqdiagram/canvas"
+)
+
 type TitleStyle struct {
 	Font     Font
 	FontSize int
@@ -45,6 +49,7 @@ func (al *Title) Draw(ctx DrawContext, point Point) {
 func (al *Title) renderMessage(ctx DrawContext, tx, ty int) {
 	rect := al.textBoxRect.PositionAt(tx, ty, SouthWestGravity)
 
-	ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "fill:white;stroke:white;")
+	//ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "fill:white;stroke:white;")
+	ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, canvas.WhiteStroke, canvas.WhiteFill)
 	al.textBox.Render(ctx.Canvas, tx, ty, SouthWestGravity)
 }

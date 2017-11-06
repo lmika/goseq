@@ -1,5 +1,11 @@
 package graphbox
 
+import (
+	"image/color"
+
+	"github.com/lmika/goseq/seqdiagram/canvas"
+)
+
 type LifeLineStyle struct {
 	Color string
 }
@@ -23,6 +29,11 @@ func (ll *LifeLine) Draw(ctx DrawContext, point Point) {
 	if point, isPoint := ctx.PointAt(ll.TR, ll.TC); isPoint {
 		tx, ty := point.X, point.Y
 
-		ctx.Canvas.Line(fx, fy, tx, ty, s.ToStyle())
+		//ctx.Canvas.Line(fx, fy, tx, ty, s.ToStyle())
+		ctx.Canvas.Line(fx, fy, tx, ty, canvas.StrokeStyle{
+			Color:     color.Black,
+			Width:     2.0,
+			DashArray: []int{8, 8},
+		})
 	}
 }

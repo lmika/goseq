@@ -1,5 +1,11 @@
 package graphbox
 
+import (
+	"image/color"
+
+	"github.com/lmika/goseq/seqdiagram/canvas"
+)
+
 // DividerShape determines which shape to use for the divider
 type DividerShape int
 
@@ -99,21 +105,29 @@ func (div *Divider) Draw(ctx DrawContext, point Point) {
 		// Draw the shape and text
 		switch div.style.Shape {
 		case DSFullRect:
-			ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, "fill:white;stroke:white;")
+			//ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, "fill:white;stroke:white;")
+			ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, canvas.WhiteStroke, canvas.WhiteFill)
 			div.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
 		case DSFramedRect:
-			ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, "fill:white;stroke:black;stroke-width:2px")
+			//ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, "fill:white;stroke:black;stroke-width:2px")
+			ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, canvas.StrokeStyle{Color: color.Black, Width: 2}, canvas.WhiteFill)
 			div.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
 		case DSSpacerRect:
-			ctx.Canvas.Rect(textBoxRect.X, textBoxRect.Y, textBoxRect.W, textBoxRect.H, "fill:white;stroke:white;")
+			//ctx.Canvas.Rect(textBoxRect.X, textBoxRect.Y, textBoxRect.W, textBoxRect.H, "fill:white;stroke:white;")
+			ctx.Canvas.Rect(textBoxRect.X, textBoxRect.Y, textBoxRect.W, textBoxRect.H, canvas.WhiteStroke, canvas.WhiteFill)
 			div.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
 		case DSFullLine:
 			// Draw the rectangle for clearing the image
-			ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, "fill:white;stroke:white;")
-			ctx.Canvas.Line(borderRect.X, centerY, borderRect.W, centerY, "fill:white;stroke:black;stroke-width:2px;") //stroke-dasharray:16,8")
+			/*
+				ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, "fill:white;stroke:white;")
+				ctx.Canvas.Line(borderRect.X, centerY, borderRect.W, centerY, "fill:white;stroke:black;stroke-width:2px;") //stroke-dasharray:16,8")
+			*/
+			ctx.Canvas.Rect(borderRect.X, borderRect.Y, borderRect.W, borderRect.H, canvas.WhiteStroke, canvas.WhiteFill)
+			ctx.Canvas.Line(borderRect.X, centerY, borderRect.W, centerY, canvas.StrokeStyle{Color: color.Black, Width: 2}) //stroke-dasharray:16,8")
 
 			if div.hasText {
-				ctx.Canvas.Rect(textBoxRect.X, textBoxRect.Y, textBoxRect.W, textBoxRect.H, "fill:white;stroke:white;")
+				//ctx.Canvas.Rect(textBoxRect.X, textBoxRect.Y, textBoxRect.W, textBoxRect.H, "fill:white;stroke:white;")
+				ctx.Canvas.Rect(textBoxRect.X, textBoxRect.Y, textBoxRect.W, textBoxRect.H, canvas.WhiteStroke, canvas.WhiteFill)
 				div.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
 			}
 		}

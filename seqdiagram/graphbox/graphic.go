@@ -7,6 +7,9 @@ import (
 	"fmt"
 	"io"
 
+	"github.com/lmika/goseq/seqdiagram/canvas"
+	"github.com/lmika/goseq/seqdiagram/canvas/svgcanvas"
+
 	"github.com/ajstarks/svgo"
 )
 
@@ -182,32 +185,44 @@ func (g *Graphic) Put(r, c int, item GraphboxItem) bool {
 func (g *Graphic) DrawSVG(w io.Writer) {
 	sizeW, sizeH := g.remeasure()
 
-	canvas := svg.New(w)
+	/*
+		canvas := svg.New(w)
 
-	if g.Viewport {
-		canvas.StartviewUnit(100, 100, "%", 0, 0, sizeW, sizeH)
-	} else {
-		canvas.Start(sizeW, sizeH)
-	}
-	defer canvas.End()
+		if g.Viewport {
+			canvas.StartviewUnit(100, 100, "%", 0, 0, sizeW, sizeH)
+		} else {
+			canvas.Start(sizeW, sizeH)
+		}
+		defer canvas.End()
 
-	// Add styles
-	canvas.Def()
-	g.addStyles(canvas)
-	canvas.DefEnd()
+		// Add styles
+		canvas.Def()
+		g.addStyles(canvas)
+		canvas.DefEnd()
+
+		for _, item := range g.items {
+			g.drawItem(canvas, item)
+		}
+	*/
+	canvas := svgcanvas.New(w)
+	defer canvas.Close()
+
+	canvas.SetSize(sizeW, sizeH)
 
 	for _, item := range g.items {
 		g.drawItem(canvas, item)
 	}
 
 	// Draw the grid.  Used manily for debugging
-	if g.ShowGrid {
-		for _, row := range g.matrix {
-			for _, cell := range row {
-				canvas.Circle(cell.Point.X, cell.Point.Y, 2, "brush:red;stroke:red;")
+	/*
+		if g.ShowGrid {
+			for _, row := range g.matrix {
+				for _, cell := range row {
+					canvas.Circle(cell.Point.X, cell.Point.Y, 2, "brush:red;stroke:red;")
+				}
 			}
 		}
-	}
+	*/
 }
 
 // Add the style definitions, including font faces
@@ -227,7 +242,7 @@ func (g *Graphic) addStyles(canvas *svg.SVG) {
 }
 
 // Draws the item
-func (g *Graphic) drawItem(canvas *svg.SVG, item itemInstance) {
+func (g *Graphic) drawItem(canvas canvas.Canvas, item itemInstance) {
 	if !((item.R >= 0) && (item.C >= 0) && (item.R < len(g.matrix)) && (item.C < len(g.matrix[item.R]))) {
 		// Do nothing
 		return

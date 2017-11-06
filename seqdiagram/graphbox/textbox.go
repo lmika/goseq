@@ -1,10 +1,10 @@
 package graphbox
 
 import (
-	"fmt"
+	"image/color"
 	"strings"
 
-	"github.com/ajstarks/svgo"
+	"github.com/lmika/goseq/seqdiagram/canvas"
 )
 
 const (
@@ -76,7 +76,7 @@ func (tb *TextBox) BoundingRect() Rect {
 }
 
 // Renders the text from the given point and gravity
-func (tb *TextBox) Render(svg *svg.SVG, x, y int, gravity Gravity) {
+func (tb *TextBox) Render(canvas canvas.Canvas, x, y int, gravity Gravity) {
 	rect := tb.BoundingRect().PositionAt(x, y, gravity)
 	left := rect.X
 	currY := rect.Y
@@ -99,7 +99,8 @@ func (tb *TextBox) Render(svg *svg.SVG, x, y int, gravity Gravity) {
 		textBottom := currY + lineH - (tb.FontSize*1/4 - 1)
 
 		if line != "" {
-			svg.Text(textLeft, textBottom, line, style)
+			//svg.Text(textLeft, textBottom, line, style)
+			canvas.Text(textLeft, textBottom, line, style)
 		}
 
 		currY += lineH + LINE_GAP
@@ -107,15 +108,23 @@ func (tb *TextBox) Render(svg *svg.SVG, x, y int, gravity Gravity) {
 }
 
 // Returns the text styling
-func (tb *TextBox) textStyle() string {
-	s := SvgStyle{}
+func (tb *TextBox) textStyle() canvas.FontStyle {
+	/*
+		s := SvgStyle{}
 
-	s.Set("font-family", tb.Font.SvgName())
-	s.Set("font-size", fmt.Sprintf("%dpx", tb.FontSize))
+		s.Set("font-family", tb.Font.SvgName())
+		s.Set("font-size", fmt.Sprintf("%dpx", tb.FontSize))
 
-	if tb.Color != "" {
-		s.Set("fill", tb.Color)
+		if tb.Color != "" {
+			s.Set("fill", tb.Color)
+		}
+
+		return s.ToStyle()
+	*/
+
+	return canvas.FontStyle{
+		Family: tb.Font.SvgName(), // TEMP
+		Size:   float64(tb.FontSize),
+		Color:  color.Black, // TEMP
 	}
-
-	return s.ToStyle()
 }

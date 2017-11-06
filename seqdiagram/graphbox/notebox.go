@@ -1,5 +1,11 @@
 package graphbox
 
+import (
+	"image/color"
+
+	"github.com/lmika/goseq/seqdiagram/canvas"
+)
+
 type NoteBoxPos int
 
 const (
@@ -58,21 +64,24 @@ func (r *NoteBox) Draw(ctx DrawContext, point Point) {
 	centerX, centerY := point.X, point.Y
 	marginX := r.style.Margin.X
 
+	strokeStyle := canvas.StrokeStyle{Color: color.Black, Width: 2.0}
+	fillStyle := canvas.FillStyle{Color: color.White}
+
 	if r.pos == CenterNotePos {
 		rect := r.frameRect.PositionAt(centerX, centerY, CenterGravity)
-		ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white;stroke-width:2px;")
+		ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, strokeStyle, fillStyle)
 		r.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
 	} else if r.pos == LeftNotePos {
 		offsetX := centerX - marginX
 		textOffsetX := centerX - r.style.Padding.X - marginX
 		rect := r.frameRect.PositionAt(offsetX, centerY, EastGravity)
-		ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white;stroke-width:2px;")
+		ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, strokeStyle, fillStyle)
 		r.textBox.Render(ctx.Canvas, textOffsetX, centerY, EastGravity)
 	} else if r.pos == RightNotePos {
 		offsetX := centerX + marginX
 		textOffsetX := centerX + r.style.Padding.X + marginX
 		rect := r.frameRect.PositionAt(offsetX, centerY, WestGravity)
-		ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "stroke:black;fill:white;stroke-width:2px;")
+		ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, strokeStyle, fillStyle)
 		r.textBox.Render(ctx.Canvas, textOffsetX, centerY, WestGravity)
 	}
 }

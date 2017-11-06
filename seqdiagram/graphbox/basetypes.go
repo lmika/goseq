@@ -7,7 +7,7 @@ import (
 	"fmt"
 	"strings"
 
-	"github.com/ajstarks/svgo"
+	"github.com/lmika/goseq/seqdiagram/canvas"
 )
 
 type GraphboxItem interface {
@@ -58,7 +58,8 @@ type ConstraintChanger interface {
 
 // A drawing context
 type DrawContext struct {
-	Canvas  *svg.SVG
+	//Canvas  *svg.SVG
+	Canvas  canvas.Canvas
 	Graphic *Graphic
 	R, C    int
 }

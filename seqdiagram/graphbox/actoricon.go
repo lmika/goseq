@@ -1,5 +1,11 @@
 package graphbox
 
+import (
+	"image/color"
+
+	"github.com/lmika/goseq/seqdiagram/canvas"
+)
+
 // ActorIconBoxStyle defines styling options for an actor icon
 type ActorIconBoxStyle struct {
 	Font      Font
@@ -72,9 +78,12 @@ func (tr *ActorIconBox) Draw(ctx DrawContext, point Point) {
 	iconStyle.Set("fill", "white")
 	iconStyle.Set("stroke-width", "2px")
 
-	ctx.Canvas.Rect(rect.X, rect.Y-tr.style.IconGap, rect.W, rect.H+tr.style.IconGap, "stroke:white;fill:white;stroke-width:2px;")
+	//ctx.Canvas.Rect(rect.X, rect.Y-tr.style.IconGap, rect.W, rect.H+tr.style.IconGap, "stroke:white;fill:white;stroke-width:2px;")
+	ctx.Canvas.Rect(rect.X, rect.Y-tr.style.IconGap, rect.W, rect.H+tr.style.IconGap,
+		canvas.StrokeStyle{Color: color.White}, canvas.FillStyle{Color: color.White})
 	tr.textBox.Render(ctx.Canvas, centerX, textY, NorthGravity)
 
-	ctx.Canvas.Rect(centerX-iconW/2, centerY-iconH/2, iconW, iconH, "stroke:white;fill:white;stroke-width:1px;")
+	// ctx.Canvas.Rect(centerX-iconW/2, centerY-iconH/2, iconW, iconH, "stroke:white;fill:white;stroke-width:1px;")
+	ctx.Canvas.Rect(centerX-iconW/2, centerY-iconH/2, iconW, iconH, canvas.StrokeStyle{Color: color.White}, canvas.FillStyle{Color: color.White})
 	tr.Icon.Draw(ctx, iconX, iconY, &iconStyle)
 }

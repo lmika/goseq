@@ -1,5 +1,11 @@
 package graphbox
 
+import (
+	"image/color"
+
+	"github.com/lmika/goseq/seqdiagram/canvas"
+)
+
 // A block stype
 type BlockStyle struct {
 	Margin Point
@@ -86,19 +92,26 @@ func (block *Block) drawFrame(ctx DrawContext, fx, fy, tx, ty int) {
 	xs := []int{fx, fx, tx, tx}
 	ys := []int{ty, fy, fy, ty}
 
-	lineStyle := "stroke:black;stroke-dasharray:4,4;stroke-width:2px;fill:none;"
-	if block.IsLast {
-		//ctx.Canvas.Rect(fx, fy, w, h, lineStyle)
-		ctx.Canvas.Polygon(xs, ys, lineStyle)
-	} else {
-		ctx.Canvas.Polyline(xs, ys, lineStyle)
-		/*
-		   ctx.Canvas.Polyline(
-		       []int { fx, fx, tx, tx },
-		       []int { ty, fy, fy, ty },
-		       lineStyle)
-		*/
-	}
+	//lineStyle := "stroke:black;stroke-dasharray:4,4;stroke-width:2px;fill:none;"
+
+	ctx.Canvas.Polygon(xs, ys, block.IsLast, canvas.StrokeStyle{
+		Color:     color.Black,
+		Width:     2,
+		DashArray: []int{4, 4},
+	}, canvas.FillStyle{})
+	/*
+		if block.IsLast {
+			//ctx.Canvas.Rect(fx, fy, w, h, lineStyle)
+			ctx.Canvas.Polygon(xs, ys, lineStyle)
+		} else {
+			ctx.Canvas.Polyline(xs, ys, lineStyle)
+			/*
+			   ctx.Canvas.Polyline(
+			       []int { fx, fx, tx, tx },
+			       []int { ty, fy, fy, ty },
+			       lineStyle)
+			/
+		}*/
 }
 
 func (block *Block) drawText(ctx DrawContext, fx, fy int) {
@@ -106,7 +119,10 @@ func (block *Block) drawText(ctx DrawContext, fx, fy int) {
 	mtr := block.messageTextBoxRect.BlowOut(block.Style.MessagePadding).PositionAt(fx+ptr.W, fy, NorthWestGravity)
 
 	if block.ShowMessage {
-		ctx.Canvas.Rect(mtr.X, mtr.Y, mtr.W+block.Style.GapWidth+block.Style.FontSize/2, mtr.H, "stroke:none;fill:white;")
+		//ctx.Canvas.Rect(mtr.X, mtr.Y, mtr.W+block.Style.GapWidth+block.Style.FontSize/2, mtr.H, "stroke:none;fill:white;")
+		ctx.Canvas.Rect(mtr.X, mtr.Y, mtr.W+block.Style.GapWidth+block.Style.FontSize/2, mtr.H, canvas.StrokeStyle{}, canvas.FillStyle{
+			Color: color.White,
+		})
 		block.messageTextBox.Render(ctx.Canvas, mtr.X+block.Style.GapWidth+block.Style.MessagePadding.X, mtr.Y+block.Style.MessagePadding.Y, NorthWestGravity)
 	}
 
@@ -122,5 +138,6 @@ func (block *Block) drawPrefixFrame(ctx DrawContext, fx, fy, tx, ty int) {
 	xs := []int{fx, fx, tx - fold, tx, tx}
 	ys := []int{fy, ty, ty, ty - fold, fy}
 
-	ctx.Canvas.Polygon(xs, ys, "stroke:black;stroke-width:2px;fill:white;")
+	//ctx.Canvas.Polygon(xs, ys, "stroke:black;stroke-width:2px;fill:white;")
+	ctx.Canvas.Polygon(xs, ys, true, canvas.StrokeStyle{Color: color.Black, Width: 2.0}, canvas.FillStyle{Color: color.White})
 }

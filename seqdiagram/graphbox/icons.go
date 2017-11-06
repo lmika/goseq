@@ -3,6 +3,9 @@ package graphbox
 import (
 	"bytes"
 	"fmt"
+	"image/color"
+
+	"github.com/lmika/goseq/seqdiagram/canvas"
 )
 
 // An icon which can be added to actors
@@ -35,7 +38,9 @@ func (spi StickPersonIcon) Size() (width int, height int) {
 }
 
 func (spi StickPersonIcon) Draw(ctx DrawContext, x int, y int, lineStyle *SvgStyle) {
-	style := lineStyle.ToStyle()
+	//style := lineStyle.ToStyle()
+	strokeStyle := canvas.StrokeStyle{Color: color.Black, Width: 2} // TODO Styling
+	fillStyle := canvas.FillStyle{Color: color.White}
 
 	_, h := spi.Size()
 	ty := y - h/2
@@ -46,13 +51,13 @@ func (spi StickPersonIcon) Draw(ctx DrawContext, x int, y int, lineStyle *SvgSty
 	torsoY2 := torsoY1 + stickPersonTorsoLength
 	legY := torsoY2 + stickPersonLegLength
 
-	ctx.Canvas.Circle(headX, headY, headR, style)
-	ctx.Canvas.Line(x, headY+headR, x, torsoY2, style)
-	ctx.Canvas.Line(x, sholdersY, x-stickPersonArmGap, sholdersY+stickPersonArmLength, style)
-	ctx.Canvas.Line(x, sholdersY, x+stickPersonArmGap, sholdersY+stickPersonArmLength, style)
-	ctx.Canvas.Line(x, torsoY2, x+stickPersonLegGap, legY, style)
-	ctx.Canvas.Line(x, torsoY2, x-stickPersonLegGap, legY, style)
-	ctx.Canvas.Line(x, torsoY2, x+stickPersonLegGap, legY, style)
+	ctx.Canvas.Circle(headX, headY, headR, strokeStyle, fillStyle)
+	ctx.Canvas.Line(x, headY+headR, x, torsoY2, strokeStyle)
+	ctx.Canvas.Line(x, sholdersY, x-stickPersonArmGap, sholdersY+stickPersonArmLength, strokeStyle)
+	ctx.Canvas.Line(x, sholdersY, x+stickPersonArmGap, sholdersY+stickPersonArmLength, strokeStyle)
+	ctx.Canvas.Line(x, torsoY2, x+stickPersonLegGap, legY, strokeStyle)
+	ctx.Canvas.Line(x, torsoY2, x-stickPersonLegGap, legY, strokeStyle)
+	ctx.Canvas.Line(x, torsoY2, x+stickPersonLegGap, legY, strokeStyle)
 }
 
 // A cylinder suggesting a data source
@@ -72,28 +77,30 @@ func (ci CylinderIcon) Size() (width int, height int) {
 
 func (ci CylinderIcon) Draw(ctx DrawContext, x int, y int, lineStyle *SvgStyle) {
 	//	style := "stroke:black;fill:white;stroke-width:2px;"
-	style := lineStyle.ToStyle()
+	//style := lineStyle.ToStyle()
+	storkeStyle := canvas.StrokeStyle{Color: color.Black, Width: 2} // TODO Styling
+	fillStyle := canvas.FillStyle{Color: color.White}
 
 	leftX, rightX := x-cylinderLargeRadius, x+cylinderLargeRadius
 	upperEllipseY := y - cylinderHeight/2
 	lowerEllipseY := y + cylinderHeight/2
 
-	ci.drawCurve(ctx, leftX, upperEllipseY, rightX, upperEllipseY, cylinderSmallRadius, style)
-	ci.drawCurve(ctx, leftX, upperEllipseY, rightX, upperEllipseY, -cylinderSmallRadius, style)
+	ci.drawCurve(ctx, leftX, upperEllipseY, rightX, upperEllipseY, cylinderSmallRadius, storkeStyle, fillStyle)
+	ci.drawCurve(ctx, leftX, upperEllipseY, rightX, upperEllipseY, -cylinderSmallRadius, storkeStyle, fillStyle)
 
-	ctx.Canvas.Line(leftX, upperEllipseY, leftX, lowerEllipseY, style)
-	ctx.Canvas.Line(rightX, upperEllipseY, rightX, lowerEllipseY, style)
+	ctx.Canvas.Line(leftX, upperEllipseY, leftX, lowerEllipseY, storkeStyle)
+	ctx.Canvas.Line(rightX, upperEllipseY, rightX, lowerEllipseY, storkeStyle)
 
-	ci.drawCurve(ctx, leftX, lowerEllipseY, rightX, lowerEllipseY, -cylinderSmallRadius, style)
+	ci.drawCurve(ctx, leftX, lowerEllipseY, rightX, lowerEllipseY, -cylinderSmallRadius, storkeStyle, fillStyle)
 
 	//ctx.Canvas.Path("M", ...)
 }
 
-func (ci CylinderIcon) drawCurve(ctx DrawContext, fx, fy, tx, ty, mag int, style string) {
+func (ci CylinderIcon) drawCurve(ctx DrawContext, fx, fy, tx, ty, mag int, strokeStyle canvas.StrokeStyle, fillStyle canvas.FillStyle) {
 	pathCmds := new(bytes.Buffer)
 
 	fmt.Fprint(pathCmds, "M", fx, fy, " ")
 	fmt.Fprint(pathCmds, "C", fx, fy-mag*2, ",", tx, ty-mag*2, ",", tx, ty)
 
-	ctx.Canvas.Path(pathCmds.String(), style)
+	ctx.Canvas.Path(pathCmds.String(), strokeStyle, fillStyle)
 }

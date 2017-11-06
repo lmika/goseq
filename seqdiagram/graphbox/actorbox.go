@@ -1,5 +1,11 @@
 package graphbox
 
+import (
+	"image/color"
+
+	"github.com/lmika/goseq/seqdiagram/canvas"
+)
+
 // ActorBoxPos is used to manage the flags representing the actor boxes position
 type ActorBoxPos int
 
@@ -77,14 +83,18 @@ func (tr *ActorBox) Constraint(r, c int, applier ConstraintApplier) {
 }
 
 func (r *ActorBox) Draw(ctx DrawContext, point Point) {
-	s := SvgStyle{}
-	s.Set("stroke", r.style.Color)
-	s.Set("fill", "white")
-	s.Set("stroke-width", "2px")
+	// s := SvgStyle{}
+	// s.Set("stroke", r.style.Color)
+	// s.Set("fill", "white")
+	// s.Set("stroke-width", "2px")
 
 	centerX, centerY := point.X, point.Y
 
 	rect := r.frameRect.PositionAt(centerX, centerY, CenterGravity)
-	ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, s.ToStyle())
+	//ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, s.ToStyle())
+	ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, canvas.StrokeStyle{
+		Color: color.Black, // TEMP
+		Width: 2.0,
+	}, canvas.FillStyle{Color: color.White})
 	r.textBox.Render(ctx.Canvas, centerX, centerY, CenterGravity)
 }

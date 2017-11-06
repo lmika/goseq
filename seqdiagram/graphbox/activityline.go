@@ -2,6 +2,9 @@ package graphbox
 
 import (
 	"fmt"
+	"image/color"
+
+	"github.com/lmika/goseq/seqdiagram/canvas"
 )
 
 // ActivityArrowStem is the type of arrow stem to use for activity arrows
@@ -124,11 +127,14 @@ func (al *ActivityLine) Draw(ctx DrawContext, point Point) {
 func (al *ActivityLine) drawArrowStem(ctx DrawContext, fx, fy, tx, ty int) {
 	switch al.style.ArrowStem {
 	case SolidArrowStem:
-		ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-width:2px;")
+		//ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-width:2px;")
+		ctx.Canvas.Line(fx, fy, tx, ty, canvas.StrokeStyle{Color: color.Black, Width: 2.0})
 	case DashedArrowStem:
-		ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-dasharray:4,2;stroke-width:2px;")
+		//ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-dasharray:4,2;stroke-width:2px;")
+		ctx.Canvas.Line(fx, fy, tx, ty, canvas.StrokeStyle{Color: color.Black, Width: 2.0, DashArray: []int{4, 2}})
 	case ThickArrowStem:
-		ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-width:4px;")
+		//ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-width:4px;")
+		ctx.Canvas.Line(fx, fy, tx, ty, canvas.StrokeStyle{Color: color.Black, Width: 4.0})
 	}
 }
 
@@ -136,11 +142,14 @@ func (al *ActivityLine) drawArrowStem(ctx DrawContext, fx, fy, tx, ty int) {
 func (al *ActivityLine) drawArrowStemPath(ctx DrawContext, xs, ys []int) {
 	switch al.style.ArrowStem {
 	case SolidArrowStem:
-		ctx.Canvas.Polyline(xs, ys, "fill:none;stroke:black;stroke-width:2px;")
+		//ctx.Canvas.Polyline(xs, ys, "fill:none;stroke:black;stroke-width:2px;")
+		ctx.Canvas.Polyline(xs, ys, canvas.StrokeStyle{Color: color.Black, Width: 2.0})
 	case DashedArrowStem:
-		ctx.Canvas.Polyline(xs, ys, "fill:none;stroke:black;stroke-dasharray:4,2;stroke-width:2px;")
+		//ctx.Canvas.Polyline(xs, ys, "fill:none;stroke:black;stroke-dasharray:4,2;stroke-width:2px;")
+		ctx.Canvas.Polyline(xs, ys, canvas.StrokeStyle{Color: color.Black, Width: 2.0, DashArray: []int{4, 2}})
 	case ThickArrowStem:
-		ctx.Canvas.Polyline(xs, ys, "fill:none;stroke:black;stroke-width:4px;")
+		//ctx.Canvas.Polyline(xs, ys, "fill:none;stroke:black;stroke-width:4px;")
+		ctx.Canvas.Polyline(xs, ys, canvas.StrokeStyle{Color: color.Black, Width: 4.0})
 	}
 }
 
@@ -153,8 +162,12 @@ func (al *ActivityLine) renderMessage(ctx DrawContext, tx, ty int, anchorLeft bo
 
 	rect := al.textBoxRect.PositionAt(tx, ty, anchor)
 
-	ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "fill:white;stroke:white;")
+	ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, canvas.StrokeStyle{}, canvas.FillStyle{})
 	al.textBox.Render(ctx.Canvas, tx, ty, anchor)
+	/*
+		ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "fill:white;stroke:white;")
+		al.textBox.Render(ctx.Canvas, tx, ty, anchor)
+	*/
 }
 
 // Draws the arrow head.
@@ -176,7 +189,9 @@ func (al *ActivityLine) drawArrow(ctx DrawContext, x, y int, isRight bool) {
 		ys[i] = y + oy
 	}
 
-	ctx.Canvas.Polyline(xs, ys, StyleFromString(headStyle.BaseStyle).ToStyle())
+	//ctx.Canvas.Polyline(xs, ys, StyleFromString(headStyle.BaseStyle).ToStyle())
+	// TODO: StyleFromString
+	ctx.Canvas.Polyline(xs, ys, canvas.StrokeStyle{Color: color.Black})
 }
 
 // ArrowHeadStyle defines style information for the arrow heads
