@@ -1,11 +1,16 @@
 package canvas
 
-import "image/color"
+import (
+	"image/color"
+	"io"
+)
 
 // Canvas is responsible for rendering the image primitives.
 // The actual primitives are moderately high-level in order to
 // simplify the logic within graphbox.
 type Canvas interface {
+	io.Closer
+
 	// Line draws a line between two points with a given stroke style
 	Line(fx, fy, tx, ty int, stoke StrokeStyle)
 
@@ -39,7 +44,7 @@ type Canvas interface {
 	SetSize(width, height int)
 
 	// Close closes the canvas, indicating that drawing is done.
-	Close()
+	//Close()
 }
 
 // StrokeStyle are the styles for the stroke properties

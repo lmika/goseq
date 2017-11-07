@@ -5,9 +5,11 @@ package graphbox
 
 import (
 	"fmt"
+	"image"
 	"io"
 
 	"github.com/lmika/goseq/seqdiagram/canvas"
+	"github.com/lmika/goseq/seqdiagram/canvas/rastercanvas"
 	"github.com/lmika/goseq/seqdiagram/canvas/svgcanvas"
 
 	"github.com/ajstarks/svgo"
@@ -181,8 +183,25 @@ func (g *Graphic) Put(r, c int, item GraphboxItem) bool {
 	}
 }
 
-// Draws the graphics as an SVG
-func (g *Graphic) DrawSVG(w io.Writer) {
+func (g *Graphic) DrawSVG(w io.Writer) error {
+	return g.drawToCanvas(svgcanvas.New(w))
+}
+
+func (g *Graphic) Draw() (image.Image, error) {
+	var img image.Image
+
+	canvas := rastercanvas.New(&img)
+	if err := g.drawToCanvas(canvas); err != nil {
+		return nil, err
+	}
+
+	return img, nil
+}
+
+// Draws the graphics to a canvas.  This will close the canvas
+func (g *Graphic) drawToCanvas(canvas canvas.Canvas) (err error) {
+	defer func() { err = canvas.Close() }()
+
 	sizeW, sizeH := g.remeasure()
 
 	/*
@@ -204,8 +223,7 @@ func (g *Graphic) DrawSVG(w io.Writer) {
 			g.drawItem(canvas, item)
 		}
 	*/
-	canvas := svgcanvas.New(w)
-	defer canvas.Close()
+	//canvas := canvas.MultiCanvas(, rastercanvas.New("/tmp/test.png"))
 
 	canvas.SetSize(sizeW, sizeH)
 
@@ -223,6 +241,7 @@ func (g *Graphic) DrawSVG(w io.Writer) {
 			}
 		}
 	*/
+	return
 }
 
 // Add the style definitions, including font faces

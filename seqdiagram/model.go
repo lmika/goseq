@@ -4,6 +4,7 @@
 package seqdiagram
 
 import (
+	"image"
 	"io"
 
 	"github.com/lmika/goseq/seqdiagram/parse"
@@ -72,12 +73,24 @@ func (d *Diagram) AddSequenceItem(item SequenceItem) {
 	d.Items = append(d.Items, item)
 }
 
-// Write the diagram as an SVG
+// Draw draws the diagram to an image
+func (d *Diagram) Draw(options *ImageOptions) (image.Image, error) {
+	gb, err := newGraphicBuilder(d, options.Style)
+	if err != nil {
+		return nil, err
+	}
+
+	// Generate the SVG file
+	graphics := gb.buildGraphic()
+	return graphics.Draw()
+}
+
+// WriteSVG writes the diagram as an SVG
 func (d *Diagram) WriteSVG(w io.Writer) error {
 	return d.WriteSVGWithOptions(w, DefaultOptions)
 }
 
-// Write the diagram as an SVG using a specific style
+// WriteSVGWithOptions writes the diagram as an SVG using a specific style
 func (d *Diagram) WriteSVGWithOptions(w io.Writer, options *ImageOptions) error {
 	gb, err := newGraphicBuilder(d, options.Style)
 	if err != nil {
@@ -87,9 +100,7 @@ func (d *Diagram) WriteSVGWithOptions(w io.Writer, options *ImageOptions) error 
 	// Generate the SVG file
 	graphics := gb.buildGraphic()
 	graphics.Viewport = options.Embedded
-	graphics.DrawSVG(w)
-
-	return nil
+	return graphics.DrawSVG(w)
 }
 
 // Options for SVG image generation
