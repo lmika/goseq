@@ -99,8 +99,8 @@ func (ci CylinderIcon) Draw(ctx DrawContext, x int, y int, lineStyle *SvgStyle) 
 func (ci CylinderIcon) drawCurve(ctx DrawContext, fx, fy, tx, ty, mag int, strokeStyle canvas.StrokeStyle, fillStyle canvas.FillStyle) {
 	pathCmds := new(bytes.Buffer)
 
-	fmt.Fprint(pathCmds, "M", fx, fy, " ")
-	fmt.Fprint(pathCmds, "C", fx, fy-mag*2, ",", tx, ty-mag*2, ",", tx, ty)
+	fmt.Fprintf(pathCmds, "M %d,%d ", fx, fy)
+	fmt.Fprintf(pathCmds, "C %d,%d,%d,%d,%d,%d", fx, fy-mag*2, tx, ty-mag*2, tx, ty)
 
 	ctx.Canvas.Path(pathCmds.String(), strokeStyle, fillStyle)
 }

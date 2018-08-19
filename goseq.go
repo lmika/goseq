@@ -58,7 +58,7 @@ func processMdFile(inFilename string, outFilename string, renderer Renderer) err
 
 	mf := &MarkdownFilter{srcFile, targetFile, func(codeblock string, output io.Writer) error {
 		fmt.Fprint(output, codeblock)
-		err := processSeqDiagram(strings.NewReader(codeblock), inFilename, "/dev/null", nil)
+		err := ProcessSeqDiagram(strings.NewReader(codeblock), inFilename, "/dev/null", nil)
 		if err != nil {
 			fmt.Fprintf(os.Stderr, "goseq: %s:embedded block - %s\n", inFilename, err.Error())
 		}
@@ -75,11 +75,11 @@ func processSeqFile(inFilename string, outFilename string, renderer Renderer) er
 	}
 	defer srcFile.Close()
 
-	return processSeqDiagram(srcFile, inFilename, outFilename, renderer)
+	return ProcessSeqDiagram(srcFile, inFilename, outFilename, renderer)
 }
 
 // Processes a sequence diagram
-func processSeqDiagram(infile io.Reader, inFilename string, outFilename string, renderer Renderer) error {
+func ProcessSeqDiagram(infile io.Reader, inFilename string, outFilename string, renderer Renderer) error {
 	diagram, err := seqdiagram.ParseDiagram(infile, inFilename)
 	if err != nil {
 		return err

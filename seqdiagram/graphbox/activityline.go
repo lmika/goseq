@@ -162,7 +162,9 @@ func (al *ActivityLine) renderMessage(ctx DrawContext, tx, ty int, anchorLeft bo
 
 	rect := al.textBoxRect.PositionAt(tx, ty, anchor)
 
-	ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, canvas.StrokeStyle{}, canvas.FillStyle{})
+	ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H,
+		canvas.StrokeStyle{Color: color.White},
+		canvas.FillStyle{Color: color.White})
 	al.textBox.Render(ctx.Canvas, tx, ty, anchor)
 	/*
 		ctx.Canvas.Rect(rect.X, rect.Y, rect.W, rect.H, "fill:white;stroke:white;")
