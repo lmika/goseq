@@ -5,6 +5,7 @@ package graphbox
 
 import (
 	"fmt"
+	"sort"
 	"strings"
 
 	"github.com/lmika/goseq/seqdiagram/canvas"
@@ -164,9 +165,16 @@ func (ss SvgStyle) Set(key, value string) {
 }
 
 func (ss SvgStyle) ToStyle() string {
-	s := ""
+	var strs []string
 	for k, v := range ss {
-		s += fmt.Sprintf("%s:%s;", k, v)
+		strs = append(strs, fmt.Sprintf("%s:%s;", k, v))
 	}
+	sort.Strings(strs)
+
+	s := ""
+	for _, v := range ss {
+		s += v
+	}
+
 	return s
 }
