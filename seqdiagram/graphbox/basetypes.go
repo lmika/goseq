@@ -171,7 +171,7 @@ func (ss SvgStyle) ToStyle() string {
 	sort.Strings(strs)
 
 	s := ""
-	for _, v := range ss {
+	for _, v := range strs {
 		s += v
 	}
 
