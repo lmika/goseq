@@ -24,7 +24,7 @@ var goSansRegular = draw2d.FontData{
 func init() {
 	regularTtf, err := truetype.Parse(goregular.TTF)
 	if err != nil {
-		panic(fmt.Errorf("error parsing builtin ttf regular", err))
+		panic(fmt.Errorf("error parsing builtin ttf regular: %v", err))
 	}
 
 	// Register the builtin go fonts

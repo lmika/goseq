@@ -193,7 +193,7 @@ func (al *ActivityLine) drawArrow(ctx DrawContext, x, y int, isRight bool) {
 
 	//ctx.Canvas.Polyline(xs, ys, StyleFromString(headStyle.BaseStyle).ToStyle())
 	// TODO: StyleFromString
-	ctx.Canvas.Polyline(xs, ys, canvas.StrokeStyle{Color: color.Black})
+	ctx.Canvas.Polyline(xs, ys, canvas.StrokeStyle{Color: color.Black, Width: 2.0})
 }
 
 // ArrowHeadStyle defines style information for the arrow heads
