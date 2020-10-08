@@ -253,7 +253,6 @@ func (gb *graphicBuilder) getStartAndEndColsBasedOnContent(subItems []SequenceIt
 
 	innerRanks := getInnerRanksRecursive(subItems)
 	sort.Ints(innerRanks)
-	// log.Println(innerRanks)
 	if len(innerRanks) > 0 {
 		// +1 because actor rank and column values are offset by one
 		startCol = innerRanks[0] + 1
