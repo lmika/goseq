@@ -2,6 +2,7 @@ package seqdiagram
 
 import (
 	"errors"
+	"sort"
 
 	"github.com/lmika/goseq/seqdiagram/graphbox"
 )
@@ -231,6 +232,27 @@ func (gb *graphicBuilder) putBlockSegmentsConcurrently(row *int, depth int, acti
 	*row++
 }
 
+func getInnerRanksRecursive(subItems []SequenceItem) []int {
+	ranks := []int{}
+	for _, subItem := range subItems {
+		if action, isAction := subItem.(*Action); isAction {
+			//			log.Printf("%d %#v\n", i, action)
+			//			log.Printf(" From: %#v\n", action.From)
+			//			log.Printf(" To  : %#v\n", action.To)
+			ranks = append(ranks, action.From.rank)
+			ranks = append(ranks, action.To.rank)
+		} else if block, isBlock := subItem.(*Block); isBlock {
+			//			log.Printf("%d %#v\n", i, block)
+			for _, segment := range block.Segments {
+				ranks = append(ranks, getInnerRanksRecursive(segment.SubItems)...)
+			}
+			//		} else {
+			//			log.Printf("%d ??? %#v\n", i, subItem)
+		}
+	}
+	return ranks
+}
+
 func (gb *graphicBuilder) putBlockSegmentsSequentially(row *int, depth int, action *Block) {
 	style := gb.Style.Block
 
@@ -239,8 +261,21 @@ func (gb *graphicBuilder) putBlockSegmentsSequentially(row *int, depth int, acti
 	nestDepth := action.MaxNestDepth()
 
 	for i, seg := range action.Segments {
+		// default to full width of the diagram
 		startCol := 0
 		endCol := gb.Graphic.Cols() - 1 // This needs to be the column of the last actor
+
+		// To outline only the inner actors of the block we need to set...
+		//  - startCol to the leftmost inner actor of the block
+		//  - endCol to the rightmost inner actor of the block
+		innerRanks := getInnerRanksRecursive(seg.SubItems)
+		sort.Ints(innerRanks)
+		// log.Println(innerRanks)
+		if len(innerRanks) > 0 {
+			// +1 because actor rank and column values are offset by one
+			startCol = innerRanks[0] + 1
+			endCol = innerRanks[len(innerRanks)-1] + 1
+		}
 
 		*row++
 		gb.putItemsInSlice(row, depth+1, seg.SubItems)
