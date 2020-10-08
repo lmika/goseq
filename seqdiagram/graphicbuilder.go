@@ -269,12 +269,24 @@ func (gb *graphicBuilder) putBlockSegmentsSequentially(row *int, depth int, acti
 	startRow = *row
 	nestDepth := action.MaxNestDepth()
 
-	for i, seg := range action.Segments {
-		// To outline only the inner actors of the block we need to set...
-		//  - startCol to the leftmost inner actor of the block
-		//  - endCol to the rightmost inner actor of the block
-		startCol, endCol := gb.getStartAndEndColsBasedOnContent(seg.SubItems)
+	startCol := 0
+	endCol := gb.Graphic.Cols() - 1 // This needs to be the column of the last actor
 
+	// To outline only the inner actors of the sibling blocks we need to set...
+	//  - startCol to the leftmost inner actor of the sibling blocks
+	//  - endCol to the rightmost inner actor of the sibling blocks
+	for _, seg := range action.Segments {
+		segStartCol, segEndCol := gb.getStartAndEndColsBasedOnContent(seg.SubItems)
+
+		if segStartCol < startCol || startCol == 0 {
+			startCol = segStartCol
+		}
+		if segEndCol > endCol || endCol == gb.Graphic.Cols()-1 {
+			endCol = segEndCol
+		}
+	}
+
+	for i, seg := range action.Segments {
 		*row++
 		gb.putItemsInSlice(row, depth+1, seg.SubItems)
 		endRow = *row
