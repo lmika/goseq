@@ -236,8 +236,7 @@ func getInnerRanksRecursive(subItems []SequenceItem) []int {
 	ranks := []int{}
 	for _, subItem := range subItems {
 		if action, isAction := subItem.(*Action); isAction {
-			ranks = append(ranks, action.From.rank)
-			ranks = append(ranks, action.To.rank)
+			ranks = append(ranks, action.From.rank, action.To.rank)
 		} else if block, isBlock := subItem.(*Block); isBlock {
 			for _, segment := range block.Segments {
 				ranks = append(ranks, getInnerRanksRecursive(segment.SubItems)...)
@@ -252,7 +251,16 @@ func (gb *graphicBuilder) getStartAndEndColsBasedOnContent(subItems []SequenceIt
 	endCol := gb.Graphic.Cols() - 1 // This needs to be the column of the last actor
 
 	innerRanks := getInnerRanksRecursive(subItems)
+	// replace magic rank values (-1 = left, -2 = right) or it'll break sorting
+	for i := range innerRanks {
+		if innerRanks[i] == RightOffsideActor.rank {
+			innerRanks[i] = gb.Graphic.Cols() - 2 // we get offset later on so we have to double offset to get max
+		} else if innerRanks[i] == LeftOffsideActor.rank {
+			innerRanks[i] = -1 // we get offset later on so we have to double offset to get 0
+		}
+	}
 	sort.Ints(innerRanks)
+
 	if len(innerRanks) > 1 && innerRanks[0] != innerRanks[len(innerRanks)-1] {
 		// +1 because actor rank and column values are offset by one
 		startCol = innerRanks[0] + 1
@@ -269,8 +277,8 @@ func (gb *graphicBuilder) putBlockSegmentsSequentially(row *int, depth int, acti
 	startRow = *row
 	nestDepth := action.MaxNestDepth()
 
-	startCol := 0
-	endCol := gb.Graphic.Cols() - 1 // This needs to be the column of the last actor
+	startCol := 999
+	endCol := -999
 
 	// To outline only the inner actors of the sibling blocks we need to set...
 	//  - startCol to the leftmost inner actor of the sibling blocks
@@ -278,10 +286,10 @@ func (gb *graphicBuilder) putBlockSegmentsSequentially(row *int, depth int, acti
 	for _, seg := range action.Segments {
 		segStartCol, segEndCol := gb.getStartAndEndColsBasedOnContent(seg.SubItems)
 
-		if segStartCol < startCol || startCol == 0 {
+		if segStartCol < startCol {
 			startCol = segStartCol
 		}
-		if segEndCol > endCol || endCol == gb.Graphic.Cols()-1 {
+		if segEndCol > endCol {
 			endCol = segEndCol
 		}
 	}
