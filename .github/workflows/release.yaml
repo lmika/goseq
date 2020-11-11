@@ -18,6 +18,7 @@ jobs:
       - name: Build
         run: |
           set -xue
+          go get golang.org/x/tools/cmd/goyacc
           go get .
           go generate ./...
           go build .
