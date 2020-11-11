@@ -1,0 +1,32 @@
+name: Create Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+      - name: Build
+        run: |
+          set -xue
+          go get golang.org/x/tools/cmd/goyacc
+          go get .
+          go generate ./...
+          go build .
+      - name: Release
+        uses: goreleaser/goreleaser-action@v1
+        if: startsWith(github.ref, 'refs/tags/')
+        with:
+          version: latest
+          args: release --skip-validate --rm-dist
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
