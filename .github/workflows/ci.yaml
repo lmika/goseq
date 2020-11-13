@@ -1,0 +1,36 @@
+name: ci
+
+on:
+  push:
+    branches:
+      - master
+  pull_request:
+    branches:
+      - master
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v2
+      - name: Setup Go
+        uses: actions/setup-go@v2
+        with:
+          go-version: 1.14
+      - name: Build
+        run: |
+          set -xue
+          go get golang.org/x/tools/cmd/goyacc
+          go get .
+          go generate ./...
+          go build .
+      - name: Test
+        run: |
+          cd tests
+          ./runtests.sh
+      - name: Upload test artifacts
+        uses: actions/upload-artifact@v2
+        with:
+          name: test-output
+          path: tests/testout.html

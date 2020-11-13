@@ -1,0 +1,20 @@
+builds:
+  - id: windows
+    targets:
+    - windows_amd64
+    binary: goseq
+archives:
+  - id: windows
+    builds: [windows]
+    wrap_in_directory: true
+    format: zip
+checksum:
+  name_template: 'checksums.txt'
+snapshot:
+  name_template: "{{ .Tag }}-next"
+changelog:
+  sort: asc
+  filters:
+    exclude:
+    - '^docs:'
+    - '^test:'
