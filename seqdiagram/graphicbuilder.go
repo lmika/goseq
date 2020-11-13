@@ -236,7 +236,11 @@ func getInnerRanksRecursive(subItems []SequenceItem) []int {
 	ranks := []int{}
 	for _, subItem := range subItems {
 		if action, isAction := subItem.(*Action); isAction {
-			ranks = append(ranks, action.From.rank, action.To.rank)
+			if action.From.rank == action.To.rank {
+				ranks = append(ranks, action.From.rank, action.To.rank + 1)
+			} else {
+				ranks = append(ranks, action.From.rank, action.To.rank)
+			}
 		} else if block, isBlock := subItem.(*Block); isBlock {
 			for _, segment := range block.Segments {
 				ranks = append(ranks, getInnerRanksRecursive(segment.SubItems)...)
