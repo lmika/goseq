@@ -39,4 +39,5 @@ func (bai *builtinActorIcon) graphboxIcon() graphbox.Icon {
 var builtinIcons = map[string]ActorIcon{
 	"human":    &builtinActorIcon{graphbox.StickPersonIcon(1)},
 	"cylinder": &builtinActorIcon{graphbox.CylinderIcon(1)},
+	"cloud":    &builtinActorIcon{graphbox.PathIcon{graphbox.CloudPathData}},
 }
