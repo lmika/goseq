@@ -80,7 +80,7 @@ func (r *ActorBox) Draw(ctx DrawContext, point Point) {
 	s := SvgStyle{}
 	s.Set("stroke", r.style.Color)
 	s.Set("fill", "white")
-	s.Set("stroke-width", "2px")
+	s.Set("stroke-width", "1px")
 
 	centerX, centerY := point.X, point.Y
 

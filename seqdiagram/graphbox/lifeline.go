@@ -17,7 +17,7 @@ func (ll *LifeLine) Draw(ctx DrawContext, point Point) {
 	s := SvgStyle{}
 	s.Set("stroke", ll.Style.Color)
 	s.Set("stroke-dasharray", "8,8")
-	s.Set("stroke-width", "2px")
+	s.Set("stroke-width", "1px")
 
 	fx, fy := point.X, point.Y
 	if point, isPoint := ctx.PointAt(ll.TR, ll.TC); isPoint {

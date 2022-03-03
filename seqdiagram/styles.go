@@ -275,8 +275,8 @@ var SmallStyle = &DiagramStyles{
 	ActivityLine: graphbox.ActivityLineStyle{
 		Font:          standardFont,
 		FontSize:      12,
-		Margin:        graphbox.Point{8, 6},
-		TextGap:       3,
+		Margin:        graphbox.Point{8, 8},
+		TextGap:       4,
 		SelfRefWidth:  32,
 		SelfRefHeight: 12,
 	},
