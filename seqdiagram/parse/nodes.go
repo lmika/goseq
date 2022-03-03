@@ -30,6 +30,7 @@ const (
 	LOOP_SEGMENT                          = iota
 	CONCURRENT_SEGMENT                    = iota
 	CONCURRENT_WHILST_SEGMENT             = iota
+	NONE_SEGMENT
 )
 
 type ArrowType struct {
@@ -153,6 +154,7 @@ type BlockSegment struct {
 	Type     SegmentType
 	Prefix   string
 	Message  string
+	AttributeList *AttributeList
 	SubNodes *NodeList
 }
 
