@@ -124,9 +124,9 @@ func (al *ActivityLine) Draw(ctx DrawContext, point Point) {
 func (al *ActivityLine) drawArrowStem(ctx DrawContext, fx, fy, tx, ty int) {
 	switch al.style.ArrowStem {
 	case SolidArrowStem:
-		ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-width:1px;")
+		ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-width:2px;")
 	case DashedArrowStem:
-		ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-dasharray:4,2;stroke-width:1px;")
+		ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-dasharray:4,2;stroke-width:2px;")
 	case ThickArrowStem:
 		ctx.Canvas.Line(fx, fy, tx, ty, "stroke:black;stroke-width:4px;")
 	}
@@ -136,9 +136,9 @@ func (al *ActivityLine) drawArrowStem(ctx DrawContext, fx, fy, tx, ty int) {
 func (al *ActivityLine) drawArrowStemPath(ctx DrawContext, xs, ys []int) {
 	switch al.style.ArrowStem {
 	case SolidArrowStem:
-		ctx.Canvas.Polyline(xs, ys, "fill:none;stroke:black;stroke-width:1px;")
+		ctx.Canvas.Polyline(xs, ys, "fill:none;stroke:black;stroke-width:2px;")
 	case DashedArrowStem:
-		ctx.Canvas.Polyline(xs, ys, "fill:none;stroke:black;stroke-dasharray:4,2;stroke-width:1px;")
+		ctx.Canvas.Polyline(xs, ys, "fill:none;stroke:black;stroke-dasharray:4,2;stroke-width:2px;")
 	case ThickArrowStem:
 		ctx.Canvas.Polyline(xs, ys, "fill:none;stroke:black;stroke-width:4px;")
 	}

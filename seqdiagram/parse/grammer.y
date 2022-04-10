@@ -284,9 +284,9 @@ optblock
     ;
 
 loopblock
-    :   K_LOOP MESSAGE decls K_END
+    :   K_LOOP maybeattrs MESSAGE decls K_END
     {
-        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{LOOP_SEGMENT, "", $2, nil, $3}, nil}}
+        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{LOOP_SEGMENT, "", $3, $2, $4}, nil}}
     }
     ;
 
