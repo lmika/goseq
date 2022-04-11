@@ -50,7 +50,7 @@ var DualRunes = map[string]int {
 
 %token  K_TITLE K_PARTICIPANT K_NOTE K_STYLE
 %token  K_LEFT  K_RIGHT  K_OVER  K_OF
-%token  K_HORIZONTAL K_SPACER   K_GAP K_LINE K_FRAME
+%token  K_HORIZONTAL K_SPACER   K_GAP K_LINE K_FRAME K_BLOCK
 %token  K_ALT   K_ELSEALT   K_ELSE   K_END  K_LOOP K_OPT
 %token  K_PAR K_ELSEPAR
 %token  K_CONCURRENT K_WHILST
@@ -64,7 +64,7 @@ var DualRunes = map[string]int {
 
 %type   <nodeList>      top decls
 %type   <node>          decl
-%type   <node>          title style actor action note gap altblock parblock parallelblock optblock loopblock
+%type   <node>          title style actor action note gap altblock parblock parallelblock genericblock optblock loopblock
 %type   <arrow>         arrow
 %type   <actorRef>      actorref
 %type   <arrowStem>     arrowStem
@@ -108,7 +108,8 @@ decl
     |   optblock
     |   loopblock
     |   parallelblock
-    ;
+    |   genericblock
+     ;
 
 title
     :   K_TITLE MESSAGE
@@ -224,10 +225,17 @@ gap
     }
     ;
 
-altblock
-    :   K_ALT MESSAGE decls altblocklist K_END
+genericblock
+    :   K_BLOCK maybeattrs MESSAGE decls K_END
     {
-        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{ALT_SEGMENT, "", $2, $3}, $4}}
+        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{NONE_SEGMENT, "", $3, $2, $4}, nil}}
+    }
+    ;
+
+altblock
+    :   K_ALT maybeattrs MESSAGE decls altblocklist K_END
+    {
+        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{ALT_SEGMENT, "", $3, $2, $4}, $5}}
     }
     ;
 
@@ -238,18 +246,18 @@ altblocklist
     }
     |   K_ELSE MESSAGE decls
     {
-        $$ = &BlockSegmentList{&BlockSegment{ALT_ELSE_SEGMENT, "", $2, $3}, nil}
+        $$ = &BlockSegmentList{&BlockSegment{ALT_ELSE_SEGMENT, "", $2, nil, $3}, nil}
     }
     |   K_ELSEALT MESSAGE decls altblocklist
     {
-        $$ = &BlockSegmentList{&BlockSegment{ALT_SEGMENT, "", $2, $3}, $4}
+        $$ = &BlockSegmentList{&BlockSegment{ALT_SEGMENT, "", $2, nil, $3}, $4}
     }
     ;
 
 parblock
     :   K_PAR MESSAGE decls parblocklist K_END
     {
-        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{PAR_SEGMENT, "", $2, $3}, $4}}
+        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{PAR_SEGMENT, "", $2, nil, $3}, $4}}
     }
     ;
 
@@ -260,32 +268,32 @@ parblocklist
     }
     |   K_ELSE MESSAGE decls
     {
-        $$ = &BlockSegmentList{&BlockSegment{PAR_ELSE_SEGMENT, "", $2, $3}, nil}
+        $$ = &BlockSegmentList{&BlockSegment{PAR_ELSE_SEGMENT, "", $2, nil, $3}, nil}
     }
     |   K_ELSEPAR MESSAGE decls parblocklist
     {
-        $$ = &BlockSegmentList{&BlockSegment{PAR_SEGMENT, "", $2, $3}, $4}
+        $$ = &BlockSegmentList{&BlockSegment{PAR_SEGMENT, "", $2, nil, $3}, $4}
     }
     ;
 
 optblock
-    :   K_OPT MESSAGE decls K_END
+    :   K_OPT maybeattrs MESSAGE decls K_END
     {
-        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{OPT_SEGMENT, "", $2, $3}, nil}}
+        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{OPT_SEGMENT, "", $3, $2, $4}, nil}}
     }
     ;
 
 loopblock
-    :   K_LOOP MESSAGE decls K_END
+    :   K_LOOP maybeattrs MESSAGE decls K_END
     {
-        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{LOOP_SEGMENT, "", $2, $3}, nil}}
+        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{LOOP_SEGMENT, "", $3, $2, $4}, nil}}
     }
     ;
 
 parallelblock
     :   K_CONCURRENT MESSAGE decls parallelblocklist K_END
     {
-        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{CONCURRENT_SEGMENT, "", "", $3}, $4}}
+        $$ = &BlockNode{&BlockSegmentList{&BlockSegment{CONCURRENT_SEGMENT, "", "", nil, $3}, $4}}
     }
     ;
 
@@ -296,7 +304,7 @@ parallelblocklist
     }
     |   K_WHILST MESSAGE decls altblocklist
     {
-        $$ = &BlockSegmentList{&BlockSegment{CONCURRENT_WHILST_SEGMENT, "", "", $3}, $4}
+        $$ = &BlockSegmentList{&BlockSegment{CONCURRENT_WHILST_SEGMENT, "", "", nil, $3}, $4}
     }
     ;
 
@@ -437,6 +445,8 @@ func (ps *parseState) scanKeywordOrIdent(lval *yySymType) int {
         return K_GAP
     case "frame":
         return K_FRAME
+    case "block":
+        return K_BLOCK
     case "line":
         return K_LINE
     case "style":

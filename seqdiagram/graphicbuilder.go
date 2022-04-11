@@ -2,6 +2,7 @@ package seqdiagram
 
 import (
 	"errors"
+	"math"
 	"sort"
 
 	"github.com/lmika/goseq/seqdiagram/graphbox"
@@ -281,20 +282,28 @@ func (gb *graphicBuilder) putBlockSegmentsSequentially(row *int, depth int, acti
 	startRow = *row
 	nestDepth := action.MaxNestDepth()
 
-	startCol := 999
-	endCol := -999
+	shouldBeFullWidth := action.ShouldBeFullWidth()
 
-	// To outline only the inner actors of the sibling blocks we need to set...
-	//  - startCol to the leftmost inner actor of the sibling blocks
-	//  - endCol to the rightmost inner actor of the sibling blocks
-	for _, seg := range action.Segments {
-		segStartCol, segEndCol := gb.getStartAndEndColsBasedOnContent(seg.SubItems)
+	var startCol, endCol int
+	if shouldBeFullWidth {
+		_, cols := gb.calcRowsAndCols()
+		startCol = 0
+		endCol = cols - 1
+	} else {
+		startCol, endCol = math.MaxInt, math.MinInt
 
-		if segStartCol < startCol {
-			startCol = segStartCol
-		}
-		if segEndCol > endCol {
-			endCol = segEndCol
+		// To outline only the inner actors of the sibling blocks we need to set...
+		//  - startCol to the leftmost inner actor of the sibling blocks
+		//  - endCol to the rightmost inner actor of the sibling blocks
+		for _, seg := range action.Segments {
+			segStartCol, segEndCol := gb.getStartAndEndColsBasedOnContent(seg.SubItems)
+
+			if segStartCol < startCol {
+				startCol = segStartCol
+			}
+			if segEndCol > endCol {
+				endCol = segEndCol
+			}
 		}
 	}
 
@@ -321,6 +330,8 @@ func (gb *graphicBuilder) putBlockSegmentsSequentially(row *int, depth int, acti
 			segPrefix = "opt"
 		case LoopSegmentType:
 			segPrefix = "loop"
+		case EmptySegmentType:
+			showPrefix = false
 		}
 
 		if seg.Prefix != "" {

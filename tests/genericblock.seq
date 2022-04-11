@@ -1,0 +1,5 @@
+Client->Server: Request something
+block: [server has a cache]
+    Server->Server: Check cache that\nsomething is there
+end
+Server->Client: Return something

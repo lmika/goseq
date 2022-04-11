@@ -222,6 +222,15 @@ type Block struct {
 	Segments []*BlockSegment
 }
 
+func (b *Block) ShouldBeFullWidth() bool {
+	for _, seg := range b.Segments {
+		if seg.ShouldBeFullWidth() {
+			return true
+		}
+	}
+	return false
+}
+
 // Concurrent returns true if the block is a concurrent block segment.
 func (b *Block) Concurrent() bool {
 	return len(b.Segments) > 0 && b.Segments[0].Type == ConcurrentSegmentType
@@ -264,6 +273,8 @@ const (
 	// ConcurrentWhilstSegmentType is for the subsequent segments (i.e. the "whilst" segments)
 	// of a concurrent block.
 	ConcurrentWhilstSegmentType
+
+	EmptySegmentType
 )
 
 // A segment within a block
@@ -271,6 +282,7 @@ type BlockSegment struct {
 	Type     SegmentType
 	Prefix   string
 	Message  string
+	FullWidth bool
 	SubItems []SequenceItem
 }
 
@@ -283,4 +295,21 @@ func (bs *BlockSegment) MaxNestDepth() int {
 		}
 	}
 	return nestDepth
+}
+
+// Returns true if this block should be full width.  A block is full width, either if it's
+// full width itself, or if any nested blocks are full width.
+func (bs *BlockSegment) ShouldBeFullWidth() bool {
+	if bs.FullWidth {
+		return true
+	}
+
+	for _, subItem := range bs.SubItems {
+		if block, isBlock := subItem.(*Block); isBlock {
+			if block.ShouldBeFullWidth() {
+				return true
+			}
+		}
+	}
+	return false
 }
