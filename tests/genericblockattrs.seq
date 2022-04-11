@@ -15,7 +15,7 @@ Alpha->Bravo: Check full width\nis inherited
 
 block: [server has a cache]
     Bravo->Charlie: Check cache that\nsomething is there
-    block(full_width="true"): [if full_width = "true"]
+    block(fullwidth="true"): [if fullwidth = "true"]
         Charlie->Delta: Check the cache
     end
 end

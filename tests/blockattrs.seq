@@ -7,7 +7,7 @@ Alpha->Bravo: Opt blocks
 opt: [not full width]
     Bravo->Charlie: Check that this is\nnot full width
 end
-opt (full_width = "true"): [is full width]
+opt (fullwidth = "true"): [is full width]
     Bravo->Charlie: Check that this is\nfull width
 end
 
@@ -17,7 +17,7 @@ alt: [not full width]
 else:
     Charlie->Bravo: No
 end
-alt (full_width = "true"): [is full width]
+alt (fullwidth = "true"): [is full width]
     Bravo->Charlie: Check that this is\nfull width
 else:
     Charlie->Bravo: No
@@ -27,6 +27,6 @@ Alpha->Bravo: Loop blocks
 loop: [not full width]
     Bravo->Charlie: Check that this is\nnot full width
 end
-loop (full_width = "true"): [is full width]
+loop (fullwidth = "true"): [is full width]
     Bravo->Charlie: Check that this is\nfull width
 end

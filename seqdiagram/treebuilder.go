@@ -44,7 +44,7 @@ var segmentTypeMap = map[parse.SegmentType]SegmentType{
 	parse.LOOP_SEGMENT:              LoopSegmentType,
 	parse.CONCURRENT_SEGMENT:        ConcurrentSegmentType,
 	parse.CONCURRENT_WHILST_SEGMENT: ConcurrentWhilstSegmentType,
-	parse.NONE_SEGMENT:               EmptySegmentType,
+	parse.NONE_SEGMENT:              EmptySegmentType,
 }
 
 // styleIdentifierParticipant is the style identifier for participants
@@ -245,11 +245,11 @@ func (tb *treeBuilder) buildSegment(sn *parse.BlockSegment, d *Diagram) (*BlockS
 	}
 
 	return &BlockSegment{
-		Type:     segmentTypeMap[sn.Type],
-		Prefix:   sn.Prefix,
-		Message:  sn.Message,
-		FullWidth: attrs.GetBool("full_width", false),
-		SubItems: slice,
+		Type:      segmentTypeMap[sn.Type],
+		Prefix:    sn.Prefix,
+		Message:   sn.Message,
+		FullWidth: attrs.GetBool("fullwidth", false),
+		SubItems:  slice,
 	}, nil
 }
 
