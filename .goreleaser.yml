@@ -3,11 +3,29 @@ builds:
     targets:
     - windows_amd64
     binary: goseq
+  - id: linux
+    targets:
+    - linux_amd64
+    binary: goseq
 archives:
   - id: windows
     builds: [windows]
     wrap_in_directory: true
     format: zip
+nfpms:
+  - id: package_nfpms
+    package_name: goseq
+    builds:
+      - linux
+    vendor: lmika
+    homepage: https://github.com/lmika/goseq
+    maintainer: Leon Mika <lmika@lmika.org>
+    description: Sequence diagram generator
+    license: MIT
+    formats:
+      - deb
+      - rpm
+    bindir: /usr/local/bin
 checksum:
   name_template: 'checksums.txt'
 snapshot:
