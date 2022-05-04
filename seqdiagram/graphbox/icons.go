@@ -55,45 +55,70 @@ func (spi StickPersonIcon) Draw(ctx DrawContext, x int, y int, lineStyle *SvgSty
 	ctx.Canvas.Line(x, torsoY2, x+stickPersonLegGap, legY, style)
 }
 
-// A cylinder suggesting a data source
+// A cylinder suggesting a data source or a queue
 //
 
-const cylinderSmallRadius = 5
-const cylinderLargeRadius = 18
-const cylinderHeight = 28
-
-type CylinderIcon int
+type CylinderIcon struct {
+	EllipseSmallRadius int
+	EllipseLargeRadius int
+	Length             int
+	Horizontal         bool
+}
 
 func (ci CylinderIcon) Size() (width int, height int) {
-	width = cylinderLargeRadius * 2
-	height = cylinderHeight + cylinderSmallRadius*3
+	if ci.Horizontal {
+		height = ci.EllipseLargeRadius * 2
+		width = ci.Length + ci.EllipseSmallRadius*3
+	} else {
+		width = ci.EllipseLargeRadius * 2
+		height = ci.Length + ci.EllipseSmallRadius*3
+	}
 	return
 }
 
 func (ci CylinderIcon) Draw(ctx DrawContext, x int, y int, lineStyle *SvgStyle) {
-	//	style := "stroke:black;fill:white;stroke-width:2px;"
 	style := lineStyle.ToStyle()
 
-	leftX, rightX := x-cylinderLargeRadius, x+cylinderLargeRadius
-	upperEllipseY := y - cylinderHeight/2
-	lowerEllipseY := y + cylinderHeight/2
+	if ci.Horizontal {
+		ci.drawHorizontalCylinder(ctx, x, y, style)
+	} else {
+		ci.drawVerticalCylinder(ctx, x, y, style)
+	}
+}
 
-	ci.drawCurve(ctx, leftX, upperEllipseY, rightX, upperEllipseY, cylinderSmallRadius, style)
-	ci.drawCurve(ctx, leftX, upperEllipseY, rightX, upperEllipseY, -cylinderSmallRadius, style)
+func (ci CylinderIcon) drawHorizontalCylinder(ctx DrawContext, x int, y int, style string) {
+	topY, bottomY := y-ci.EllipseLargeRadius, y+ci.EllipseLargeRadius
+	leftX := x - ci.Length/2
+	rightX := x + ci.Length/2
+
+	ci.drawCurve(ctx, rightX, topY, rightX, bottomY, ci.EllipseSmallRadius, 0, style)
+	ci.drawCurve(ctx, rightX, topY, rightX, bottomY, -ci.EllipseSmallRadius, 0, style)
+
+	ctx.Canvas.Line(leftX, topY, rightX, topY, style)
+	ctx.Canvas.Line(leftX, bottomY, rightX, bottomY, style)
+
+	ci.drawCurve(ctx, leftX, topY, leftX, bottomY, ci.EllipseSmallRadius, 0, style)
+}
+
+func (ci CylinderIcon) drawVerticalCylinder(ctx DrawContext, x int, y int, style string) {
+	leftX, rightX := x-ci.EllipseLargeRadius, x+ci.EllipseLargeRadius
+	upperEllipseY := y - ci.Length/2
+	lowerEllipseY := y + ci.Length/2
+
+	ci.drawCurve(ctx, leftX, upperEllipseY, rightX, upperEllipseY, 0, ci.EllipseSmallRadius, style)
+	ci.drawCurve(ctx, leftX, upperEllipseY, rightX, upperEllipseY, 0, -ci.EllipseSmallRadius, style)
 
 	ctx.Canvas.Line(leftX, upperEllipseY, leftX, lowerEllipseY, style)
 	ctx.Canvas.Line(rightX, upperEllipseY, rightX, lowerEllipseY, style)
 
-	ci.drawCurve(ctx, leftX, lowerEllipseY, rightX, lowerEllipseY, -cylinderSmallRadius, style)
-
-	//ctx.Canvas.Path("M", ...)
+	ci.drawCurve(ctx, leftX, lowerEllipseY, rightX, lowerEllipseY, 0, -ci.EllipseSmallRadius, style)
 }
 
-func (ci CylinderIcon) drawCurve(ctx DrawContext, fx, fy, tx, ty, mag int, style string) {
+func (ci CylinderIcon) drawCurve(ctx DrawContext, fx, fy, tx, ty, magX, magY int, style string) {
 	pathCmds := new(bytes.Buffer)
 
 	fmt.Fprint(pathCmds, "M", fx, fy, " ")
-	fmt.Fprint(pathCmds, "C", fx, fy-mag*2, ",", tx, ty-mag*2, ",", tx, ty)
+	fmt.Fprint(pathCmds, "C", fx-magX*2, fy-magY*2, ",", tx-magX*2, ty-magY*2, ",", tx, ty)
 
 	ctx.Canvas.Path(pathCmds.String(), style)
 }
@@ -132,7 +157,6 @@ type PathIconData struct {
 	Path           string
 }
 
-
 // CloudPathData represents the path data for the cloud icon.
 // The image was adapted from the one at https://freesvg.org/simple-white-cloud-icon-vector-graphics
 var CloudPathData = PathIconData{
@@ -140,7 +164,7 @@ var CloudPathData = PathIconData{
 	Height:         185.0,
 	TargetIconSize: 44.0,
 	IconPadding:    -18.0,
-	Path:           `
+	Path: `
 		m299.75 60.587c-4.108 0-8.123 0.411-12.001 1.188-11.95-35.875-46.03-61.775-86.23-61.775-33.761
 		0-63.196 18.27-78.847 45.363-0.919-0.036-1.84-0.07-2.769-0.07-23.494 0-44.202 11.816-56.409
 		29.777-3.263-0.617-6.627-0.953-10.071-0.953-29.503 0-53.42 23.702-53.42 52.943 0 29.24 23.917

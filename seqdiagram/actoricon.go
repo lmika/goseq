@@ -37,7 +37,17 @@ func (bai *builtinActorIcon) graphboxIcon() graphbox.Icon {
 
 // The set of built-in icons
 var builtinIcons = map[string]ActorIcon{
-	"human":    &builtinActorIcon{graphbox.StickPersonIcon(1)},
-	"cylinder": &builtinActorIcon{graphbox.CylinderIcon(1)},
-	"cloud":    &builtinActorIcon{graphbox.PathIcon{graphbox.CloudPathData}},
+	"human": &builtinActorIcon{graphbox.StickPersonIcon(1)},
+	"cylinder": &builtinActorIcon{graphbox.CylinderIcon{
+		EllipseSmallRadius: 5,
+		EllipseLargeRadius: 18,
+		Length:             28,
+	}},
+	"horiz-cylinder": &builtinActorIcon{graphbox.CylinderIcon{
+		EllipseSmallRadius: 5,
+		EllipseLargeRadius: 12,
+		Length:             40,
+		Horizontal:         true,
+	}},
+	"cloud": &builtinActorIcon{graphbox.PathIcon{graphbox.CloudPathData}},
 }
