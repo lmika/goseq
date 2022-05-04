@@ -1,0 +1,10 @@
+participant n: Normal
+participant h (icon="human"): human
+participant c1 (icon="cylinder"): cylinder
+participant c2 (icon="cloud"): cloud
+participant c3 (icon="horiz-cylinder"): horiz-cylinder
+
+n->h: Call
+h->c1: Call
+c1->c2: Call
+c2->c3: Call
